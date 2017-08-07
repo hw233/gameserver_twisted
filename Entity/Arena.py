@@ -41,6 +41,7 @@ class Arena(object):
     def stop_game(self):
         pass
 
+    # arena tick
     def tick(self):
         if self.is_game_start and not self.is_game_stop:
             self.timeManager.scheduler()
@@ -53,6 +54,10 @@ class Arena(object):
                 self.host.sendClient(player.client_hid, msg.marshal())
 
     def player_leave(self, client_hid):
+        # player leave the arena
+        pass
+
+    def player_enter_again(self, user):
         pass
 
     def send_player_born_msg(self):

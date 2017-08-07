@@ -2,6 +2,15 @@
 import conf
 from header import SimpleHeader
 
+class MsgSCRoommateAdd(SimpleHeader):
+	def __int__(self,username):
+		super(MsgSCRoommateAdd, self).__int__(conf.MSG_SC_ROOMMATE_ADD)
+		self.append_param("username", username, 's')
+
+class MsgSCRoommateDel(SimpleHeader):
+	def __int__(self,username):
+		super(MsgSCRoommateDel, self).__int__(conf.MSG_SC_ROOMMATE_DEL)
+		self.append_param("username", username, 's')
 
 class MsgSCLoginResult(SimpleHeader):
 	def __init__(self, ok=0, message=''):
