@@ -7,7 +7,7 @@ from common.events import MsgSCStartGame,MsgSCRoommateAdd,MsgSCRoommateDel
 
 class Room(object):
 
-    def __init__(self, rid, host, max_user_num = 4,arena_conf_filename='Configuration.ArenaConf', player_conf_filename='Configuration.PlayerConf'):
+    def __init__(self, rid, host, max_user_num = 2,arena_conf_filename='Configuration.ArenaConf', player_conf_filename='Configuration.PlayerConf'):
         super(Room, self).__init__()
         self.rid = rid
         self.host = host
@@ -28,12 +28,15 @@ class Room(object):
 
     def generate_msg_dict(self):
         from common.events import MsgCSPlayerMove
+        from common.events import MsgCSLoadFinished
         self.msg_dict = {
-            conf.MSG_CS_PLAYER_MOVE: MsgCSPlayerMove()
+            conf.MSG_CS_PLAYER_MOVE: MsgCSPlayerMove(),
+            conf.MSG_CS_LOAD_FINISHED: MsgCSLoadFinished()
         }
 
     def register_dispatcher_services(self):
         self.dispatcher.register(conf.ARENA_SERVICES, ArenaServices(self.host, self.arena))
+        # another services such as combat or trade & not implemented
 
     def dispatch(self, msg, client_hid):
         self.dispatcher.dispatch(msg, client_hid)
@@ -61,12 +64,7 @@ class Room(object):
 
         self.generate_msg_dict()
 
-        # Send start game message to all roommates
-        data = MsgSCStartGame().marshal()
-        for k,v in self.username_to_user_map.items():
-            self.host.sendClient(v.client_hid, data)
-
-        self.arena.start_game(self.username_to_user_map)
+        self.arena.init_game(self.username_to_user_map)
 
     def add_user(self, user):
         if self.username_to_user_map.has_key(user.username) == False and\
@@ -74,10 +72,15 @@ class Room(object):
             return False   # room is full
 
         # user back again
-        if self.arena and self.arena.is_game_start and not self.arena.is_game_stop:
+        if self.arena and not self.arena.is_game_stop:
+            self.username_to_user_map[user.username] = user
             self.arena.player_enter_again(user)
             return True
 
+        if self.username_to_user_map.has_key(user.username) is True:
+            return
+
+        # new user come
         self.username_to_user_map[user.username] = user
         self.broadcast_roommate_add(user.username)
 
@@ -90,7 +93,7 @@ class Room(object):
         if self.username_to_user_map.has_key(user.username) is False:
             return False   # user not find
 
-        if self.arena and self.arena.is_game_start and not self.arena.is_game_stop:
+        if self.arena and not self.arena.is_game_stop:
             self.arena.player_leave(user.client_hid)
         else:
             del self.username_to_user_map[user.username]
@@ -116,8 +119,14 @@ class Room(object):
 
     # game over return True else False
     def is_valid(self):
-        if self.arena and self.arena.is_game_stop:
-            return False
-        else:
+        if self.arena and not self.arena.is_game_stop:
             return True
+        else:
+            return False
+
+    def is_full(self):
+        if len(self.username_to_user_map)>=self.max_user_num:
+            return True
+        else:
+            return False
 

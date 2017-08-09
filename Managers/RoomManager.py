@@ -1,3 +1,16 @@
+'''
+    @describe:
+              containing all rooms
+              1. waiting room
+              2. remove invalid room
+              3. receive messages and dispatch them to associated rooms
+    @author:
+             sai
+    @log:
+         1. 2017-08-02 created
+'''
+
+
 from Entity.Room import Room
 
 
@@ -23,28 +36,32 @@ class RoomManager(object):
                 return id
 
     def tick(self):
+        invalid_room = []
         for room in self.rid_to_game_room_map.itervalues():
             if room.is_valid() is False:
-                self._remove_room(room)
+                invalid_room.append(room)
             else:
                 room.tick()
+
+        for room in invalid_room:
+            self._remove_room(room)
 
     def add_user(self, user):
 
         # join the room again
         if self.username_to_room_map.has_key(user.username) is True:
-            room = self.username_to_room_map.has_key(user.username)
+            room = self.username_to_room_map[user.username]
             room.add_user(user)
             return
 
-        # New user is coming
-        if self.waiting_room.add_user(user) is False:
-            self.rid_to_game_room_map[self.waiting_room.rid] = self.waiting_room
-            self.waiting_room = Room(self.generate_room_id(), self.host)
-            self.waiting_room.add_user(user)
-
+        # new user is coming
+        self.waiting_room.add_user(user)
         self.username_to_room_map[user.username] = self.waiting_room
         self.client_hid_to_user[user.client_hid] = user
+
+        if self.waiting_room.is_full() is True:
+            self.rid_to_game_room_map[self.waiting_room.rid] = self.waiting_room
+            self.waiting_room = Room(self.generate_room_id(), self.host)
 
     def remove_user(self, user):
         if self.username_to_room_map.has_key(user.username) is False:
@@ -52,15 +69,30 @@ class RoomManager(object):
 
         room = self.username_to_room_map[user.username]
 
+        if room is self.waiting_room:
+            room.remove_user(user)
+            return
+
         if room.remove_user(user) is True:
             # The room is empty
             del self.rid_to_game_room_map[room.rid]
             for k,v in room.username_to_user_map.items():
                 del self.username_to_room_map[k]
 
+    # remove invalid room
     def _remove_room(self, room):
         del self.rid_to_game_room_map[room.rid]
 
         for user in room.username_to_user_map.itervalues():
             del self.username_to_room_map[user.username]
             del self.client_hid_to_user[user.client_hid]
+
+    def is_in_arena(self, user):
+        if self.username_to_room_map.has_key(user.username) is True:
+            room = self.username_to_room_map[user.username]
+            if room is self.waiting_room:
+                return False
+            else:
+                return True
+
+        return False

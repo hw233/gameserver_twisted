@@ -1,8 +1,10 @@
 from common.events import MsgSCPlayerBorn
+from GameObject import GameObject
 
-class Player(object):
+
+class Player(GameObject):
     def __init__(self, client_hid, name, position, rotation, player_conf):
-        super(Player, self).__init__()
+        super(Player, self).__init__(position, rotation)
         self.client_hid = client_hid
         self.name = name
         self.is_leave_scene = False
@@ -11,10 +13,6 @@ class Player(object):
 
         # basic properties
         self.health = 100
-
-        # scene info
-        self.position = position
-        self.rotation = rotation
 
     def generate_born_msg(self, send_to_others):
         return MsgSCPlayerBorn(self.client_hid, send_to_others, self.name,self.health, self.position[0], self.position[1], self.position[2],self.rotation[0],self.rotation[1], self.rotation[2])

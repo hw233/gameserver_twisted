@@ -40,7 +40,9 @@ class Server(object):
         self.msg_dict = {
             conf.MSG_CS_REGISTER: events.MsgCSRegister(),
             conf.MSG_CS_LOGIN: events.MsgCSLogin(),
-            conf.MSG_CS_LOGOUT: events.MsgCSLogout()
+            conf.MSG_CS_LOGOUT: events.MsgCSLogout(),
+            conf.MSG_CS_MATCH_REQUEST: events.MsgCSMatchRequest(),
+            conf.MSG_CS_MATCH_CANCEL: events.MsgCSMatchCancel()
         }
 
     def tick(self):
@@ -71,15 +73,16 @@ class Server(object):
                 else:
                     # message not register, let room handle it
                     if client_hid in self.user_services.client_hid_to_user_map:
-                        self.host.room_manager.handle_received_msg(msg_type, data, client_hid)
+                        self.room_manager.handle_received_msg(msg_type, data, client_hid)
                     else:
                         print "handle received message error: client not in any room"
             elif event == conf.NET_CONNECTION_LEAVE:
                 self.dispatcher.dispatch(self.msg_dict[conf.MSG_CS_LOGOUT], client_hid)
             elif event == conf.NET_CONNECTION_NEW:
-                print "No implemented !!!!!!!!"
+                print "net connection new !!!"
         except:
-            print "Handle received message error !!!!!!!!"
+            raise
+            print "handle received message error !!!!!!!!"
 
 
 def main():
