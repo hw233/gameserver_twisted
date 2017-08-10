@@ -178,5 +178,15 @@ class Arena(object):
 
         self.start_game()
 
-    def send_synchronization_data(self, client_hid):
-        pass
+    # generate the world states and broadcast these states client on the next tick of this arena
+    def generate_world_state(self):
+        from GameObject.GameObject import GameObject
+        from Synchronization.StateSnapshot import State, Snapshot
+        sh = Snapshot()
+        for entity_id in GameObject.game_object_manager.entity_id_to_gameobject_map.keys():
+            if GameObject.game_object_manager.entity_id_to_gameobject_map[entity_id].state_change is True:
+                gameobject = GameObject.game_object_manager.entity_id_to_gameobject_map[entity_id]
+                state = State(gameobject.entity_id, gameobject.position, gameobject.last_processed_input_num)
+                sh.add_state(state)
+
+        # broadcast message .... ???

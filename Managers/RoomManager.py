@@ -87,6 +87,7 @@ class RoomManager(object):
             del self.username_to_room_map[user.username]
             del self.client_hid_to_user[user.client_hid]
 
+    # if the user is already in the arena return True else False
     def is_in_arena(self, user):
         if self.username_to_room_map.has_key(user.username) is True:
             room = self.username_to_room_map[user.username]
