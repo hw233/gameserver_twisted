@@ -24,3 +24,8 @@ findata = msg.seed
 fin = struct.unpack('<ifi',findata)
 
 a = 1
+
+from GameObject.MaterialObject import KKK
+
+cell = KKK()
+obj = cell.split(1)

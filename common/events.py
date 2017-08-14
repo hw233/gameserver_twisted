@@ -123,6 +123,14 @@ class MsgCSPlayerAttack(SimpleHeader):
         self.sid = conf.ARENA_SERVICES
         self.cmdid = 3
 
+class MsgCSPlayerCollect(SimpleHeader):
+    def __init__(self, pid, target_id):
+        super(MsgCSPlayerCollect, self).__init__(conf.MSG_CS_PLAYER_COLLECT)
+        self.append_param('pid', pid, 'i')
+        self.append_param('target_id', target_id, 'i')
+        self.sid = conf.ARENA_SERVICES
+        self.cmdid = 4
+
 
 class MsgSCGameWin(SimpleHeader):
     def __init__(self):

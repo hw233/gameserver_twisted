@@ -1,9 +1,10 @@
 from common.events import MsgSCPlayerBorn
 from GameObject import GameObject
 
-class PlayerBase(object):
+
+class PlayerAttributes(object):
     def __init__(self, health, attack, defense, attack_speed, move_speed, make_speed, collect_speed):
-        super(PlayerBase, self).__init__()
+        super(PlayerAttributes, self).__init__()
         self.health = health
         self.attack = attack
         self.defense = defense
@@ -17,18 +18,29 @@ class PlayerBase(object):
         :param val: damage value
         :return: live->true, die->false
         '''
+        val = val - self.defense
+
+        if val < 0:
+            val = 0
+
         self.health -= val
-        if self.health<=0:
+
+        if self.health <= 0:
             return False
         else:
             return True
 
 
-class Player(GameObject, PlayerBase):
+class Player(GameObject, PlayerAttributes):
     def __init__(self, client_hid, name, position, rotation, player_conf):
-        from Configuration.PlayerConf import male
+
+        from Configuration.PlayerConf import explorer
+
         GameObject.__init__(position, rotation)
-        PlayerBase.__init__(male['health'], male['attack'], male['defense'], male['attack_speed'], male['move_speed'], male['make_speed'], male['collect_speed'])
+        PlayerAttributes.__init__(explorer['health'], explorer['attack'], explorer['defense'],
+                                  explorer['attack_speed'], explorer['move_speed'], explorer['make_speed'],
+                                  explorer['collect_speed'])
+
         self.client_hid = client_hid
         self.name = name
         self.is_leave_scene = False

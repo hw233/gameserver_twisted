@@ -31,6 +31,20 @@ class GameObjectManager(object):
         else:
             del self.entity_id_to_gameobject_map[entity_id]
 
+    def GM_GC(self):
+        '''
+        server garbage collect, call this function when the server is idle
+        :return:
+        '''
+        import sys
+
+        garbage = []
+        for key,val in self.entity_id_to_gameobject_map.items():
+            if sys.getrefcount(val) <= 1:
+                garbage.append(key)
+
+        for key in garbage:
+            del self.entity_id_to_gameobject_map[key]
 
 '''
 @describe:
@@ -50,12 +64,10 @@ from Synchronization.PlayerOperation import OperationManager
 class GameObject(object):
     game_object_manager = GameObjectManager()
 
-    def __init__(self, position = Vector3(), rotation = Vector3(), speed = 0):
+    def __init__(self, position = Vector3(), rotation = Vector3()):
         super(GameObject, self).__init__()
-        self.backpack = {}
         self.position = position
         self.rotation = rotation
-        self.speed = speed
         self.entity_id = GameObject.game_object_manager.generate_entity_id(self)
         self.state_change = False
         self.last_processed_input_num = 0

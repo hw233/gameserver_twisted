@@ -78,6 +78,7 @@ class Server(object):
                         print "handle received message error: client not in any room"
             elif event == conf.NET_CONNECTION_LEAVE:
                 self.dispatcher.dispatch(self.msg_dict[conf.MSG_CS_LOGOUT], client_hid)
+                print "user connection leave!!!"
             elif event == conf.NET_CONNECTION_NEW:
                 print "net connection new !!!"
         except:

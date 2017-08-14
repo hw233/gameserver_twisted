@@ -178,7 +178,7 @@ class Arena(object):
         if self.is_game_start is True and self.is_game_stop is False:
             data = MsgSCStartGame().marshal()
             self.host.sendClient(client_id, data)
-            self.send_synchronization_data(client_id)
+            #self.send_synchronization_data(client_id) FIX ME !!!!!!!
             return
 
         self.client_id_finished_map[client_id] = True
@@ -188,6 +188,9 @@ class Arena(object):
                 self.host.sendClient(client_id, data)
 
             self.start_game()
+
+    def handle_player_collect(self, msg, client_hid):
+        pass
 
     def start_game_count_down(self):
         from common.events import MsgSCStartGame
@@ -221,4 +224,4 @@ class Arena(object):
                 state = State(gameobject.entity_id, gameobject.position, gameobject.last_processed_input_num)
                 sh.add_state(state)
 
-        # broadcast message .... ???
+        # broadcast message .... ??? FIX ME !!!!!!!!!!!!!!!!!!!!!

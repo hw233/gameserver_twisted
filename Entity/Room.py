@@ -31,11 +31,13 @@ class Room(object):
         from common.events import MsgCSPlayerIdle
         from common.events import MsgCSPlayerAttack
         from common.events import MsgCSLoadFinished
+        from common.events import MsgCSPlayerCollect
         self.msg_dict = {
             conf.MSG_CS_PLAYER_MOVE: MsgCSPlayerMove(),
             conf.MSG_CS_PLAYER_IDLE: MsgCSPlayerIdle(),
             conf.MSG_CS_PLAYER_ATTACK: MsgCSPlayerAttack(),
-            conf.MSG_CS_LOAD_FINISHED: MsgCSLoadFinished()
+            conf.MSG_CS_LOAD_FINISHED: MsgCSLoadFinished(),
+            conf.MSG_CS_PLAYER_COLLECT: MsgCSPlayerCollect()
         }
 
     def register_dispatcher_services(self):

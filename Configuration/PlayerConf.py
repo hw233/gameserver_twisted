@@ -1,4 +1,4 @@
-male = {
+explorer = {
     'move_speed': 6,  # m/s
     'health': 100,
     'attack': 10,
@@ -8,7 +8,7 @@ male = {
     'collect_speed':1,
 }
 
-female = {
+butcher = {
     'move_speed': 6,  # m/s
     'health': 100,
     'attack': 10,

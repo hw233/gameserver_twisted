@@ -61,10 +61,12 @@ class TimerManager(object):
     def add_timer(self, delay, func, *args, **kwargs):
         timer = CallLater(delay, func, *args, **kwargs)
         heapq.heappush(self.tasks, timer)
+        return timer
 
     def add_repeat_timer(self, delay, func, *args, **kwargs):
         timer = CallEvery(delay, func, *args, **kwargs)
         heapq.heappush(self.tasks, timer)
+        return timer
 
     def scheduler(self):
         now = time.time()
