@@ -1,3 +1,4 @@
+# coding=utf-8
 import importlib
 from copy import deepcopy
 
@@ -119,6 +120,7 @@ class Arena(object):
                 self.host.sendClient(player.client_hid, msg.marshal())
 
     def send_player_born_msg(self):
+        print "send born msg"
         for player in self.client_id_to_player_map.itervalues():
             msg = player.generate_born_msg(0)  # send to itself
             self.host.sendClient(player.client_hid, msg.marshal())
@@ -138,7 +140,37 @@ class Arena(object):
         player.update_position(new_pos)
 
         # broadcast move info to other player
-        self.broadcast(msg, not_send=player)
+        # self.broadcast(msg, not_send=player) 
+        self.broadcast(msg)  # 为了方便调试同步，暂时把角色的移动信息发给他自己，FIX ME !!!!!!!
+
+    def handle_player_idle(self, msg, client_hid):
+        if client_hid not in self.client_id_to_player_map:
+            return
+        player = self.client_id_to_player_map[client_hid]
+        if player.is_dead():
+            return
+
+        print "Player Idle to:%f %f %f",msg.px,msg.py,msg.pz
+
+        new_pos = [msg.px, msg.py, msg.pz]
+        player.update_position(new_pos)
+
+        # broadcast move info to other player
+        # self.broadcast(msg, not_send=player) 
+        self.broadcast(msg)  # 为了方便调试同步，暂时把角色的移动信息发给他自己，FIX ME !!!!!!!
+
+    def handle_player_attack(self, msg, client_hid):
+        if client_hid not in self.client_id_to_player_map:
+            return
+        player = self.client_id_to_player_map[client_hid]
+        if player.is_dead():
+            return
+
+        print "Player attack"
+
+        # broadcast move info to other player
+        # self.broadcast(msg, not_send=player) 
+        self.broadcast(msg)  # 为了方便调试同步，暂时把角色的移动信息发给他自己，FIX ME !!!!!!!
 
     def handle_loading_finished(self, msg, client_id):
         from common.events import MsgSCStartGame

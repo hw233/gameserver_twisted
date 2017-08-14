@@ -28,9 +28,13 @@ class Room(object):
 
     def generate_msg_dict(self):
         from common.events import MsgCSPlayerMove
+        from common.events import MsgCSPlayerIdle
+        from common.events import MsgCSPlayerAttack
         from common.events import MsgCSLoadFinished
         self.msg_dict = {
             conf.MSG_CS_PLAYER_MOVE: MsgCSPlayerMove(),
+            conf.MSG_CS_PLAYER_IDLE: MsgCSPlayerIdle(),
+            conf.MSG_CS_PLAYER_ATTACK: MsgCSPlayerAttack(),
             conf.MSG_CS_LOAD_FINISHED: MsgCSLoadFinished()
         }
 

@@ -14,7 +14,7 @@ class MsgCSLoadFinished(SimpleHeader):
     def __init__(self):
         super(MsgCSLoadFinished, self).__init__(conf.MSG_CS_LOAD_FINISHED)
         self.sid = conf.ARENA_SERVICES
-        self.cmdid = 1
+        self.cmdid = 0
 
 
 class MsgSCLoginResult(SimpleHeader):
@@ -95,17 +95,33 @@ class MsgSCPlayerBorn(SimpleHeader):
 
 
 class MsgCSPlayerMove(SimpleHeader):
-    def __init__(self, pid=-1, px=0, py=0, pz=0, rx=0.0, ry=0.0, rz=0.0):
+    def __init__(self, pid=-1, px=0, py=0, pz=0, move_dir=0):
         super(MsgCSPlayerMove, self).__init__(conf.MSG_CS_PLAYER_MOVE)
         self.append_param('pid', pid, 'i')
         self.append_param('px', px, 'f')
         self.append_param('py', py, 'f')
         self.append_param('pz', pz, 'f')
-        self.append_param('rx', rx, 'f')
-        self.append_param('ry', ry, 'f')
-        self.append_param('rz', rz, 'f')
+        self.append_param('move_dir', move_dir, 'f')
         self.sid = conf.ARENA_SERVICES
-        self.cmdid = 0
+        self.cmdid = 1
+
+class MsgCSPlayerIdle(SimpleHeader):
+    def __init__(self, pid=-1, px=0, py=0, pz=0):
+        super(MsgCSPlayerIdle, self).__init__(conf.MSG_CS_PLAYER_IDLE)
+        self.append_param('pid', pid, 'i')
+        self.append_param('px', px, 'f')
+        self.append_param('py', py, 'f')
+        self.append_param('pz', pz, 'f')
+        self.sid = conf.ARENA_SERVICES
+        self.cmdid = 2
+
+
+class MsgCSPlayerAttack(SimpleHeader):
+    def __init__(self, pid=-1):
+        super(MsgCSPlayerAttack, self).__init__(conf.MSG_CS_PLAYER_ATTACK)
+        self.append_param('pid', pid, 'i')
+        self.sid = conf.ARENA_SERVICES
+        self.cmdid = 3
 
 
 class MsgSCGameWin(SimpleHeader):

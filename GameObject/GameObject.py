@@ -44,6 +44,7 @@ class GameObjectManager(object):
      1. 2017-08-08 created
 '''
 from common.vector import Vector3
+from Synchronization.PlayerOperation import OperationManager
 
 
 class GameObject(object):
@@ -58,6 +59,7 @@ class GameObject(object):
         self.entity_id = GameObject.game_object_manager.generate_entity_id(self)
         self.state_change = False
         self.last_processed_input_num = 0
+        self.operation_manager = OperationManager()
 
     # apply input msg change the rotation and position and so on
     def apply_input(self, move):
@@ -66,6 +68,10 @@ class GameObject(object):
             self.position = self.position+move.direction*move.delta_time
             self.last_processed_input_num = move.sequence_num
             self.state_change = True
+
+            # cache the movement
+            self.operation_manager.push(move)
+
 
 
 
