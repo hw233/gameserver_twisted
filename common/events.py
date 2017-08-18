@@ -21,7 +21,8 @@ class MsgSCLoginResult(SimpleHeader):
     def __init__(self, ok=0, message=''):
         super(MsgSCLoginResult, self).__init__(conf.MSG_SC_LOGIN_RESULT)
         # if ok = 0 normal login
-        # if ok = 1 indicate this user is already in an arena
+        # if ok = 1 user in an arena already
+        # if ok = 2 user login already
         # if ok = -1 error
         self.append_param('ok', ok, 'i')
         self.append_param('message', message, 's')
@@ -66,6 +67,7 @@ class MsgCSLogout(SimpleHeader):
         self.sid = conf.USER_SERVICES
         self.cmdid = 2
 
+
 class MsgSCStartGame(SimpleHeader):
     def __init__(self):
         super(MsgSCStartGame, self).__init__(conf.MSG_SC_START_GAME)
@@ -95,15 +97,15 @@ class MsgSCPlayerBorn(SimpleHeader):
 
 
 class MsgCSPlayerMove(SimpleHeader):
-    def __init__(self, pid=-1, px=0, py=0, pz=0, move_dir=0):
+    def __init__(self, pid=-1, px=0, py=0, pz=0):
         super(MsgCSPlayerMove, self).__init__(conf.MSG_CS_PLAYER_MOVE)
         self.append_param('pid', pid, 'i')
         self.append_param('px', px, 'f')
         self.append_param('py', py, 'f')
         self.append_param('pz', pz, 'f')
-        self.append_param('move_dir', move_dir, 'f')
         self.sid = conf.ARENA_SERVICES
         self.cmdid = 1
+
 
 class MsgCSPlayerIdle(SimpleHeader):
     def __init__(self, pid=-1, px=0, py=0, pz=0):
@@ -123,13 +125,27 @@ class MsgCSPlayerAttack(SimpleHeader):
         self.sid = conf.ARENA_SERVICES
         self.cmdid = 3
 
-class MsgCSPlayerCollect(SimpleHeader):
-    def __init__(self, pid, target_id):
-        super(MsgCSPlayerCollect, self).__init__(conf.MSG_CS_PLAYER_COLLECT)
+
+class MsgCSPlayerHit(SimpleHeader):
+    def __init__(self, pid=-1, fx=0, fy=0, fz=0, face_to=0):
+        super(MsgCSPlayerHit, self).__init__(conf.MSG_CS_PLAYER_HIT)
         self.append_param('pid', pid, 'i')
-        self.append_param('target_id', target_id, 'i')
+        self.append_param('fx', fx, 'f')
+        self.append_param('fy', fy, 'f')
+        self.append_param('fz', fz, 'f')
+        self.append_param('face_to', face_to, 'f')
         self.sid = conf.ARENA_SERVICES
         self.cmdid = 4
+
+
+class MsgCSPlayerCollect(SimpleHeader):
+    def __init__(self, pid=-1, seller_id= -1, target_id = -1):
+        super(MsgCSPlayerCollect, self).__init__(conf.MSG_CS_PLAYER_COLLECT)
+        self.append_param('pid', pid, 'i')
+        self.append_param('seller_id', seller_id, 'i')
+        self.append_param('target_id', target_id, 'i')
+        self.sid = conf.ARENA_SERVICES
+        self.cmdid = 5
 
 
 class MsgSCGameWin(SimpleHeader):
@@ -152,3 +168,33 @@ class MsgSCRoommateDel(SimpleHeader):
     def __init__(self, username):
         super(MsgSCRoommateDel, self).__init__(conf.MSG_SC_ROOMMATE_DEL)
         self.append_param("username", username, 's')
+
+
+'''
+@describe:
+          如果有单位死亡，服务器广播死亡消息
+'''
+
+
+class MsgSCGameObjectDie(SimpleHeader):
+    def __init__(self, entity_id):
+        super(MsgSCGameObjectDie, self).__init__(conf.MSG_SC_GAME_OBJECT_DIE)
+        self.append_param("entity_id", entity_id, 'i')
+
+'''
+@describe:
+           player drop backpack object to the ground
+'''
+
+
+class MsgCSPlayerDrop(SimpleHeader):
+    def __init__(self, pid=-1, ID = -1, num = 0, posx = 0 ,posy = 0):
+        super(MsgCSPlayerDrop, self).__init__(conf.MSG_CS_PLAYER_DROP)
+        self.append_param("pid", pid, 'i')
+        self.append_param("ID", ID, 'i')
+        self.append_param("num", num, 'i')
+        self.append_param("pos_x", posx, 'f')
+        self.append_param("pos_y", posy, 'f')
+        self.sid = conf.ARENA_SERVICES
+        self.cmdid = 6
+

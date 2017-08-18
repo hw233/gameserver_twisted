@@ -64,10 +64,11 @@ from Synchronization.PlayerOperation import OperationManager
 class GameObject(object):
     game_object_manager = GameObjectManager()
 
-    def __init__(self, position = Vector3(), rotation = Vector3()):
-        super(GameObject, self).__init__()
+    def __init__(self,health = 0 , position = Vector3(), rotation = Vector3()):
+        # super(GameObject, self).__init__()
         self.position = position
         self.rotation = rotation
+        self.health = health
         self.entity_id = GameObject.game_object_manager.generate_entity_id(self)
         self.state_change = False
         self.last_processed_input_num = 0
@@ -83,6 +84,23 @@ class GameObject(object):
 
             # cache the movement
             self.operation_manager.push(move)
+
+    def health_damage(self, val):
+        '''
+        :param val: damage value
+        :return: live->true, die->false
+        '''
+        val = val - self.defense
+
+        if val < 0:
+            val = 0
+
+        self.health -= val
+
+        if self.health <= 0:
+            return False
+        else:
+            return True
 
 
 

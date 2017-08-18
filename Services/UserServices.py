@@ -59,12 +59,14 @@ class UserServices(Service):
         if error_msg:  # login fail
             self.send_login_result(client_hid, error_msg, -1)
             return
+
         username = msg.username
 
-        # diff client same user login
+        # diff client same user login again
         if username in self.username_to_user_map:
-            # "user login again, kick the old one out"
-            self.logout(None, self.username_to_user_map[username].client_hid)
+            # self.logout(None, self.username_to_user_map[username].client_hid)
+            self.send_login_result(client_hid, "", 2)
+            return
 
         # valid user
         user = User(self.host, username, client_hid)

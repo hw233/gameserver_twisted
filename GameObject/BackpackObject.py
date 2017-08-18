@@ -5,20 +5,19 @@
         sai
 @log:
      1. 2017-08-08 created
+     2. 2017-08-15 finish function 'pile' 'consume' 'split'
 '''
 from GameObject import GameObject
 
 
 class BPObjectBase(GameObject):
-    def __init__(self, ObjectAttr = None, num = 1):
+    def __init__(self, object_attr, num=1):
         super(BPObjectBase, self).__init__()
-        if ObjectAttr is None:
-            return
-        self.ID = ObjectAttr["ID"]
-        self.name = ObjectAttr["name"]
-        self.icon_num = ObjectAttr["icon_num"]
-        self.trade_bool = ObjectAttr["trade_bool"]
-        self.pile_bool = ObjectAttr["pile_bool"]
+        self.ID = object_attr["ID"]
+        self.name = object_attr["name"]
+        self.icon_num = object_attr["icon_num"]
+        self.trade_bool = object_attr["trade_bool"]
+        self.pile_bool = object_attr["pile_bool"]
         self.num = num
 
     def pile(self, mo):
@@ -37,6 +36,10 @@ class BPObjectBase(GameObject):
         GameObject.game_object_manager.release_game_object(mo)
 
     def consume(self, num):
+        '''
+        :param num: deduce the num of this BPObject
+        :return: None
+        '''
         if num <= 0 or num > self.num:
             return
 
@@ -47,19 +50,19 @@ class BPObjectBase(GameObject):
 
     def split(self, num):
         '''
-        :param num: partition this object into two diff object, one pile is num, one pile is self.num - num
-        :return:
+        :param num: splitting this object to two diff objects, one pile have num objects, one pile have self.num - num objects
+        :return: new backpack object has num objects
         '''
 
+        if num > self.num:
+            return None
+
+        self.consume(num)
+
         obj = type(self)()
-        print
+        entity_id = obj.entity_id
+        obj.__dict__ = self.__dict__.copy()
+        obj.entity_id = entity_id
+        obj.num = num
+
         return obj
-
-
-class KKK(BPObjectBase):
-    def __init__(self):
-        super(KKK, self).__init__()
-        self.some = 10
-
-    def test(self):
-        self.split(1)

@@ -25,7 +25,8 @@ fin = struct.unpack('<ifi',findata)
 
 a = 1
 
-from GameObject.MaterialObject import KKK
+from GameObject.BackpackObject import KKK
 
 cell = KKK()
-obj = cell.split(1)
+cell.split(1)
+1+1

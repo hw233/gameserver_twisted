@@ -3,9 +3,8 @@ from GameObject import GameObject
 
 
 class PlayerAttributes(object):
-    def __init__(self, health, attack, defense, attack_speed, move_speed, make_speed, collect_speed):
+    def __init__(self, attack, defense, attack_speed, move_speed, make_speed, collect_speed):
         super(PlayerAttributes, self).__init__()
-        self.health = health
         self.attack = attack
         self.defense = defense
         self.attack_speed = attack_speed
@@ -13,31 +12,14 @@ class PlayerAttributes(object):
         self.make_speed = make_speed
         self.collect_speed = collect_speed
 
-    def health_damage(self, val):
-        '''
-        :param val: damage value
-        :return: live->true, die->false
-        '''
-        val = val - self.defense
-
-        if val < 0:
-            val = 0
-
-        self.health -= val
-
-        if self.health <= 0:
-            return False
-        else:
-            return True
-
 
 class Player(GameObject, PlayerAttributes):
     def __init__(self, client_hid, name, position, rotation, player_conf):
 
         from Configuration.PlayerConf import explorer
 
-        GameObject.__init__(position, rotation)
-        PlayerAttributes.__init__(explorer['health'], explorer['attack'], explorer['defense'],
+        GameObject.__init__(self,explorer['health'], position, rotation)
+        PlayerAttributes.__init__(self, explorer['attack'], explorer['defense'],
                                   explorer['attack_speed'], explorer['move_speed'], explorer['make_speed'],
                                   explorer['collect_speed'])
 
@@ -61,6 +43,7 @@ class Player(GameObject, PlayerAttributes):
     def update_position(self, pos):
         if self.is_dead():
             return
+
         self.position[0] = pos[0]
         self.position[1] = pos[1]
         self.position[2] = pos[2]

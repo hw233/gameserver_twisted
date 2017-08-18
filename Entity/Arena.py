@@ -3,11 +3,13 @@ import importlib
 from copy import deepcopy
 
 from common.timer import TimerManager
+from GameObject.MapObject import MapObject
 
 
 class Arena(object):
     def __init__(self, host, arena_conf_filename, player_conf_filename):
         super(Arena, self).__init__()
+
         self.host = host
         self.client_id_to_player_map = {}
         self.username_to_invalid_player_map = {}
@@ -15,9 +17,12 @@ class Arena(object):
 
         self.timeManager = TimerManager()
 
+        # MapTest
+        self.map = MapObject()
+
         # arena configuration
         self.arena_conf = importlib.import_module(arena_conf_filename).configuration
-        self.player_conf = importlib.import_module(player_conf_filename).configuration
+        self.player_conf = importlib.import_module(player_conf_filename).explorer
 
         # game status
         self.is_game_start = False
@@ -87,15 +92,30 @@ class Arena(object):
         if self.client_id_to_player_map.has_key(client_hid) is True:
             player = self.client_id_to_player_map[client_hid]
             self.username_to_invalid_player_map[player.name] = player
+            del self.client_id_to_player_map[client_hid]
 
         if len(self.client_id_to_player_map)<=0:
             self.stop_game()
 
     def player_enter_again(self, user):
+        '''
+        :param user: user data
+        :return: None
+
+        @log:
+             1. after some of the map items were destroyed by players.sending map seed to regenerate map is not right.
+                return
+        '''
+
+        return
+
         from common.events import MsgSCMapLoad
 
         # user is not in this arena
         if self.username_to_user.has_key(user.username) is False:
+            return
+
+        if self.username_to_invalid_player_map.has_key(user.username) is False:
             return
 
         player = self.username_to_invalid_player_map[user.username]
@@ -172,6 +192,19 @@ class Arena(object):
         # self.broadcast(msg, not_send=player) 
         self.broadcast(msg)  # 为了方便调试同步，暂时把角色的移动信息发给他自己，FIX ME !!!!!!!
 
+    def handle_player_hit(self, msg, client_hid):
+        # 这里应该需要判定受击是否有效，有效才会向其他客户端发送受击动作，FIX ME !!!!
+        if client_hid not in self.client_id_to_player_map:
+            return
+        player = self.client_id_to_player_map[client_hid]
+        if player.is_dead():
+            return
+
+        print "Player hit"
+
+        # broadcast move info to other player
+        self.broadcast(msg, not_send=player)   # 不需要发给消息发送者，他会自己在客户端播放受击动画，不需要等待网络通知
+
     def handle_loading_finished(self, msg, client_id):
         from common.events import MsgSCStartGame
 
@@ -225,3 +258,7 @@ class Arena(object):
                 sh.add_state(state)
 
         # broadcast message .... ??? FIX ME !!!!!!!!!!!!!!!!!!!!!
+
+
+    def handle_player_drop(self, client_hid, msg):
+        pass
