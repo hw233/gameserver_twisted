@@ -20,9 +20,13 @@ class UserServices(Service):
             1: self.login,
             2: self.logout,
             3: self.match_request,
-            4: self.match_cancel
+            4: self.match_cancel,
+            5: self.client_alive,
         }
         self.register_commands(commands)
+
+    def client_alive(self, msg, client_hid):
+        pass
 
     def match_cancel(self, msg, client_hid):
         if self.client_hid_to_user_map.has_key(client_hid) is False:
@@ -58,6 +62,7 @@ class UserServices(Service):
         error_msg, res = self.user_authentication(msg.username, msg.password)
         if error_msg:  # login fail
             self.send_login_result(client_hid, error_msg, -1)
+            print msg.username+" login failed !"
             return
 
         username = msg.username
@@ -66,8 +71,10 @@ class UserServices(Service):
         if username in self.username_to_user_map:
             # self.logout(None, self.username_to_user_map[username].client_hid)
             self.send_login_result(client_hid, "", 2)
+            print username + " is already login reject this action"
             return
 
+        print username + " is a valid user. login success"
         # valid user
         user = User(self.host, username, client_hid)
 
@@ -83,8 +90,12 @@ class UserServices(Service):
     def logout(self, msg, client_hid):
         if client_hid not in self.client_hid_to_user_map:
             return
+
         # Remove it from the room
         user = User(self.host, self.client_hid_to_user_map[client_hid].username, client_hid)
+
+        print user.username+ " login out"
+
         self.room_manager.remove_user(user)
 
         del self.username_to_user_map[self.client_hid_to_user_map[client_hid].username]

@@ -68,6 +68,13 @@ class MsgCSLogout(SimpleHeader):
         self.cmdid = 2
 
 
+class MsgCSAlive(SimpleHeader):
+    def __init__(self):
+        super(MsgCSAlive, self).__init__(conf.MSG_CS_ALIVE)
+        self.sid = conf.USER_SERVICES
+        self.cmdid = 5
+
+
 class MsgSCStartGame(SimpleHeader):
     def __init__(self):
         super(MsgSCStartGame, self).__init__(conf.MSG_SC_START_GAME)
@@ -97,55 +104,59 @@ class MsgSCPlayerBorn(SimpleHeader):
 
 
 class MsgCSPlayerMove(SimpleHeader):
-    def __init__(self, pid=-1, px=0, py=0, pz=0):
+    def __init__(self, pid=-1, px=0, py=0, pz=0, rx=0, ry=0, rz=0, vx=0, vy=0, vz=0,
+                 ax=0, ay=0, az=0, send_time=0, ani_name=''):
         super(MsgCSPlayerMove, self).__init__(conf.MSG_CS_PLAYER_MOVE)
         self.append_param('pid', pid, 'i')
         self.append_param('px', px, 'f')
         self.append_param('py', py, 'f')
         self.append_param('pz', pz, 'f')
+        self.append_param('rx', rx, 'f')
+        self.append_param('ry', ry, 'f')
+        self.append_param('rz', rz, 'f')
+        self.append_param('vx', vx, 'f')
+        self.append_param('vy', vy, 'f')
+        self.append_param('vz', vz, 'f')
+        self.append_param('ax', ax, 'f')
+        self.append_param('ay', ay, 'f')
+        self.append_param('az', az, 'f')
+        self.append_param('send_time', send_time, 'd')
+        self.append_param('ani_name', ani_name, 's')
         self.sid = conf.ARENA_SERVICES
         self.cmdid = 1
 
 
-class MsgCSPlayerIdle(SimpleHeader):
-    def __init__(self, pid=-1, px=0, py=0, pz=0):
-        super(MsgCSPlayerIdle, self).__init__(conf.MSG_CS_PLAYER_IDLE)
+class MsgCSPlayerAttack(SimpleHeader):
+    def __init__(self, pid=-1, ani_name=''):
+        super(MsgCSPlayerAttack, self).__init__(conf.MSG_CS_PLAYER_ATTACK)
         self.append_param('pid', pid, 'i')
-        self.append_param('px', px, 'f')
-        self.append_param('py', py, 'f')
-        self.append_param('pz', pz, 'f')
+        self.append_param('ani_name', ani_name, 's')
         self.sid = conf.ARENA_SERVICES
         self.cmdid = 2
 
 
-class MsgCSPlayerAttack(SimpleHeader):
-    def __init__(self, pid=-1):
-        super(MsgCSPlayerAttack, self).__init__(conf.MSG_CS_PLAYER_ATTACK)
+class MsgCSPlayerAttackMove(SimpleHeader):
+    def __init__(self, pid=-1, skill_name='', node_name=''):
+        super(MsgCSPlayerAttackMove, self).__init__(conf.MSG_CS_PLAYER_ATTACK_MOVE)
         self.append_param('pid', pid, 'i')
+        self.append_param('skill_name', skill_name, 's')
+        self.append_param('node_name', node_name, 's')
         self.sid = conf.ARENA_SERVICES
         self.cmdid = 3
 
 
 class MsgCSPlayerHit(SimpleHeader):
-    def __init__(self, pid=-1, fx=0, fy=0, fz=0, face_to=0):
+    def __init__(self, pid=-1, px=0, py=0, pz=0, skill_id=0, node_name='', targets_str=''):
         super(MsgCSPlayerHit, self).__init__(conf.MSG_CS_PLAYER_HIT)
         self.append_param('pid', pid, 'i')
-        self.append_param('fx', fx, 'f')
-        self.append_param('fy', fy, 'f')
-        self.append_param('fz', fz, 'f')
-        self.append_param('face_to', face_to, 'f')
+        self.append_param('px', px, 'f')
+        self.append_param('py', py, 'f')
+        self.append_param('pz', pz, 'f')
+        self.append_param('skill_id', skill_id, 'i')
+        self.append_param('node_name', node_name, 's')
+        self.append_param('targets_str', targets_str, 's')
         self.sid = conf.ARENA_SERVICES
         self.cmdid = 4
-
-
-class MsgCSPlayerCollect(SimpleHeader):
-    def __init__(self, pid=-1, seller_id= -1, target_id = -1):
-        super(MsgCSPlayerCollect, self).__init__(conf.MSG_CS_PLAYER_COLLECT)
-        self.append_param('pid', pid, 'i')
-        self.append_param('seller_id', seller_id, 'i')
-        self.append_param('target_id', target_id, 'i')
-        self.sid = conf.ARENA_SERVICES
-        self.cmdid = 5
 
 
 class MsgSCGameWin(SimpleHeader):
@@ -172,7 +183,7 @@ class MsgSCRoommateDel(SimpleHeader):
 
 '''
 @describe:
-          如果有单位死亡，服务器广播死亡消息
+          
 '''
 
 
@@ -181,20 +192,145 @@ class MsgSCGameObjectDie(SimpleHeader):
         super(MsgSCGameObjectDie, self).__init__(conf.MSG_SC_GAME_OBJECT_DIE)
         self.append_param("entity_id", entity_id, 'i')
 
-'''
-@describe:
-           player drop backpack object to the ground
-'''
+
+class MsgCSPlayerCollect(SimpleHeader):
+    def __init__(self, pid=-1, pos_x=0, pos_y=0,pos_z=0):
+        super(MsgCSPlayerCollect, self).__init__(conf.MSG_CS_PLAYER_COLLECT)
+        self.append_param('pid', pid, 'i')
+        self.append_param('pos_x', pos_x, 'f')
+        self.append_param('pos_y', pos_y, 'f')
+        self.append_param('pos_z', pos_z, 'f')
+        self.sid = conf.ARENA_SERVICES
+        self.cmdid = 5
+
+
+class MsgSCPlayerCollect(SimpleHeader):
+    def __init__(self, pid=-1, ID = -1):
+        super(MsgSCPlayerCollect, self).__init__(conf.MSG_SC_PLAYER_COLLECT)
+        self.append_param('pid', pid, 'i')
+        self.append_param("ID", ID , 'i')
+
+class MsgCSPlayerReap(SimpleHeader):
+    def __init__(self, pid=-1, pos_x=0, pos_y=0, pos_z=0):
+        super(MsgCSPlayerReap, self).__init__(conf.MSG_CS_PLAYER_REAP)
+        self.append_param('pid', pid, 'i')
+        self.append_param('pos_x', pos_x, 'f')
+        self.append_param('pos_y', pos_y, 'f')
+        self.append_param('pos_z', pos_z, 'f')
+        self.sid = conf.ARENA_SERVICES
+        self.cmdid = 8
+
+
+class MsgSCPlayerReap(SimpleHeader):
+    def __init__(self, pid=-1, ID = -1):
+        super(MsgSCPlayerReap, self).__init__(conf.MSG_SC_PLAYER_REAP)
+        self.append_param('pid', pid, 'i')
+        self.append_param("ID", ID , 'i')
+
+
+class MsgSCMapItemDestroy(SimpleHeader):
+    def __init__(self, ID = -1):
+        super(MsgSCMapItemDestroy, self).__init__(conf.MSG_SC_MAP_ITEM_DESTROY)
+        self.append_param("ID", ID, "i")
+        
+
+class MsgSCPlayerLeave(SimpleHeader):
+    def __init__(self, pid = -1):
+        super(MsgSCPlayerLeave, self).__init__(conf.MSG_SC_PLAYER_LEAVE)
+        self.append_param("pid", pid, "i")
+
+
+'''********************************BackpackMessage*******************************************************'''
+
+
+class MsgSCBackpackSyn(SimpleHeader):
+    def __init__(self, format="", data = ""):
+        super(MsgSCBackpackSyn, self).__init__(conf.MSG_SC_BACKPACK_SYN)
+        self.append_param("format", format, "s")
+        self.append_param("data", data, "s")
+
+
+class MsgCSMakeRequest(SimpleHeader):
+    def __init__(self, pid = -1, ID = -1, num = 1):
+        super(MsgCSMakeRequest, self).__init__(conf.MSG_CS_MAKE_REQUEST)
+        self.append_param("pid",pid, 'i')
+        self.append_param("ID", ID, 'i')
+        self.append_param("num", num, 'i')
+
+
+class MsgCSArmorInstall(SimpleHeader):
+    def __init__(self, pid = -1, entity_id = -1):
+        super(MsgCSArmorInstall, self).__init__(conf.MSG_CS_ARMOR_INSTALL)
+        self.append_param("pid", pid, 'i')
+        self.append_param("entity_id", entity_id, 'i')
+
+
+class MsgCSWeaponInstall(SimpleHeader):
+    def __init__(self, pid=-1, entity_id=-1, slot_index = -1):
+        super(MsgCSWeaponInstall, self).__init__(conf.MSG_CS_WEAPON_INSTALL)
+        self.append_param("pid", pid, 'i')
+        self.append_param("entity_id", entity_id, 'i')
+        self.append_param("slot_index", slot_index, 'i')
+
+
+class MsgCSHatInstall(SimpleHeader):
+    def __init__(self, pid=-1, entity_id=-1):
+        super(MsgCSHatInstall, self).__init__(conf.MSG_CS_HAT_INSTALL)
+        self.append_param("pid", pid, 'i')
+        self.append_param("ID", entity_id, 'i')
+
+
+class MsgCSWeaponUninstall(SimpleHeader):
+    def __init__(self, pid=-1, entity_id=-1):
+        super(MsgCSWeaponUninstall, self).__init__(conf.MSG_CS_WEAPON_UNINSTALL)
+        self.append_param("pid", pid, 'i')
+        self.append_param("entity_id", entity_id, 'i')
+
+
+class MsgSCArmorInstall(SimpleHeader):
+    def __init__(self, pid = -1, entity_id = -1):
+        super(MsgSCArmorInstall, self).__init__(conf.MSG_SC_ARMOR_INSTALL)
+        self.append_param("pid", pid, 'i')
+        self.append_param("entity_id", entity_id, 'i')
+
+
+class MsgSCWeaponInstall(SimpleHeader):
+    def __init__(self, pid=-1, entity_id=-1, slot_index = -1):
+        super(MsgSCWeaponInstall, self).__init__(conf.MSG_SC_WEAPON_INSTALL)
+        self.append_param("pid", pid, 'i')
+        self.append_param("entity_id", entity_id, 'i')
+        self.append_param("slot_index", slot_index, 'i')
+
+
+class MsgSCHatInstall(SimpleHeader):
+    def __init__(self, pid=-1, entity_id=-1):
+        super(MsgSCHatInstall, self).__init__(conf.MSG_SC_HAT_INSTALL)
+        self.append_param("pid", pid, 'i')
+        self.append_param("entity_id", entity_id, 'i')
+
+
+class MsgSCWeaponUninstall(SimpleHeader):
+    def __init__(self, pid=-1, entity_id = -1):
+        super(MsgSCWeaponUninstall, self).__init__(conf.MSG_SC_WEAPON_UNINSTALL)
+        self.append_param("pid", pid, 'i')
+        self.append_param("entity_id", entity_id, 'i')
 
 
 class MsgCSPlayerDrop(SimpleHeader):
-    def __init__(self, pid=-1, ID = -1, num = 0, posx = 0 ,posy = 0):
+    def __init__(self, pid=-1, entity_id = -1, x=0, y=0, z=0):
         super(MsgCSPlayerDrop, self).__init__(conf.MSG_CS_PLAYER_DROP)
         self.append_param("pid", pid, 'i')
-        self.append_param("ID", ID, 'i')
-        self.append_param("num", num, 'i')
-        self.append_param("pos_x", posx, 'f')
-        self.append_param("pos_y", posy, 'f')
-        self.sid = conf.ARENA_SERVICES
-        self.cmdid = 6
+        self.append_param("entity_id", entity_id, 'i')
+        self.append_param("x", x, 'f')
+        self.append_param("y", y, 'f')
+        self.append_param("z", z, 'f')
 
+
+'''********************************BackpackMessage*******************************************************'''
+
+
+class MsgSCBloodSyn(SimpleHeader):
+    def __init__(self, pid = -1, blood = 0):
+        super(MsgSCBloodSyn, self).__init__(conf.MSG_SC_BLOOD_SYN)
+        self.append_param("pid", pid, 'i')
+        self.append_param("blood", blood, 'i')

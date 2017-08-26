@@ -17,6 +17,7 @@ class Player(GameObject, PlayerAttributes):
     def __init__(self, client_hid, name, position, rotation, player_conf):
 
         from Configuration.PlayerConf import explorer
+        from Managers.BackpackManager import BackpackManager
 
         GameObject.__init__(self,explorer['health'], position, rotation)
         PlayerAttributes.__init__(self, explorer['attack'], explorer['defense'],
@@ -28,6 +29,8 @@ class Player(GameObject, PlayerAttributes):
         self.is_leave_scene = False
 
         self.speed = player_conf['move_speed']
+
+        self.backpack_manager = BackpackManager()
 
     def generate_born_msg(self, send_to_others):
         return MsgSCPlayerBorn(self.entity_id, send_to_others, self.name,self.health, self.position[0], self.position[1], self.position[2],self.rotation[0],self.rotation[1], self.rotation[2])
@@ -47,3 +50,16 @@ class Player(GameObject, PlayerAttributes):
         self.position[0] = pos[0]
         self.position[1] = pos[1]
         self.position[2] = pos[2]
+
+    def get_backpack_syn_message(self):
+        from common.events import MsgSCBackpackSyn
+
+        msg = self.backpack_manager.generate_backpack_syn_message_ex()
+        data = msg.marshal()
+
+        cc = MsgSCBackpackSyn()
+        cc.unmarshal(data)
+
+        self.backpack_manager.parse_backpack_syn_message_ex(cc)
+
+        return msg

@@ -8,148 +8,313 @@
      2. 2017-08-14 basic func finished include 'weapon' 'armor' 'hat'
      3. 2017-08-15 implement 'import_obj_from' and 'export_obj_to'
 '''
+from GameObject.BPItemObject import BPItemObject
+from Configuration import MaterialDB
 
 
 class BackpackManager(object):
-    def __init__(self, max_block = 16):
+    def __init__(self, max_block = 100):
         super(BackpackManager, self).__init__()
 
         self.weapon = None
         self.armor = None
         self.hat = None
 
-        self.backpack = {}
+        self.active_index = -1 # (-1,0,1,2) if -1 no active object
+
+        self.entity_id_to_backpack_obj_map = {}
         self.max_block = max_block
 
-    def import_obj_from(self, bp_manager, ID, num):
-        '''
-        :param bp_manager: another entity's backpack
-        :param ID: trade item ID
-        :param num: trade item num
-        :return: success return true else false
-        '''
+        self.init()
+        self._just_for_test_delete_me()
 
-        obj = bp_manager.take_away(ID, num)
-        if obj is None:
-            return False
+    def init(self):
+        self.weapon = []
+        self.weapon.append(None)
+        self.weapon.append(None)
+        self.weapon.append(None)
 
-        if self.bring_in(obj) is False:
-            bp_manager.bring_in(obj)
-            return False
+    def _just_for_test_delete_me(self):
+        item = BPItemObject(1001, 10)
+        self.bring_in_ex(item)
 
-        return True
+        item = BPItemObject(1002, 10)
+        self.bring_in_ex(item)
 
-    def export_obj_to(self, bp_manager, ID, num):
-        '''
-        :param bp_manager: another entity's backpack
-        :param ID: trade item ID
-        :param num: trade item num
-        :return: success return true else false
-        '''
+        item = BPItemObject(2002, 2)
+        self.bring_in_ex(item)
 
-        obj = self.take_away(ID, num)
+        item = BPItemObject(2002, 2)
+        self.bring_in_ex(item)
 
-        if obj is None:
-            return False
+        item = BPItemObject(2003, 2)
+        self.bring_in_ex(item)
 
-        if bp_manager.bring_in(obj) is False:
-            self.bring_in(obj)
-            return False
+        item = BPItemObject(2004, 2)
+        self.bring_in_ex(item)
 
-        return True
+        item = BPItemObject(2004, 2)
+        self.bring_in_ex(item)
 
-    def bring_in(self, obj):
-        '''
-        :param obj: new obj will add into the backpack
-        :return: operation success return True else return False
-        '''
-        if len(self.backpack) >= self.max_block:
-            return False
+        item = BPItemObject(3001, 2)
+        self.bring_in_ex(item)
 
-        if obj.pile_bool is False or self.backpack.has_key(obj.ID) is False:
-            self.backpack[obj.ID] = obj
+        item = BPItemObject(4001, 2)
+        self.bring_in_ex(item)
 
-        self.backpack[obj.ID].pile(obj)
+        hat = BPItemObject(4001, 1)
+        self.hat = hat
 
-        return True
+        armor = BPItemObject(3001, 1)
+        self.armor = armor
 
-    def take_away(self, ID, num):
-        '''
-        :param ID: backpack ID
-        :return: if success return obj with num objects else return None
-        '''
-        if self.backpack.has_key(ID) is False or num > self.backpack[ID].num:
+    def bring_in_ex(self, obj):
+        if obj.pile_bool is False:
+            self.entity_id_to_backpack_obj_map[obj.entity_id] = obj
+            return
+        else:
+            for v in self.entity_id_to_backpack_obj_map.itervalues():
+                if v.ID == obj.ID:
+                    v.num += obj.num
+                    return
+            self.entity_id_to_backpack_obj_map[obj.entity_id] = obj
+
+    def take_away_ex(self, entity_id, num = 1):
+        if entity_id in self.entity_id_to_backpack_obj_map:
+            item = self.entity_id_to_backpack_obj_map[entity_id]
+            if item.pile_bool is True:
+                del self.entity_id_to_backpack_obj_map[entity_id]
+            else:
+                if item.num <= num:
+                    del self.entity_id_to_backpack_obj_map[entity_id]
+                else:
+                    self.entity_id_to_backpack_obj_map[entity_id].num -= num
+            return item
+        return None
+
+    def get_active_weapon(self):
+        if self.active_index<0 and self.active_index>2:
             return None
 
-        obj = self.backpack[ID]
-        if obj.num == num:
-            del self.backpack[ID]
-            return obj
+        return self.weapon[self.active_index]
 
-        return obj.split(num)
-
-    def install_weapon(self, ID):
+    def install_weapon_ex(self, entity_id, slots_index):
         '''
-        :param ID: weapon ID
-        :return: None
-        '''
-        weapon = self.take_away(ID)
-
-        if weapon is not None:
-            self.weapon = weapon
-
-    def uninstall_weapon(self):
-        '''
-        :return: if success return true else return false
+        :param entity_id: weapon entity_id
+        :param slots_index: install to which slot
+        :param action_type: if 0 indicate install weapon else exchange weapon location and active the moved one
+        :return: success return True else return False
         '''
 
-        if len(self.backpack) < self.max_block and self.weapon is not None:
-            self.bring_in(self.weapon)
-            self.weapon = None
-            return True
+        if entity_id not in self.entity_id_to_backpack_obj_map:
+            return False
 
-        return False
+        item = self.entity_id_to_backpack_obj_map[entity_id]
 
-    def install_armor(self, ID):
-        '''
-        :param ID: armor ID
-        :return: None
-        '''
-        armor = self.take_away(ID)
+        info = MaterialDB.get_weapon_info_by_ID(item.ID)
 
-        if armor is not None:
-            self.armor = armor
+        if info is None:
+            return False
 
-    def uninstall_armor(self):
-        '''
-        :return: if success return true else return false
-        '''
+        if slots_index < 0 or slots_index > 2:
+            return False
 
-        if len(self.backpack) < self.max_block and self.armor is not None:
-            self.bring_in(self.armor)
+        for k in xrange(0, 3):
+            if self.weapon[k] and self.weapon[k].ID == item.ID:
+                 if k == slots_index:
+                    self.bring_in(self.weapon[k])
+                    item = self.take_away_ex(item.entity_id, item.num)
+                    self.weapon[k] = item
+                    self.active_index = slots_index
+                    return True
+
+        if self.weapon[slots_index] is not None:
+            self.bring_in_ex(self.weapon[slots_index])
+
+        item = self.take_away_ex(item.entity_id, item.num)
+        self.weapon[slots_index] = item
+        self.active_index = slots_index
+        return True
+
+    def uninstall_weapon_ex(self, entity_id):
+        for k in xrange(0, 3):
+            if self.weapon[k] is None:
+                continue
+
+            if self.weapon[k].entity_id == entity_id:
+                item = self.weapon[k]
+                self.weapon[k] = None
+                self.bring_in_ex(item)
+                return True
+
+        if self.armor is not None and self.armor.entity_id == entity_id:
+            item = self.armor
             self.armor = None
+            self.bring_in_ex(item)
             return True
 
-        return False
-
-    def install_hat(self, ID):
-        '''
-        :param ID: armor ID
-        :return: None
-        '''
-        hat = self.take_away(ID)
-
-        if hat is not None:
-            self.hat = hat
-
-    def uninstall_hat(self):
-        '''
-        :return: if success return true else return false
-        '''
-
-        if len(self.backpack) < self.max_block and self.hat is not None:
-            self.bring_in(self.hat)
+        if self.hat is not None and self.hat.entity_id == entity_id:
+            item = self.hat
             self.hat = None
+            self.bring_in_ex(item)
             return True
 
         return False
+
+    def install_armor_ex(self, entity_id):
+        if entity_id not in self.entity_id_to_backpack_obj_map:
+            return False
+
+        item = self.entity_id_to_backpack_obj_map[entity_id]
+
+        if self.armor:
+            self.bring_in_ex(self.armor)
+            self.armor = None
+
+        self.armor = self.take_away_ex(item.entity_id, item.num)
+
+        return True
+
+    def install_hat_ex(self, entity_id):
+        if entity_id not in self.entity_id_to_backpack_obj_map:
+            return False
+
+        item = self.entity_id_to_backpack_obj_map[entity_id]
+
+        if self.hat:
+            self.bring_in_ex(self.hat)
+            self.hat = None
+
+        self.hat = self.take_away_ex(item.entity_id, item.num)
+
+        return True
+
+    def generate_backpack_syn_message_ex(self):
+        import struct
+        from common.events import MsgSCBackpackSyn
+        '''
+        :describe:
+                  1. max_block
+                  2. weapon_id (-1 means illegal)
+                  3. armor_id
+                  4. hat_id
+                  5. first_obj_id
+                  6. first_obj_num
+                  7. second_obj_id
+                  8. second_obj_num
+                  9. ..._obj_id
+                  10. ..._obj_num
+        :return: MsgSCBackpackSyn
+        '''
+
+        fmt = "<ii" + "iiii" * (len(self.entity_id_to_backpack_obj_map)+5)
+
+        data = struct.pack("<i", self.max_block)
+        data += struct.pack("<i", self.active_index)
+
+        data += struct.pack("<i", self.weapon[0].ID) if self.weapon[0] else struct.pack("<i", -1)
+        data += struct.pack("<i", self.weapon[0].entity_id) if self.weapon[0] else struct.pack("<i", -1)
+        data += struct.pack("<i", self.weapon[0].health) if self.weapon[0] else struct.pack("<i", -1)
+        data += struct.pack("<i", self.weapon[0].num) if self.weapon[0] else struct.pack("<i", -1)
+
+        data += struct.pack("<i", self.weapon[1].ID) if self.weapon[1] else struct.pack("<i", -1)
+        data += struct.pack("<i", self.weapon[1].entity_id) if self.weapon[1] else struct.pack("<i", -1)
+        data += struct.pack("<i", self.weapon[1].health) if self.weapon[1] else struct.pack("<i", -1)
+        data += struct.pack("<i", self.weapon[1].num) if self.weapon[1] else struct.pack("<i", -1)
+
+        data += struct.pack("<i", self.weapon[2].ID) if self.weapon[2] else struct.pack("<i", -1)
+        data += struct.pack("<i", self.weapon[2].entity_id) if self.weapon[2] else struct.pack("<i", -1)
+        data += struct.pack("<i", self.weapon[2].health) if self.weapon[2] else struct.pack("<i", -1)
+        data += struct.pack("<i", self.weapon[2].num) if self.weapon[2] else struct.pack("<i", -1)
+
+        data += struct.pack("<i", self.armor.ID) if self.armor else struct.pack("<i", -1)
+        data += struct.pack("<i", self.armor.entity_id) if self.armor else struct.pack("<i", -1)
+        data += struct.pack("<i", self.armor.health) if self.armor else struct.pack("<i", -1)
+        data += struct.pack("<i", self.armor.num) if self.armor else struct.pack("<i", -1)
+
+        data += struct.pack("<i", self.hat.ID) if self.hat else struct.pack("<i", -1)
+        data += struct.pack("<i", self.hat.entity_id) if self.hat else struct.pack("<i", -1)
+        data += struct.pack("<i", self.hat.health) if self.hat else struct.pack("<i", -1)
+        data += struct.pack("<i", self.hat.num) if self.hat else struct.pack("<i", -1)
+
+        for obj in self.entity_id_to_backpack_obj_map.itervalues():
+            data += struct.pack("<iiii", obj.ID, obj.entity_id, obj.health, obj.num)
+
+        msg = MsgSCBackpackSyn(fmt, data)
+
+        return msg
+
+    def parse_backpack_syn_message_ex(self, msg):
+        import struct
+        data = struct.unpack(msg.format, msg.data)
+        print data
+
+        self.entity_id_to_backpack_obj_map = {}
+
+        self.max_block = data[0]
+        self.active_index = data[1]
+
+        self.weapon[0] = BPItemObject(data[2], 1) if data[2] != -1 else None
+        if self.weapon[0] is not None:
+            self.weapon[0].entity_id = data[3]
+            self.weapon[0].health = data[4]
+            self.weapon[0].num = data[5]
+
+        self.weapon[1] = BPItemObject(data[6], 1) if data[6] != -1 else None
+        if self.weapon[1] is not None:
+            self.weapon[1].entity_id = data[7]
+            self.weapon[1].health = data[8]
+            self.weapon[1].num = data[9]
+
+        self.weapon[2] = BPItemObject(data[10], 1) if data[10] != -1 else None
+        if self.weapon[2] is not None:
+            self.weapon[2].entity_id = data[11]
+            self.weapon[2].health = data[12]
+            self.weapon[2].num = data[13]
+
+        self.armor = BPItemObject(data[14], 1) if data[14] != -1 else None
+        if self.armor is not None:
+            self.armor.entity_id = data[15]
+            self.armor.health = data[16]
+            self.armor.num = data[17]
+
+        self.hat = BPItemObject(data[18], 1) if data[18] != -1 else None
+        if self.hat is not None:
+            self.hat.entity_id = data[19]
+            self.hat.health = data[20]
+            self.hat.num = data[21]
+
+        for x in xrange(22, len(data), 4):
+            item = BPItemObject(data[x],1)
+            item.entity_id = data[x+1]
+            item.health = data[x + 2]
+            item.num = data[x + 3]
+            self.bring_in_ex(item)
+
+    def make_request(self, ID, num):
+        '''
+        :param ID: target object id
+        :param num: request make number
+        :return: success return True else return False
+        '''
+        pass
+
+    def drop_object_ex(self, entity_id):
+        if entity_id not in self.entity_id_to_backpack_obj_map:
+            return False
+
+        item = self.entity_id_to_backpack_obj_map[entity_id]
+
+        item = self.take_away_ex(item.entity_id, item.num)
+
+        return item
+
+    def get_defense(self):
+        val = 0
+
+
+
+        return val
+
+    def get_attack(self):
+        pass

@@ -9,7 +9,6 @@ class MsgTest(SimpleHeader):
         self.append_param('seed', data, 's')
 
 
-
 data = struct.pack("<ifi", 1,-1.23,1)
 fin = struct.unpack('<ifi',data)
 

@@ -74,6 +74,8 @@ class GameObject(object):
         self.last_processed_input_num = 0
         self.operation_manager = OperationManager()
 
+        self.backpack_manager = None
+
     # apply input msg change the rotation and position and so on
     def apply_input(self, move):
         if hasattr(move, 'delta_time') is True and hasattr(move, 'direction') is True\
@@ -90,6 +92,10 @@ class GameObject(object):
         :param val: damage value
         :return: live->true, die->false
         '''
+
+        if val < 0:
+            val = 0
+
         val = val - self.defense
 
         if val < 0:
@@ -101,6 +107,9 @@ class GameObject(object):
             return False
         else:
             return True
+
+    def get_attack_value(self):
+        pass
 
 
 

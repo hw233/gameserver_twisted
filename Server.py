@@ -8,8 +8,9 @@ from network.simpleHost import SimpleHost
 from Database.DBManager import DBManager
 from Managers.RoomManager import RoomManager
 
+
 class Server(object):
-    def __init__(self, host, port):
+    def __init__(self, host='', port=2000):
         super(Server, self).__init__()
 
         # Start host
@@ -42,7 +43,8 @@ class Server(object):
             conf.MSG_CS_LOGIN: events.MsgCSLogin(),
             conf.MSG_CS_LOGOUT: events.MsgCSLogout(),
             conf.MSG_CS_MATCH_REQUEST: events.MsgCSMatchRequest(),
-            conf.MSG_CS_MATCH_CANCEL: events.MsgCSMatchCancel()
+            conf.MSG_CS_MATCH_CANCEL: events.MsgCSMatchCancel(),
+            conf.MSG_CS_ALIVE: events.MsgCSAlive(),
         }
 
     def tick(self):
@@ -53,8 +55,6 @@ class Server(object):
         self.handle_received_msg()
 
         self.room_manager.tick()
-
-
 
     def handle_received_msg(self):
         try:
@@ -87,10 +87,7 @@ class Server(object):
 
 
 def main():
-    host = ""
-    port = 2000
-
-    server = Server(host, port)
+    server = Server(conf.SERVER_IP, conf.SERVER_PORT)
     while True:
         server.tick()
         #time.sleep(0.001)

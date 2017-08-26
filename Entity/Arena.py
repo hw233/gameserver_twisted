@@ -1,9 +1,12 @@
 # coding=utf-8
 import importlib
+import random
 from copy import deepcopy
 
 from common.timer import TimerManager
-from GameObject.MapObject import MapObject
+from Map.MapWorld import MapWorld
+from common import EventManager
+from common import conf
 
 
 class Arena(object):
@@ -17,8 +20,8 @@ class Arena(object):
 
         self.timeManager = TimerManager()
 
-        # MapTest
-        self.map = MapObject()
+        # MapWorld
+        self.map_world = MapWorld()
 
         # arena configuration
         self.arena_conf = importlib.import_module(arena_conf_filename).configuration
@@ -29,23 +32,20 @@ class Arena(object):
         self.is_game_stop = False
 
         # map object [Not Implemented]
-        self.map = None
+        self.map = MapWorld()
         self.client_id_finished_map={}
 
     def send_map_seed_to_all_clients(self):
         from common.events import MsgSCMapLoad
-        msg = MsgSCMapLoad(-1)   # Not implemented -1 error
+        import sys
+        seed = random.randint(0, sys.maxint)
+        self.map_world.create_world(seed)
+        msg = MsgSCMapLoad(seed)
+
         data = msg.marshal()
 
         for client_id in self.client_id_to_player_map.keys():
             self.host.sendClient(client_id, data)
-
-    def start_game(self):
-        self.is_game_start = True
-        self.is_game_stop = False
-
-        # update arena/(1000/30ms)
-        self.timeManager.add_repeat_timer(1000 / 30, self.update_arena)
 
     def init_game(self, users):
         from GameObject.Player import Player
@@ -73,6 +73,27 @@ class Arena(object):
         self.is_game_start = False
         self.is_game_stop = True
 
+        # remove various listener
+        EventManager.remove_observer(conf.MSG_CS_PLAYER_DROP, self.player_drop)
+        EventManager.remove_observer(conf.MSG_CS_WEAPON_INSTALL, self.weapon_install)
+        EventManager.remove_observer(conf.MSG_CS_WEAPON_UNINSTALL, self.weapon_uninstall)
+        EventManager.remove_observer(conf.MSG_CS_ARMOR_INSTALL, self.armor_install)
+        EventManager.remove_observer(conf.MSG_CS_HAT_INSTALL, self.hat_install)
+
+    def start_game(self):
+        self.is_game_start = True
+        self.is_game_stop = False
+
+        # update arena/(1000/30ms)
+        self.timeManager.add_repeat_timer(1000 / 30, self.update_arena)
+
+        # add various listener
+        EventManager.add_observer(conf.MSG_CS_PLAYER_DROP, self.player_drop)
+        EventManager.add_observer(conf.MSG_CS_WEAPON_INSTALL, self.weapon_install)
+        EventManager.add_observer(conf.MSG_CS_WEAPON_UNINSTALL, self.weapon_uninstall)
+        EventManager.add_observer(conf.MSG_CS_ARMOR_INSTALL, self.armor_install)
+        EventManager.add_observer(conf.MSG_CS_HAT_INSTALL, self.hat_install)
+
     def update_arena(self):
         pass
 
@@ -88,11 +109,15 @@ class Arena(object):
                 self.host.sendClient(player.client_hid, msg.marshal())
 
     def player_leave(self, client_hid):
+        from common.events import MsgSCPlayerLeave
         # player leave the arena
         if self.client_id_to_player_map.has_key(client_hid) is True:
             player = self.client_id_to_player_map[client_hid]
             self.username_to_invalid_player_map[player.name] = player
             del self.client_id_to_player_map[client_hid]
+            print "Server broadcast player leave message"
+            msg = MsgSCPlayerLeave(player.entity_id)
+            self.broadcast(msg)
 
         if len(self.client_id_to_player_map)<=0:
             self.stop_game()
@@ -144,6 +169,7 @@ class Arena(object):
         for player in self.client_id_to_player_map.itervalues():
             msg = player.generate_born_msg(0)  # send to itself
             self.host.sendClient(player.client_hid, msg.marshal())
+            self.send_backpack_syn_message(player.client_hid)
             msg = player.generate_born_msg(1)  # send to others
             self.broadcast(msg, not_send=player)
 
@@ -154,23 +180,9 @@ class Arena(object):
         if player.is_dead():
             return
 
-        print "Player Move to:%f %f %f",msg.px,msg.py,msg.pz
-
-        new_pos = [msg.px, msg.py, msg.pz]
-        player.update_position(new_pos)
-
-        # broadcast move info to other player
-        # self.broadcast(msg, not_send=player) 
-        self.broadcast(msg)  # 为了方便调试同步，暂时把角色的移动信息发给他自己，FIX ME !!!!!!!
-
-    def handle_player_idle(self, msg, client_hid):
-        if client_hid not in self.client_id_to_player_map:
-            return
-        player = self.client_id_to_player_map[client_hid]
-        if player.is_dead():
-            return
-
-        print "Player Idle to:%f %f %f",msg.px,msg.py,msg.pz
+        # 需要检测移动的合法性，包括地图边界判断和碰撞检测
+        # 之后可以在服务器做的同步策略：
+        # 1. 根据客户端服务器时延，利用msg.vx, vy, vz预测服务器速度
 
         new_pos = [msg.px, msg.py, msg.pz]
         player.update_position(new_pos)
@@ -190,6 +202,16 @@ class Arena(object):
 
         # broadcast move info to other player
         # self.broadcast(msg, not_send=player) 
+        self.broadcast(msg)  # 为了方便调试同步，暂时把角色的移动信息发给他自己，FIX ME !!!!!!!
+
+    def handle_player_attack_move(self, msg, client_hid):
+        if client_hid not in self.client_id_to_player_map:
+            return
+        player = self.client_id_to_player_map[client_hid]
+        if player.is_dead():
+            return
+
+        print "Player attack move"
         self.broadcast(msg)  # 为了方便调试同步，暂时把角色的移动信息发给他自己，FIX ME !!!!!!!
 
     def handle_player_hit(self, msg, client_hid):
@@ -223,7 +245,38 @@ class Arena(object):
             self.start_game()
 
     def handle_player_collect(self, msg, client_hid):
-        pass
+        from common.events import MsgSCPlayerCollect
+        from common.events import MsgSCMapItemDestroy
+
+
+        item = self.map_world.get_nearest_item(msg.pos_x, msg.pos_y, msg.pos_z)
+        if item:
+            print "[server] item id", item.id, item.hittable, item.collectible
+            if item.collectible:
+                msg = MsgSCPlayerCollect(msg.pid)
+                self.broadcast(msg, self.client_id_to_player_map[client_hid])
+                print "[server] collect"
+
+            # if this item is a backpack item add this item to the package directly
+            # item.data["type"] == "good"
+            # Not implemented FIX ME !!!
+
+    def handle_player_reap(self, msg, client_hid):
+        from common.events import MsgSCPlayerReap
+        from common.events import MsgSCMapItemDestroy
+        item = self.map_world.get_nearest_item(msg.pos_x, msg.pos_y, msg.pos_z)
+        if item:
+            print "[server] item id", item.id, item.hittable, item.collectible
+            if item.hittable:
+                self.map_world.server_reap(item.id)
+                if item.dead:
+                    msg = MsgSCMapItemDestroy(item.id)
+                    self.broadcast(msg)
+                    print "[server] destroy"
+                else:
+                    print "[server] reap", item.health
+                    msg = MsgSCPlayerReap(msg.pid, item.id)
+                    self.broadcast(msg, self.client_id_to_player_map[client_hid])
 
     def start_game_count_down(self):
         from common.events import MsgSCStartGame
@@ -259,6 +312,102 @@ class Arena(object):
 
         # broadcast message .... ??? FIX ME !!!!!!!!!!!!!!!!!!!!!
 
+    def handle_player_dress(self, msg, client_hid):
+        if self.client_id_to_player_map.has_key(client_hid) is False:
+            return
 
-    def handle_player_drop(self, client_hid, msg):
-        pass
+        player = self.client_id_to_player_map[client_hid]
+        player.dress(msg.ID, msg.action)
+
+    def send_backpack_syn_message(self, client_id):
+        if self.client_id_to_player_map.has_key(client_id) is False:
+            return
+
+        player = self.client_id_to_player_map[client_id]
+        msg = player.get_backpack_syn_message()
+        print "[server] "+"send backpack syn message"
+        self.host.sendClient(client_id, msg.marshal())
+
+    def handle_make_request(self, msg, client_id):
+        if self.client_id_to_player_map.has_key(client_id) is False:
+            return
+
+        player = self.client_id_to_player_map[msg.pid]
+        ret = player.backpack_manager.make_request(msg.ID, msg.num)
+
+        if ret is False:
+            return
+
+        self.send_backpack_syn_message(client_id)
+
+    def player_drop(self,client_hid, msg):
+        if self.client_id_to_player_map.has_key(client_hid) is False:
+            return
+        player = self.client_id_to_player_map[client_hid]
+
+        player.backpack_manager.drop_object_ex(msg.entity_id)
+
+        self.send_backpack_syn_message(client_hid)
+
+    def weapon_install(self, client_hid, msg):
+        from common.events import MsgSCWeaponInstall
+        print "[server] weapon install message receive"
+        if self.client_id_to_player_map.has_key(client_hid) is False:
+            return
+
+        player = self.client_id_to_player_map[client_hid]
+
+        player.backpack_manager.install_weapon_ex(msg.entity_id, msg.slot_index)
+
+        self.send_backpack_syn_message(client_hid)
+
+        item = player.backpack_manager.get_active_weapon()
+
+        #if item:
+            #msg = MsgSCWeaponInstall(msg.pid, item.ID)
+            #self.broadcast(msg, player)
+
+    def weapon_uninstall(self, client_hid, msg):
+        from common.events import MsgSCWeaponUninstall
+
+        print "[server] weapon uninstall message receive"
+
+        if self.client_id_to_player_map.has_key(client_hid) is False:
+            return
+
+        player = self.client_id_to_player_map[client_hid]
+        res = player.backpack_manager.uninstall_weapon_ex(msg.entity_id)
+
+        self.send_backpack_syn_message(client_hid)
+
+        #if res:
+            #msg = MsgSCWeaponUninstall(msg.pid, msg.ID) #Error ...
+            #self.broadcast(msg, player)
+
+    def hat_install(self, client_hid, msg):
+        from common.events import MsgSCWeaponInstall
+        print "[server] hat install message reveive"
+        if self.client_id_to_player_map.has_key(client_hid) is False:
+            return
+        player = self.client_id_to_player_map[client_hid]
+        res = player.backpack_manager.install_hat_ex(msg.ID)
+
+        self.send_backpack_syn_message(client_hid)
+
+        #if res:
+            #msg = MsgSCWeaponInstall(msg.pid, msg.ID) #Error...
+            #self.broadcast(msg, player)
+
+    def armor_install(self, client_hid, msg):
+        from common.events import MsgSCWeaponInstall
+        print "[server] armor install message reveive"
+
+        player = self.client_id_to_player_map[client_hid]
+        res = player.backpack_manager.install_armor_ex(msg.entity_id)
+
+        self.send_backpack_syn_message(client_hid)
+
+        #if res:
+            #msg = MsgSCWeaponInstall(msg.pid, msg.ID) #Error...
+            #self.broadcast(msg, player)
+

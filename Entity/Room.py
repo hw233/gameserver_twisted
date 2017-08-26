@@ -2,12 +2,12 @@ from Arena import Arena
 from Services.ArenaServices import ArenaServices
 from common import conf
 from common.dispatcher import Dispatcher
-from common.events import MsgSCStartGame,MsgSCRoommateAdd,MsgSCRoommateDel
+from common.events import MsgSCStartGame, MsgSCRoommateAdd, MsgSCRoommateDel
 
 
 class Room(object):
 
-    def __init__(self, rid, host, max_user_num = 2,arena_conf_filename='Configuration.ArenaConf', player_conf_filename='Configuration.PlayerConf'):
+    def __init__(self, rid, host, max_user_num=2, arena_conf_filename='Configuration.ArenaConf', player_conf_filename='Configuration.PlayerConf'):
         super(Room, self).__init__()
         self.rid = rid
         self.host = host
@@ -28,21 +28,33 @@ class Room(object):
 
     def generate_msg_dict(self):
         from common.events import MsgCSPlayerMove
-        from common.events import MsgCSPlayerIdle
         from common.events import MsgCSPlayerAttack
+        from common.events import MsgCSPlayerAttackMove
         from common.events import MsgCSPlayerHit
         from common.events import MsgCSLoadFinished
         from common.events import MsgCSPlayerCollect
+        from common.events import MsgCSPlayerReap
         from common.events import MsgCSPlayerDrop
+        from common.events import MsgCSMakeRequest
+        from common.events import MsgCSWeaponInstall
+        from common.events import MsgCSWeaponUninstall
+        from common.events import MsgCSArmorInstall
+        from common.events import MsgCSHatInstall
 
         self.msg_dict = {
             conf.MSG_CS_PLAYER_MOVE: MsgCSPlayerMove(),
-            conf.MSG_CS_PLAYER_IDLE: MsgCSPlayerIdle(),
             conf.MSG_CS_PLAYER_ATTACK: MsgCSPlayerAttack(),
+            conf.MSG_CS_PLAYER_ATTACK_MOVE: MsgCSPlayerAttackMove(),
             conf.MSG_CS_PLAYER_HIT: MsgCSPlayerHit(),
             conf.MSG_CS_LOAD_FINISHED: MsgCSLoadFinished(),
             conf.MSG_CS_PLAYER_COLLECT: MsgCSPlayerCollect(),
             conf.MSG_CS_PLAYER_DROP: MsgCSPlayerDrop(),
+            conf.MSG_CS_PLAYER_REAP: MsgCSPlayerReap(),
+            conf.MSG_CS_MAKE_REQUEST: MsgCSMakeRequest(),
+            conf.MSG_CS_WEAPON_INSTALL: MsgCSWeaponInstall(),
+            conf.MSG_CS_WEAPON_UNINSTALL: MsgCSWeaponUninstall(),
+            conf.MSG_CS_ARMOR_INSTALL: MsgCSArmorInstall(),
+            conf.MSG_CS_HAT_INSTALL: MsgCSHatInstall(),
         }
 
     def register_dispatcher_services(self):
@@ -53,10 +65,14 @@ class Room(object):
         self.dispatcher.dispatch(msg, client_hid)
 
     def handle_received_msg(self, msg_type, data, client_hid):
+        from common import EventManager
         if msg_type in self.msg_dict:
             msg = self.msg_dict[msg_type]
             msg.unmarshal(data)
-            self.dispatcher.dispatch(msg, client_hid)
+            if hasattr(msg, 'sid'):
+                self.dispatcher.dispatch(msg, client_hid)
+            else:
+                EventManager.trigger_event(msg_type, client_hid, msg)
         else:
             print "Can't handle received message in room"
 
@@ -138,7 +154,7 @@ class Room(object):
             return False
 
     def is_full(self):
-        if len(self.username_to_user_map)>=self.max_user_num:
+        if len(self.username_to_user_map) >= self.max_user_num:
             return True
         else:
             return False
