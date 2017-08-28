@@ -63,3 +63,12 @@ class Player(GameObject, PlayerAttributes):
         self.backpack_manager.parse_backpack_syn_message_ex(cc)
 
         return msg
+
+    def __getattr__(self, item):
+        if item == "attack":
+            return self.get_attack_value()
+        else:
+            return object.__getattribute__(self, item)
+
+    def get_attack_value(self):
+        return object.__getattribute__(self, "attack")+self.backpack_manager.get_attack()

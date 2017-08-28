@@ -1,3 +1,5 @@
+# coding=utf-8
+
 '''
 @describe:
           material object
@@ -49,8 +51,7 @@ class BPItemObject(object):
 
     def init_attr(self):
         info = MaterialDB.get_info_by_ID(self.ID)
-
-        for key, val in info:
+        for key, val in info.items():
             setattr(self, key, val)
 
     def pile(self, mo):
@@ -93,12 +94,14 @@ class BPItemObject(object):
     def get_attack(self):
         if hasattr(self, "attack") is True:
             self.health -= self.costblood
+            print "[server] backpack item object health ",self.health
             return self.attack
         return 0
 
     def get_defense(self):
         if hasattr(self, "defense") is True:
             self.health -= self.costblood
+            print "[server] backpack item object health ", self.health
             return self.defense
 
         return 0

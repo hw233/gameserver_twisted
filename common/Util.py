@@ -2,6 +2,23 @@ import math
 import random
 
 
+def unpack_id_pos(data_str):
+    data = data_str.split(',')
+    return [int(data[0]), float(data[1]), float(data[2]), float(data[3])]
+
+
+def pack_id_pos_health(data):
+    return str(data[0]) + ',%.3f' % data[1] + ',%.3f' % data[2] + ',%.3f' % data[3] + ',' + str(data[4])
+
+
+def pack_id_pos_health_list_to_string(data):
+    return '|'.join(pack_id_pos_health(x) for x in data)
+
+
+def unpack_string_to_id_pos_list(s):
+    return [unpack_id_pos(x) for x in s.split('|')]
+
+
 def vector3_normalize(v):
     s = math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
     return [x / s for x in v]

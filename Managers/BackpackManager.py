@@ -68,6 +68,20 @@ class BackpackManager(object):
         armor = BPItemObject(3001, 1)
         self.armor = armor
 
+    def get_item_num_by_ID(self, ID):
+        num = 0
+        for value in self.entity_id_to_backpack_obj_map.itervalues():
+            if value.ID == ID:
+                num += value.num
+        return num
+
+    def get_entity_id_by_ID(self, ID):
+        for key,value in self.entity_id_to_backpack_obj_map.items():
+            if value.ID == ID:
+                return key
+
+        return None
+
     def bring_in_ex(self, obj):
         if obj.pile_bool is False:
             self.entity_id_to_backpack_obj_map[obj.entity_id] = obj
@@ -82,14 +96,16 @@ class BackpackManager(object):
     def take_away_ex(self, entity_id, num = 1):
         if entity_id in self.entity_id_to_backpack_obj_map:
             item = self.entity_id_to_backpack_obj_map[entity_id]
-            if item.pile_bool is True:
+            if item.pile_bool is False:
                 del self.entity_id_to_backpack_obj_map[entity_id]
             else:
                 if item.num <= num:
                     del self.entity_id_to_backpack_obj_map[entity_id]
                 else:
                     self.entity_id_to_backpack_obj_map[entity_id].num -= num
+
             return item
+
         return None
 
     def get_active_weapon(self):
@@ -145,25 +161,25 @@ class BackpackManager(object):
                 item = self.weapon[k]
                 self.weapon[k] = None
                 self.bring_in_ex(item)
-                return True
+                return item
 
         if self.armor is not None and self.armor.entity_id == entity_id:
             item = self.armor
             self.armor = None
             self.bring_in_ex(item)
-            return True
+            return item
 
         if self.hat is not None and self.hat.entity_id == entity_id:
             item = self.hat
             self.hat = None
             self.bring_in_ex(item)
-            return True
+            return item
 
-        return False
+        return None
 
     def install_armor_ex(self, entity_id):
         if entity_id not in self.entity_id_to_backpack_obj_map:
-            return False
+            return None
 
         item = self.entity_id_to_backpack_obj_map[entity_id]
 
@@ -173,11 +189,11 @@ class BackpackManager(object):
 
         self.armor = self.take_away_ex(item.entity_id, item.num)
 
-        return True
+        return self.armor
 
     def install_hat_ex(self, entity_id):
         if entity_id not in self.entity_id_to_backpack_obj_map:
-            return False
+            return None
 
         item = self.entity_id_to_backpack_obj_map[entity_id]
 
@@ -187,7 +203,7 @@ class BackpackManager(object):
 
         self.hat = self.take_away_ex(item.entity_id, item.num)
 
-        return True
+        return self.hat
 
     def generate_backpack_syn_message_ex(self):
         import struct
@@ -297,7 +313,57 @@ class BackpackManager(object):
         :param num: request make number
         :return: success return True else return False
         '''
-        pass
+        info = MaterialDB.get_info_by_ID(ID)
+        res = False
+
+        if info["pile_bool"] is False:
+            for k in xrange(0, num):
+                item = self.make_object(ID)
+                if item is not None:
+                    res = True
+        else:
+            item = self.make_object(ID, num)
+            if item is not None:
+                res = True
+
+        return res
+
+    def make_object(self, ID, num=1):
+        data = MaterialDB.get_info_by_ID(ID)
+        if data is None:
+            return None
+
+        make_list = data["make_list"]
+
+        keys = []
+        values = []
+
+        for k, v in make_list.items():
+            keys.append(k)
+            values.append(v)
+
+        left_id = keys[0]
+        right_id = keys[1]
+
+        left_num = values[0] * num
+        right_num = values[1] * num
+
+        left_num_total = self.get_item_num_by_ID(left_id)
+        right_num_total = self.get_item_num_by_ID(right_id)
+
+        if left_num > left_num_total or right_num > right_num_total:
+            return None
+
+        left_entity_id = self.get_entity_id_by_ID(left_id)
+        right_entity_id = self.get_entity_id_by_ID(right_id)
+
+        self.take_away_ex(left_entity_id, left_num)
+        self.take_away_ex(right_entity_id, right_num)
+
+        item = BPItemObject(ID, num)
+        self.bring_in_ex(item)
+
+        return item
 
     def drop_object_ex(self, entity_id):
         if entity_id not in self.entity_id_to_backpack_obj_map:
@@ -312,9 +378,57 @@ class BackpackManager(object):
     def get_defense(self):
         val = 0
 
+        active_weapon = self.get_active_weapon()
 
+        if active_weapon is not None:
+            val += active_weapon.get_defense()
+
+        if self.hat is not None:
+            val += self.hat.get_defense()
+
+        if self.armor is not None:
+            val += self.armor.get_defense()
 
         return val
 
     def get_attack(self):
-        pass
+        val = 0
+
+        active_weapon = self.get_active_weapon()
+
+        if active_weapon is not None:
+            val += active_weapon.get_attack()
+
+        if self.hat is not None:
+            val += self.hat.get_attack()
+
+        if self.armor is not None:
+            val += self.armor.get_attack()
+
+        return val
+
+    def inquire_weapon_die(self):
+        die_id_list = []
+        active_weapon = self.get_active_weapon()
+
+        if active_weapon is not None and active_weapon.health<=0:
+            die_id_list.append(self.weapon[self.active_index].ID)
+            self.weapon[self.active_index] = None
+            self.active_index = -1
+
+        if self.hat is not None and self.hat.health<=0:
+            die_id_list.append(self.hat.ID)
+            self.hat = None
+
+        if self.armor is not None and self.armor.health<=0:
+            die_id_list.append(self.armor.ID)
+            self.armor = None
+
+        return die_id_list
+
+    def active_weapon(self, entity_id):
+        for index in xrange(0, 3):
+            if self.weapon[index] is not None and self.weapon[index].entity_id == entity_id:
+                self.active_index = index
+                return self.weapon[index]
+        return None

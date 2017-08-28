@@ -29,7 +29,6 @@ class Room(object):
     def generate_msg_dict(self):
         from common.events import MsgCSPlayerMove
         from common.events import MsgCSPlayerAttack
-        from common.events import MsgCSPlayerAttackMove
         from common.events import MsgCSPlayerHit
         from common.events import MsgCSLoadFinished
         from common.events import MsgCSPlayerCollect
@@ -40,11 +39,11 @@ class Room(object):
         from common.events import MsgCSWeaponUninstall
         from common.events import MsgCSArmorInstall
         from common.events import MsgCSHatInstall
+        from common.events import MsgCSWeaponActive
 
         self.msg_dict = {
             conf.MSG_CS_PLAYER_MOVE: MsgCSPlayerMove(),
             conf.MSG_CS_PLAYER_ATTACK: MsgCSPlayerAttack(),
-            conf.MSG_CS_PLAYER_ATTACK_MOVE: MsgCSPlayerAttackMove(),
             conf.MSG_CS_PLAYER_HIT: MsgCSPlayerHit(),
             conf.MSG_CS_LOAD_FINISHED: MsgCSLoadFinished(),
             conf.MSG_CS_PLAYER_COLLECT: MsgCSPlayerCollect(),
@@ -55,6 +54,7 @@ class Room(object):
             conf.MSG_CS_WEAPON_UNINSTALL: MsgCSWeaponUninstall(),
             conf.MSG_CS_ARMOR_INSTALL: MsgCSArmorInstall(),
             conf.MSG_CS_HAT_INSTALL: MsgCSHatInstall(),
+            conf.MSG_CS_WEAPON_ACTIVE: MsgCSWeaponActive(),
         }
 
     def register_dispatcher_services(self):
