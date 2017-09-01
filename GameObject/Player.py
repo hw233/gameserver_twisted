@@ -13,16 +13,20 @@ class PlayerAttributes(object):
         self.collect_speed = collect_speed
 
 
-class Player(GameObject, PlayerAttributes):
+class Player(GameObject):
     def __init__(self, client_hid, name, position, rotation, player_conf):
 
         from Configuration.PlayerConf import explorer
         from Managers.BackpackManager import BackpackManager
 
         GameObject.__init__(self,explorer['health'], position, rotation)
-        PlayerAttributes.__init__(self, explorer['attack'], explorer['defense'],
-                                  explorer['attack_speed'], explorer['move_speed'], explorer['make_speed'],
-                                  explorer['collect_speed'])
+
+        self.attack = explorer['attack']
+        self.defense = explorer['defense']
+        self.attack_speed = explorer['attack_speed']
+        self.move_speed = explorer['move_speed']
+        self.make_speed = explorer['make_speed']
+        self.collect_speed = explorer['collect_speed']
 
         self.client_hid = client_hid
         self.name = name
@@ -64,7 +68,7 @@ class Player(GameObject, PlayerAttributes):
 
         return msg
 
-    def __getattr__(self, item):
+    def __getattribute__(self, item):
         if item == "attack":
             return self.get_attack_value()
         else:

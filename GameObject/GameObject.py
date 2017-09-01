@@ -96,8 +96,7 @@ class GameObject(object):
         if val < 0:
             val = 0
 
-        val = val - self.backpack_manager.get_defense()
-
+        val = val * (1-self.backpack_manager.get_defense()/100)
         if val < 0:
             val = 0
 

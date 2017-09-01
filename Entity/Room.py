@@ -1,8 +1,7 @@
 from Arena import Arena
 from Services.ArenaServices import ArenaServices
-from common import conf
 from common.dispatcher import Dispatcher
-from common.events import MsgSCStartGame, MsgSCRoommateAdd, MsgSCRoommateDel
+from common.events import *
 
 
 class Room(object):
@@ -27,34 +26,23 @@ class Room(object):
         self.msg_dict = None
 
     def generate_msg_dict(self):
-        from common.events import MsgCSPlayerMove
-        from common.events import MsgCSPlayerAttack
-        from common.events import MsgCSPlayerHit
-        from common.events import MsgCSLoadFinished
-        from common.events import MsgCSPlayerCollect
-        from common.events import MsgCSPlayerReap
-        from common.events import MsgCSPlayerDrop
-        from common.events import MsgCSMakeRequest
-        from common.events import MsgCSWeaponInstall
-        from common.events import MsgCSWeaponUninstall
-        from common.events import MsgCSArmorInstall
-        from common.events import MsgCSHatInstall
-        from common.events import MsgCSWeaponActive
-
         self.msg_dict = {
             conf.MSG_CS_PLAYER_MOVE: MsgCSPlayerMove(),
             conf.MSG_CS_PLAYER_ATTACK: MsgCSPlayerAttack(),
             conf.MSG_CS_PLAYER_HIT: MsgCSPlayerHit(),
+            conf.MSG_CS_PLAYER_DEFEND: MsgCSPlayerDefend(),
             conf.MSG_CS_LOAD_FINISHED: MsgCSLoadFinished(),
             conf.MSG_CS_PLAYER_COLLECT: MsgCSPlayerCollect(),
             conf.MSG_CS_PLAYER_DROP: MsgCSPlayerDrop(),
             conf.MSG_CS_PLAYER_REAP: MsgCSPlayerReap(),
+            conf.MSG_CS_PLAYER_REAP_HIT: MsgCSPlayerReapHit(),
             conf.MSG_CS_MAKE_REQUEST: MsgCSMakeRequest(),
             conf.MSG_CS_WEAPON_INSTALL: MsgCSWeaponInstall(),
             conf.MSG_CS_WEAPON_UNINSTALL: MsgCSWeaponUninstall(),
             conf.MSG_CS_ARMOR_INSTALL: MsgCSArmorInstall(),
             conf.MSG_CS_HAT_INSTALL: MsgCSHatInstall(),
             conf.MSG_CS_WEAPON_ACTIVE: MsgCSWeaponActive(),
+            conf.MSG_CS_GM_BP_CMD: MsgCSGMBPCmd(),
         }
 
     def register_dispatcher_services(self):

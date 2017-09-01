@@ -13,8 +13,10 @@ class ArenaServices(Service):
             1: self.player_move,
             2: self.player_attack,
             3: self.player_hit,
+            4: self.player_defend,
             5: self.player_collect,
             8: self.player_reap,
+            9: self.player_reap_hit,
         }
         self.register_commands(commands)
 
@@ -33,6 +35,9 @@ class ArenaServices(Service):
     def player_hit(self, msg, client_hid):
         self.arena.handle_player_hit(msg, client_hid)
 
+    def player_defend(self, msg, client_hid):
+        self.arena.handle_player_defend(msg, client_hid)
+
     def loading_finished(self, msg, client_hid):
         self.arena.handle_loading_finished(msg, client_hid)
 
@@ -41,3 +46,6 @@ class ArenaServices(Service):
 
     def player_reap(self, msg, client_hid):
         self.arena.handle_player_reap(msg, client_hid)
+
+    def player_reap_hit(self, msg, client_hid):
+        self.arena.handle_player_reap_hit(msg, client_hid)

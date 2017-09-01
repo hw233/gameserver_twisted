@@ -34,11 +34,30 @@ class BackpackManager(object):
         self.weapon.append(None)
         self.weapon.append(None)
 
+    def gm_add_item(self, ID, num):
+
+        info = MaterialDB.get_info_by_ID(ID)
+        if info is None:
+            return False
+
+        if info["pile_bool"] is False:
+            for k in xrange(0, num):
+                item = BPItemObject(ID)
+                self.bring_in_ex(item)
+        else:
+            item = BPItemObject(ID, num)
+            self.bring_in_ex(item)
+
+        return True
+
     def _just_for_test_delete_me(self):
         item = BPItemObject(1001, 10)
         self.bring_in_ex(item)
 
         item = BPItemObject(1002, 10)
+        self.bring_in_ex(item)
+
+        item = BPItemObject(2001, 1)
         self.bring_in_ex(item)
 
         item = BPItemObject(2002, 2)
@@ -62,6 +81,18 @@ class BackpackManager(object):
         item = BPItemObject(4001, 2)
         self.bring_in_ex(item)
 
+        item = BPItemObject(5001, 10)
+        self.bring_in_ex(item)
+
+        item = BPItemObject(6001, 10)
+        self.bring_in_ex(item)
+
+        item = BPItemObject(6002, 10)
+        self.bring_in_ex(item)
+
+        item = BPItemObject(6003, 10)
+        self.bring_in_ex(item)
+
         hat = BPItemObject(4001, 1)
         self.hat = hat
 
@@ -82,7 +113,10 @@ class BackpackManager(object):
 
         return None
 
-    def bring_in_ex(self, obj):
+    def bring_in_ex(self, obj, num = 1):
+        if type(obj) is int:
+            obj = BPItemObject(obj, num)
+
         if obj.pile_bool is False:
             self.entity_id_to_backpack_obj_map[obj.entity_id] = obj
             return
@@ -130,6 +164,12 @@ class BackpackManager(object):
         info = MaterialDB.get_weapon_info_by_ID(item.ID)
 
         if info is None:
+            info = MaterialDB.get_food_info_by_ID(item.ID)
+
+        if info is None:
+            info = MaterialDB.get_trap_info_by_ID(item.ID)
+
+        if info is None:
             return False
 
         if slots_index < 0 or slots_index > 2:
@@ -138,7 +178,7 @@ class BackpackManager(object):
         for k in xrange(0, 3):
             if self.weapon[k] and self.weapon[k].ID == item.ID:
                  if k == slots_index:
-                    self.bring_in(self.weapon[k])
+                    self.bring_in_ex(self.weapon[k])
                     item = self.take_away_ex(item.entity_id, item.num)
                     self.weapon[k] = item
                     self.active_index = slots_index
@@ -161,6 +201,8 @@ class BackpackManager(object):
                 item = self.weapon[k]
                 self.weapon[k] = None
                 self.bring_in_ex(item)
+                if self.active_index == k:
+                    self.active_index = -1
                 return item
 
         if self.armor is not None and self.armor.entity_id == entity_id:
@@ -411,24 +453,36 @@ class BackpackManager(object):
         die_id_list = []
         active_weapon = self.get_active_weapon()
 
-        if active_weapon is not None and active_weapon.health<=0:
-            die_id_list.append(self.weapon[self.active_index].ID)
-            self.weapon[self.active_index] = None
-            self.active_index = -1
+        if active_weapon is not None and active_weapon.health <= 0:
+            if active_weapon.pile_bool is False:
+                die_id_list.append(self.weapon[self.active_index].ID)
+                self.weapon[self.active_index] = None
+                self.active_index = -1
+            else:
+                if active_weapon.num <= 0:
+                    die_id_list.append(self.weapon[self.active_index].ID)
+                    self.weapon[self.active_index] = None
+                    self.active_index = -1
 
-        if self.hat is not None and self.hat.health<=0:
+        if self.hat is not None and self.hat.health <= 0:
             die_id_list.append(self.hat.ID)
             self.hat = None
 
-        if self.armor is not None and self.armor.health<=0:
+        if self.armor is not None and self.armor.health <= 0:
             die_id_list.append(self.armor.ID)
             self.armor = None
 
         return die_id_list
 
-    def active_weapon(self, entity_id):
-        for index in xrange(0, 3):
-            if self.weapon[index] is not None and self.weapon[index].entity_id == entity_id:
-                self.active_index = index
-                return self.weapon[index]
+    def active_weapon(self, entity_id, action):
+        if action == 0:
+            if 0 <= self.active_index <= 2:
+                item = self.weapon[self.active_index]
+                self.active_index = -1
+                return item
+        else:
+            for k in xrange(0,3):
+                if self.weapon[k] is not None and self.weapon[k].entity_id == entity_id:
+                    self.active_index = k
+                    return self.weapon[k]
         return None

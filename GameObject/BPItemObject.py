@@ -26,12 +26,12 @@ class BPItemManager(object):
     def release_entity_id(self, id):
         self.entities_id.remove(id)
 
+
 bpim = BPItemManager()
 
 
 class BPItemObject(object):
     def __init__(self, ID, num=1):
-        # type: (object, object) -> object
         super(BPItemObject, self).__init__()
         self.ID = ID
         self.num = num

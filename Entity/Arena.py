@@ -5,7 +5,8 @@ from copy import deepcopy
 from common import Util
 
 from common.timer import TimerManager
-from Map.MapWorld import MapWorld
+from map import Universe
+from map.misc import Vector3
 from common import EventManager
 from common import conf
 
@@ -21,8 +22,8 @@ class Arena(object):
 
         self.timeManager = TimerManager()
 
-        # MapWorld
-        self.map_world = MapWorld()
+        # Map Universe
+        self.universe = Universe()
 
         # arena configuration
         self.arena_conf = importlib.import_module(arena_conf_filename).configuration
@@ -39,7 +40,7 @@ class Arena(object):
         from common.events import MsgSCMapLoad
         import sys
         seed = random.randint(0, sys.maxint)
-        self.map_world.create_world(seed)
+        self.universe.start(seed)
         msg = MsgSCMapLoad(seed)
 
         data = msg.marshal()
@@ -81,6 +82,7 @@ class Arena(object):
         EventManager.remove_observer(conf.MSG_CS_HAT_INSTALL, self.hat_install)
         EventManager.remove_observer(conf.MSG_CS_MAKE_REQUEST, self.handle_make_request)
         EventManager.remove_observer(conf.MSG_CS_WEAPON_ACTIVE, self.handle_weapon_active)
+        EventManager.remove_observer(conf.MSG_CS_GM_BP_CMD, self.gm_backpack_cmd)
 
     def start_game(self):
         self.is_game_start = True
@@ -97,6 +99,7 @@ class Arena(object):
         EventManager.add_observer(conf.MSG_CS_HAT_INSTALL, self.hat_install)
         EventManager.add_observer(conf.MSG_CS_MAKE_REQUEST, self.handle_make_request)
         EventManager.add_observer(conf.MSG_CS_WEAPON_ACTIVE, self.handle_weapon_active)
+        EventManager.add_observer(conf.MSG_CS_GM_BP_CMD, self.gm_backpack_cmd)
 
     def update_arena(self):
         pass
@@ -177,12 +180,34 @@ class Arena(object):
             msg = player.generate_born_msg(1)  # send to others
             self.broadcast(msg, not_send=player)
 
+        self._init_all_player_weapon()
+
+    def _init_all_player_weapon(self):
+        for hid, player in self.client_id_to_player_map.items():
+            self._init_weapon_per_player(player)
+
+    def _init_weapon_per_player(self, player):
+        from common.events import MsgSCWeaponInstall
+        active_weapon = player.backpack_manager.get_active_weapon()
+        if active_weapon is not None:
+            msg = MsgSCWeaponInstall(player.entity_id, active_weapon.ID)
+            self.broadcast(msg)
+
+        if player.backpack_manager.armor is not None:
+            msg = MsgSCWeaponInstall(player.entity_id, player.backpack_manager.armor.ID)
+            self.broadcast(msg)
+
+        if player.backpack_manager.hat is not None:
+            msg = MsgSCWeaponInstall(player.entity_id, player.backpack_manager.hat.ID)
+            self.broadcast(msg)
+
+
     def handle_player_move(self, msg, client_hid):
         if client_hid not in self.client_id_to_player_map:
             return
         player = self.client_id_to_player_map[client_hid]
-        if player.is_dead():
-            return
+        # if player.is_dead():  # 暂时把这个判断关掉，任何时候都转发消息，FIX ME !!!
+        #     return
 
         # 需要检测移动的合法性，包括地图边界判断和碰撞检测
         # 之后可以在服务器做的同步策略：
@@ -202,13 +227,36 @@ class Arena(object):
         if player.is_dead():
             return
 
-        print "Player attack"
+        print "player attack"
+        # 武器消耗，并同步
+        from common.events import MsgSCWeaponUninstall
+        active_weapon = player.backpack_manager.get_active_weapon()
+        if active_weapon is not None and active_weapon.pile_bool is True and msg.button_down is False:
+            active_weapon.num -= 1
+            die_list = player.backpack_manager.inquire_weapon_die()
+            for id in die_list:
+                msg = MsgSCWeaponUninstall(player.entity_id, id)
+                self.broadcast(msg)
+
+            self.send_backpack_syn_message(client_hid)
 
         # broadcast move info to other player
         # self.broadcast(msg, not_send=player) 
         self.broadcast(msg)  # 为了方便调试同步，暂时把角色的移动信息发给他自己，FIX ME !!!!!!!
 
-    def send_msg_by_player(self, msg, player):
+    def handle_player_defend(self, msg, client_hid):
+        if client_hid not in self.client_id_to_player_map:
+            return
+        player = self.client_id_to_player_map[client_hid]
+        if player.is_dead():
+            return
+
+
+        # broadcast move info to other player
+        # self.broadcast(msg, not_send=player)
+        self.broadcast(msg)  # 为了方便调试同步，暂时把角色的移动信息发给他自己，FIX ME !!!!!!!
+
+    def send_msg_to_player(self, msg, player):
         for hid, obj in self.client_id_to_player_map.items():
             if obj is player:
                 self.host.sendClient(hid, msg.marshal())
@@ -217,6 +265,7 @@ class Arena(object):
 
         if client_hid not in self.client_id_to_player_map:
             return
+
         player = self.client_id_to_player_map[client_hid]
         if player.is_dead():
             return
@@ -236,7 +285,7 @@ class Arena(object):
             die_list = target.backpack_manager.inquire_weapon_die()
             if len(die_list) > 0:
                 msg = target.backpack_manager.generate_backpack_syn_message_ex()
-                self.send_msg_by_player(msg, target)
+                self.send_msg_to_player(msg, target)
 
             # 让其他玩家同步武器挂载卸载数据
             for id in die_list:
@@ -247,14 +296,13 @@ class Arena(object):
             die_list = player.backpack_manager.inquire_weapon_die()
             if len(die_list) > 0:
                 msg = player.backpack_manager.generate_backpack_syn_message_ex()
-                self.send_msg_by_player(msg, player)
+                self.send_msg_to_player(msg, player)
 
             # 让其他玩家同步武器挂载卸载数据
             for id in die_list:
                 msg = MsgSCWeaponUninstall(player.entity_id, id)
                 self.broadcast(msg, player)
-
-                # 判断需不需要更新攻击者和受击对象的武器对象 ------------- end
+            # 判断需不需要更新攻击者和受击对象的武器对象 ------------- end
 
         print 'send hit damage data'
 
@@ -282,7 +330,8 @@ class Arena(object):
     def handle_player_collect(self, msg, client_hid):
         from common.events import MsgSCPlayerCollect
 
-        item = self.map_world.get_nearest_item(msg.pos_x, msg.pos_y, msg.pos_z)
+        entity = self.universe.get_target_entity(Vector3(msg.pos_x, msg.pos_y, msg.pos_z), radius=500)
+        item = entity.get('item')
         if item:
             print "[server] item id", item.id, item.hittable, item.collectible
             if item.collectible:
@@ -296,18 +345,30 @@ class Arena(object):
 
     def handle_player_reap(self, msg, client_hid):
         from common.events import MsgSCMapItemDestroy
-        item = self.map_world.get_nearest_item(msg.pos_x, msg.pos_y, msg.pos_z)
+        entity = self.universe.get_target_entity(Vector3(msg.pos_x, msg.pos_y, msg.pos_z), radius=500)
+        entity_id = entity['id']
+        item = entity.get('item')
+        # print 'entity', entity_id
         if item:
-            print "[server] item id", item.id, item.hittable, item.collectible
+            # print 'itttttttttttttttem', item.name, item.kind, item.health
             if item.hittable:
-                self.map_world.server_reap(item.id)
+                self.broadcast(msg)
+
+    def handle_player_reap_hit(self, msg, client_hid):
+        from common.events import MsgSCMapItemDestroy
+        entity = self.universe.get_target_entity(Vector3(msg.pos_x, msg.pos_y, msg.pos_z), radius=500)
+        entity_id = entity['id']
+        item = entity.get('item')
+        # print 'entity', entity_id
+        if item:
+            if item.hittable:
+                self.universe.reap(entity_id, self.client_id_to_player_map[client_hid].attack)
+
                 if item.dead:
-                    msg = MsgSCMapItemDestroy(item.id)
+                    print 'deaddddd'
+                    self.universe.destroy(entity_id)
+                    msg = MsgSCMapItemDestroy(entity_id)
                     self.broadcast(msg)
-                    print "[server] destroy"
-                else:
-                    print "[server] reap", item.health
-                    self.broadcast(msg, self.client_id_to_player_map[client_hid])
 
     def start_game_count_down(self):
         from common.events import MsgSCStartGame
@@ -390,7 +451,7 @@ class Arena(object):
 
         if item:
             msg = MsgSCWeaponInstall(msg.pid, item.ID)
-            self.broadcast(msg, player)
+            self.broadcast(msg)
 
     def weapon_uninstall(self, client_hid, msg):
         from common.events import MsgSCWeaponUninstall
@@ -407,7 +468,7 @@ class Arena(object):
 
         if res:
             msg = MsgSCWeaponUninstall(msg.pid, res.ID)
-            self.broadcast(msg, player)
+            self.broadcast(msg)
 
     def hat_install(self, client_hid, msg):
         from common.events import MsgSCWeaponInstall
@@ -421,7 +482,7 @@ class Arena(object):
 
         if res:
             msg = MsgSCWeaponInstall(msg.pid, res.ID)
-            self.broadcast(msg, player)
+            self.broadcast(msg)
 
     def armor_install(self, client_hid, msg):
         from common.events import MsgSCWeaponInstall
@@ -434,19 +495,35 @@ class Arena(object):
 
         if res:
             msg = MsgSCWeaponInstall(msg.pid, res.ID)
-            self.broadcast(msg, player)
+            self.broadcast(msg)
 
     def handle_weapon_active(self, client_hid, msg):
         from common.events import MsgSCWeaponInstall
+        from common.events import MsgSCWeaponUninstall
+
         print "[server] weapon active message"
         if self.client_id_to_player_map.has_key(client_hid) is False:
             return
 
         player = self.client_id_to_player_map[client_hid]
-        item = player.backpack_manager.active_weapon(msg.entity_id)
-
-        self.send_backpack_syn_message(client_hid)
+        item = player.backpack_manager.active_weapon(msg.entity_id, msg.action)
 
         if item is not None:
-            msg = MsgSCWeaponInstall(msg.pid, item.ID)
-            self.broadcast(msg, player)
+            self.send_backpack_syn_message(client_hid)
+
+        if item is not None:
+            if msg.action == 1:
+                msg = MsgSCWeaponInstall(msg.pid, item.ID)
+                self.broadcast(msg)
+            else:
+                msg = MsgSCWeaponUninstall(msg.pid, item.ID)
+                self.broadcast(msg)
+
+    def gm_backpack_cmd(self, client_hid, msg):
+        print "[server] gm backpack cmd msg received"
+        if self.client_id_to_player_map.has_key(client_hid) is False:
+            return
+        player = self.client_id_to_player_map[client_hid]
+        res = player.backpack_manager.gm_add_item(msg.ID, msg.num)
+        if res:
+            self.send_backpack_syn_message(client_hid)

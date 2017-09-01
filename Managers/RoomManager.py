@@ -15,6 +15,10 @@ from Entity.Room import Room
 
 
 class RoomManager(object):
+    SINGLE_ROOM = 0
+    NORMAL_ROOM = 1
+    BATTLE_ROOM = 2
+
     def __init__(self, host):
         self.host = host
         self.rid_to_game_room_map = {}
