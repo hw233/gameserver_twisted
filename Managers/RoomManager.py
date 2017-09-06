@@ -44,8 +44,8 @@ class RoomManager(object):
         if msg.num <= 0:
             msg.num = 1
 
-        self.game_kind[GameKindManager.NORMAL_GAME].max_room_user_default = msg.num
-        self.game_kind[GameKindManager.BATTLE_GAME].max_room_user_default = msg.num
+        self.game_kind[GameKindManager.NORMAL_GAME].set_default_room_num(msg.num)
+        self.game_kind[GameKindManager.BATTLE_GAME].set_default_room_num(msg.num)
         DebugAux.Log("[server] [room_manager] received gm command set room num ", msg.num)
 
     def handle_received_msg(self, msg_type, data, client_hid):

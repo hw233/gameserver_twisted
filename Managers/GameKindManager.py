@@ -38,6 +38,10 @@ class GameKindManager(object):
         self.username_to_room_map = {}
         self.client_hid_to_user={}
 
+    def set_default_room_num(self, num):
+        self.max_room_user_default = num
+        self.waiting_room.max_user_num = num
+
     def handle_received_msg(self, msg_type, data, client_hid):
         if self.client_hid_to_user.has_key(client_hid) is False:
             return

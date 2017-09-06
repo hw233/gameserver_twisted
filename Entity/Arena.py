@@ -345,7 +345,6 @@ class Arena(object):
         # self.broadcast(msg, player)
         pass
 
-
     def handle_player_reap(self, msg, client_hid):
         # 吃东西
         if msg.entity_id == -1:  # 这里应该根据当前武器来定的，暂时信任客户端,FIX ME !!!
@@ -416,6 +415,7 @@ class Arena(object):
             self.stop_game()
             return
 
+        DebugAux.Log("[server] arena start_game_count_down... send start game msg")
         data = MsgSCStartGame().marshal()
         for client_id in self.client_id_finished_map.keys():
             self.host.sendClient(client_id, data)
