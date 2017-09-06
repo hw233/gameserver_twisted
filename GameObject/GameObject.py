@@ -39,12 +39,13 @@ class GameObjectManager(object):
         import sys
 
         garbage = []
-        for key,val in self.entity_id_to_gameobject_map.items():
+        for key, val in self.entity_id_to_gameobject_map.items():
             if sys.getrefcount(val) <= 1:
                 garbage.append(key)
 
         for key in garbage:
             del self.entity_id_to_gameobject_map[key]
+
 
 '''
 @describe:
@@ -64,55 +65,74 @@ from Synchronization.PlayerOperation import OperationManager
 class GameObject(object):
     game_object_manager = GameObjectManager()
 
-    def __init__(self,health = 0 , position = Vector3(), rotation = Vector3()):
+    def __init__(self, health=0, position=Vector3(), rotation=Vector3()):
         # super(GameObject, self).__init__()
         self.position = position
         self.rotation = rotation
         self.health = health
+        self.spirit = 0
         self.entity_id = GameObject.game_object_manager.generate_entity_id(self)
-        self.state_change = False
-        self.last_processed_input_num = 0
-        self.operation_manager = OperationManager()
-
         self.backpack_manager = None
 
+        # self.state_change = False
+        # self.last_processed_input_num = 0
+        # self.operation_manager = OperationManager()
+
     # apply input msg change the rotation and position and so on
-    def apply_input(self, move):
-        if hasattr(move, 'delta_time') is True and hasattr(move, 'direction') is True\
-                and hasattr(move, 'sequence_num'):
-            self.position = self.position+move.direction*move.delta_time
-            self.last_processed_input_num = move.sequence_num
-            self.state_change = True
+    # def apply_input(self, move):
+    #     if hasattr(move, 'delta_time') is True and hasattr(move, 'direction') is True \
+    #             and hasattr(move, 'sequence_num'):
+    #         self.position = self.position + move.direction * move.delta_time
+    #         self.last_processed_input_num = move.sequence_num
+    #         self.state_change = True
+    #
+    #         # cache the movement
+    #         self.operation_manager.push(move)
 
-            # cache the movement
-            self.operation_manager.push(move)
-
-    def health_damage(self, val):
-        '''
+    def health_damage(self, val, attack_percent):
+        """
+        :param attack_percent:
         :param val: damage value
         :return: live->true, die->false
-        '''
+        """
 
         if val < 0:
             val = 0
 
-        val = val * (1-self.backpack_manager.get_defense()/100)
+        val = val * (1.0 - 1.0 * self.backpack_manager.get_defense() / 100.0) * attack_percent
         if val < 0:
             val = 0
 
-        self.health -= val
+        self.health -= int(val)
 
         if self.health <= 0:
             return False
         else:
             return True
 
-    def get_attack_value(self):
-        pass
+    def add_health(self, val, blood_percentage):
+        self.health = self.health + int(val * blood_percentage)
 
+        if self.health > 100:
+            self.health = 100
 
+    def add_spirit(self, val, spirit):
+        self.spirit = self.spirit + int(val * spirit)
+        if self.spirit > 100:
+            self.spirit = 100
 
+    def get_entity_id(self):
+        return self.entity_id
 
+    def get_position(self):
+        return self.position
 
+    def set_position(self, pos):
+        self.position = pos
 
+    def get_rotation(self):
+        return self.rotation
+
+    def set_rotation(self, rot):
+        self.rotation = rot
 

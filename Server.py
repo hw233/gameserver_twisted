@@ -7,6 +7,8 @@ from common.header import Header
 from network.simpleHost import SimpleHost
 from Database.DBManager import DBManager
 from Managers.RoomManager import RoomManager
+from common import EventManager
+from common import DebugAux
 
 
 class Server(object):
@@ -29,9 +31,23 @@ class Server(object):
         self.dispatcher = Dispatcher()
         self.register_dispatcher_services()
 
-        # map msg_type to message object
+        # universe msg_type to message object
         self.msg_dict = None
         self.generate_msg_dict()
+
+        self.user_services_msg_dict = None
+        self.room_manager_msg_dict = None
+
+        self.init()
+
+    def init(self):
+        self.user_services_msg_dict={
+            conf.MSG_CS_LOGIN_GUEST: events.MsgCSLoginGuest(),
+        }
+
+        self.room_manager_msg_dict = {
+            conf.MSG_CS_GM_ROOM_CMD: events.MsgCSGMRoomCmd(),
+        }
 
     def register_dispatcher_services(self):
         self.dispatcher.register(conf.USER_SERVICES, self.user_services)
@@ -70,20 +86,28 @@ class Server(object):
                     msg.unmarshal(data)
                     # Dispatch message
                     self.dispatcher.dispatch(msg, client_hid)
+                elif msg_type in self.user_services_msg_dict:
+                    msg = self.user_services_msg_dict[msg_type]
+                    msg.unmarshal(data)
+                    EventManager.trigger_event(msg_type, client_hid, msg)
+                elif msg_type in self.room_manager_msg_dict:
+                    msg = self.room_manager_msg_dict[msg_type]
+                    msg.unmarshal(data)
+                    EventManager.trigger_event(msg_type, client_hid, msg)
                 else:
                     # message not register, let room handle it
                     if client_hid in self.user_services.client_hid_to_user_map:
                         self.room_manager.handle_received_msg(msg_type, data, client_hid)
                     else:
-                        print "handle received message error: client not in any room"
+                         DebugAux.Log("handle received message error: client not in any room")
             elif event == conf.NET_CONNECTION_LEAVE:
                 self.dispatcher.dispatch(self.msg_dict[conf.MSG_CS_LOGOUT], client_hid)
-                print "user connection leave!!!"
+                DebugAux.Log("user connection leave!!!")
             elif event == conf.NET_CONNECTION_NEW:
-                print "net connection new !!!"
+                DebugAux.Log( "net connection new !!!")
         except:
             raise
-            print "handle received message error !!!!!!!!"
+            DebugAux.Log( "handle received message error !!!!!!!!")
 
 
 def main():
@@ -91,7 +115,6 @@ def main():
     while True:
         server.tick()
         #time.sleep(0.001)
-
 
 if __name__ == '__main__':
     main()

@@ -26,14 +26,14 @@ class UserDB(object):
             pass
             # user login table already exist
 
-    def add_user_info(self, user_info):
+    def add_user_info(self, username, password):
         import hashlib
         c = self.connect.cursor()
-        encrypt_password = hashlib.sha256(user_info.password).hexdigest()
+        encrypt_password = hashlib.sha256(password).hexdigest()
         try:
             sqlcmd = "INSERT INTO " + self.user_table_name + \
                      " VALUES (?, ?)"
-            c.execute(sqlcmd, (user_info.username, encrypt_password))
+            c.execute(sqlcmd, (username, encrypt_password))
             self.connect.commit()
             return True
         except sqlite3.IntegrityError:

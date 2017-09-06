@@ -3,8 +3,20 @@ import conf
 from header import SimpleHeader
 
 
+class MsgCSLoginGuest(SimpleHeader):
+    def __init__(self, uuid=""):
+        super(MsgCSLoginGuest, self).__init__(conf.MSG_CS_LOGIN_GUEST)
+        self.append_param('uuid', uuid, 's')
+
+
+class MsgSCLoginGuestResult(SimpleHeader):
+    def __init__(self, uuid=""):
+        super(MsgSCLoginGuestResult, self).__init__(conf.MSG_SC_LOGIN_GUEST_RESULT)
+        self.append_param('uuid', uuid, 's')
+
+
 class MsgSCMapLoad(SimpleHeader):
-    # notify clients load map
+    # notify clients load universe
     def __init__(self, seed):
         super(MsgSCMapLoad, self).__init__(conf.MSG_SC_MAP_LOAD)
         self.append_param('seed', seed, 'i')
@@ -38,9 +50,14 @@ class MsgCSRegister(SimpleHeader):
 
 
 class MsgCSMatchRequest(SimpleHeader):
-    def __init__(self, match_type = 0):
+
+    SINGLE_MATCH = 0
+    NORMAL_MATCH = 1
+    BATTLE_MATCH = 2
+
+    def __init__(self, match_type=1):
         super(MsgCSMatchRequest, self).__init__(conf.MSG_CS_MATCH_REQUEST)
-        self.append_param("match_type", match_type, 'i') #0 单人模式， 1 一般模式，2 竞技模式
+        self.append_param("match_type", match_type, 'i')  # 0 单人模式， 1 一般模式，2 竞技模式
         self.sid = conf.USER_SERVICES
         self.cmdid = 3
 
@@ -101,7 +118,7 @@ class MsgSCPlayerBorn(SimpleHeader):
         self.append_param('rx', rx, 'f')
         self.append_param('ry', ry, 'f')
         self.append_param('rz', rz, 'f')
-        self.append_param('role_id', role_id, 'i') # prefab id
+        self.append_param('role_id', role_id, 'i')  # prefab id
 
 
 class MsgCSPlayerMove(SimpleHeader):
@@ -142,7 +159,7 @@ class MsgCSPlayerAttack(SimpleHeader):
 
 
 class MsgCSPlayerHit(SimpleHeader):
-    def __init__(self, pid=-1, px=0, py=0, pz=0, skill_id=0, node_name='', targets_str=''):
+    def __init__(self, pid=-1, px=0, py=0, pz=0, skill_id=0, node_name='', targets_str='', attack_percent=0):
         super(MsgCSPlayerHit, self).__init__(conf.MSG_CS_PLAYER_HIT)
         self.append_param('pid', pid, 'i')
         self.append_param('px', px, 'f')
@@ -151,6 +168,7 @@ class MsgCSPlayerHit(SimpleHeader):
         self.append_param('skill_id', skill_id, 'i')
         self.append_param('node_name', node_name, 's')
         self.append_param('targets_str', targets_str, 's')
+        self.append_param('attack_percent', attack_percent, 'f')
         self.sid = conf.ARENA_SERVICES
         self.cmdid = 3
 
@@ -204,7 +222,7 @@ class MsgSCGameObjectDie(SimpleHeader):
 
 
 class MsgCSPlayerCollect(SimpleHeader):
-    def __init__(self, pid=-1, pos_x=0, pos_y=0,pos_z=0):
+    def __init__(self, pid=-1, pos_x=0, pos_y=0, pos_z=0):
         super(MsgCSPlayerCollect, self).__init__(conf.MSG_CS_PLAYER_COLLECT)
         self.append_param('pid', pid, 'i')
         self.append_param('pos_x', pos_x, 'f')
@@ -215,10 +233,9 @@ class MsgCSPlayerCollect(SimpleHeader):
 
 
 class MsgSCPlayerCollect(SimpleHeader):
-    def __init__(self, pid=-1, ID = -1):
+    def __init__(self, pid=-1):
         super(MsgSCPlayerCollect, self).__init__(conf.MSG_SC_PLAYER_COLLECT)
         self.append_param('pid', pid, 'i')
-        self.append_param("ID", ID , 'i')
 
 
 class MsgCSPlayerReap(SimpleHeader):
@@ -235,25 +252,45 @@ class MsgCSPlayerReap(SimpleHeader):
 
 
 class MsgCSPlayerReapHit(SimpleHeader):
-    def __init__(self, pid=-1, pos_x=0, pos_y=0, pos_z=0, entity_id=0):
+    def __init__(self, pid=-1, pos_x=0, pos_y=0, pos_z=0, entity_id=0, blood_percent=0, power_percent=0, attack_percent=0):
         super(MsgCSPlayerReapHit, self).__init__(conf.MSG_CS_PLAYER_REAP_HIT)
         self.append_param('pid', pid, 'i')
         self.append_param('pos_x', pos_x, 'f')
         self.append_param('pos_y', pos_y, 'f')
         self.append_param('pos_z', pos_z, 'f')
         self.append_param('entity_id', entity_id, 'i')
+        self.append_param('blood_percent', blood_percent, 'f')
+        self.append_param('power_percent', power_percent, 'f')
+        self.append_param('attack_percent', attack_percent, 'f')
         self.sid = conf.ARENA_SERVICES
         self.cmdid = 9
 
 
+class MsgSCPlayerReapHit(SimpleHeader):
+    def __init__(self, pid=-1, health=0, spirit=0):
+        super(MsgSCPlayerReapHit, self).__init__(conf.MSG_SC_PLAYER_REAP_HIT)
+        self.append_param('pid', pid, 'i')
+        self.append_param('health', health, 'i')
+        self.append_param('spirit', spirit, 'i')
+
+
+class MsgSCMapItemDrop(SimpleHeader):
+    def __init__(self, x=0, y=0, z=0, ID=-1):
+        super(MsgSCMapItemDrop, self).__init__(conf.MSG_SC_MAP_ITEM_DROP)
+        self.append_param('x', x, 'f')
+        self.append_param('y', y, 'f')
+        self.append_param('z', z, 'f')
+        self.append_param("ID", ID, 'i')
+
+
 class MsgSCMapItemDestroy(SimpleHeader):
-    def __init__(self, ID = -1):
+    def __init__(self, ID=-1):
         super(MsgSCMapItemDestroy, self).__init__(conf.MSG_SC_MAP_ITEM_DESTROY)
         self.append_param("ID", ID, "i")
-        
+
 
 class MsgSCPlayerLeave(SimpleHeader):
-    def __init__(self, pid = -1):
+    def __init__(self, pid=-1):
         super(MsgSCPlayerLeave, self).__init__(conf.MSG_SC_PLAYER_LEAVE)
         self.append_param("pid", pid, "i")
 
@@ -262,29 +299,29 @@ class MsgSCPlayerLeave(SimpleHeader):
 
 
 class MsgSCBackpackSyn(SimpleHeader):
-    def __init__(self, format="", data = ""):
+    def __init__(self, format="", data=""):
         super(MsgSCBackpackSyn, self).__init__(conf.MSG_SC_BACKPACK_SYN)
         self.append_param("format", format, "s")
         self.append_param("data", data, "s")
 
 
 class MsgCSMakeRequest(SimpleHeader):
-    def __init__(self, pid = -1, ID = -1, num = 1):
+    def __init__(self, pid=-1, ID=-1, num=1):
         super(MsgCSMakeRequest, self).__init__(conf.MSG_CS_MAKE_REQUEST)
-        self.append_param("pid",pid, 'i')
+        self.append_param("pid", pid, 'i')
         self.append_param("ID", ID, 'i')
         self.append_param("num", num, 'i')
 
 
 class MsgCSArmorInstall(SimpleHeader):
-    def __init__(self, pid = -1, entity_id = -1):
+    def __init__(self, pid=-1, entity_id=-1):
         super(MsgCSArmorInstall, self).__init__(conf.MSG_CS_ARMOR_INSTALL)
         self.append_param("pid", pid, 'i')
         self.append_param("entity_id", entity_id, 'i')
 
 
 class MsgCSWeaponInstall(SimpleHeader):
-    def __init__(self, pid=-1, entity_id=-1, slot_index = -1):
+    def __init__(self, pid=-1, entity_id=-1, slot_index=-1):
         super(MsgCSWeaponInstall, self).__init__(conf.MSG_CS_WEAPON_INSTALL)
         self.append_param("pid", pid, 'i')
         self.append_param("entity_id", entity_id, 'i')
@@ -313,14 +350,14 @@ class MsgSCWeaponInstall(SimpleHeader):
 
 
 class MsgSCWeaponUninstall(SimpleHeader):
-    def __init__(self, pid=-1, ID = -1):
+    def __init__(self, pid=-1, ID=-1):
         super(MsgSCWeaponUninstall, self).__init__(conf.MSG_SC_WEAPON_UNINSTALL)
         self.append_param("pid", pid, 'i')
         self.append_param("ID", ID, 'i')
 
 
 class MsgCSPlayerDrop(SimpleHeader):
-    def __init__(self, pid=-1, entity_id = -1, x=0, y=0, z=0):
+    def __init__(self, pid=-1, entity_id=-1, x=0, y=0, z=0):
         super(MsgCSPlayerDrop, self).__init__(conf.MSG_CS_PLAYER_DROP)
         self.append_param("pid", pid, 'i')
         self.append_param("entity_id", entity_id, 'i')
@@ -330,31 +367,39 @@ class MsgCSPlayerDrop(SimpleHeader):
 
 
 class MsgCSWeaponActive(SimpleHeader):
-    def __init__(self, pid=-1, entity_id = -1, action = 0):
+    def __init__(self, pid=-1, entity_id=-1, action=0):
         super(MsgCSWeaponActive, self).__init__(conf.MSG_CS_WEAPON_ACTIVE)
         self.append_param("pid", pid, 'i')
         self.append_param("entity_id", entity_id, 'i')
-        self.append_param("action", action, 'i') # if action 0 deactive 1 active
+        self.append_param("action", action, 'i')  # if action 0 deactive 1 active
 
 
 class MsgCSGMBPCmd(SimpleHeader):
-    def __init__(self, pid = -1, ID=-1, num = 1):
+    def __init__(self, pid=-1, ID=-1, num=1):
         super(MsgCSGMBPCmd, self).__init__(conf.MSG_CS_GM_BP_CMD)
         self.append_param("pid", pid, 'i')
         self.append_param("ID", ID, 'i')
         self.append_param("num", num, 'i')
 
 
+class MsgCSGMRoomCmd(SimpleHeader):
+    def __init__(self, num=1):
+        super(MsgCSGMRoomCmd, self).__init__(conf.MSG_CS_GM_ROOM_CMD)
+        self.append_param("num", num, "i")
+
+
 class MsgSCSpiritSyn(SimpleHeader):
-    def __init__(self, pid = -1 , spirit = 0):
+    def __init__(self, pid=-1, spirit=0):
         super(MsgSCSpiritSyn, self).__init__(conf.MSG_SC_SPIRIT_SYN)
         self.append_param("pid", pid, 'i')
         self.append_param("spirit", spirit, 'i')
 
 
 class MsgCSEatFood(SimpleHeader):
-    def __init__(self, pid = -1, entity_id = -1):
+    def __init__(self, pid=-1, entity_id=-1):
         super(MsgCSEatFood, self).__init__(conf.MSG_CS_EAT_FOOD)
         self.append_param("pid", pid, 'i')
         self.append_param("entity_id", entity_id, 'i')
+
+
 '''********************************BackpackMessage*******************************************************'''

@@ -19,7 +19,7 @@ class Player(GameObject):
         from Configuration.PlayerConf import explorer
         from Managers.BackpackManager import BackpackManager
 
-        GameObject.__init__(self,explorer['health'], position, rotation)
+        GameObject.__init__(self, explorer['health'], position, rotation)
 
         self.attack = explorer['attack']
         self.defense = explorer['defense']
@@ -27,6 +27,7 @@ class Player(GameObject):
         self.move_speed = explorer['move_speed']
         self.make_speed = explorer['make_speed']
         self.collect_speed = explorer['collect_speed']
+        self.spirit = explorer['spirit']
 
         self.client_hid = client_hid
         self.name = name
@@ -37,7 +38,8 @@ class Player(GameObject):
         self.backpack_manager = BackpackManager()
 
     def generate_born_msg(self, send_to_others):
-        return MsgSCPlayerBorn(self.entity_id, send_to_others, self.name,self.health, self.position[0], self.position[1], self.position[2],self.rotation[0],self.rotation[1], self.rotation[2])
+        return MsgSCPlayerBorn(self.entity_id, send_to_others, self.name, self.health, self.position[0],
+                               self.position[1], self.position[2], self.rotation[0], self.rotation[1], self.rotation[2])
 
     def set_leave_scene(self):
         self.is_leave_scene = True
@@ -75,4 +77,4 @@ class Player(GameObject):
             return object.__getattribute__(self, item)
 
     def get_attack_value(self):
-        return object.__getattribute__(self, "attack")+self.backpack_manager.get_attack()
+        return object.__getattribute__(self, "attack") + self.backpack_manager.get_attack()

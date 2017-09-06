@@ -11,93 +11,81 @@
 '''
 
 
-from Entity.Room import Room
+from Managers.GameKindManager import GameKindManager
+from common import conf
+from common.events import MsgCSGMRoomCmd
+from common import EventManager
+from common import DebugAux
 
 
 class RoomManager(object):
-    SINGLE_ROOM = 0
-    NORMAL_ROOM = 1
-    BATTLE_ROOM = 2
-
     def __init__(self, host):
         self.host = host
-        self.rid_to_game_room_map = {}
-        self.waiting_room = Room(self.generate_room_id(), self.host)
-        self.username_to_room_map = {}
-        self.client_hid_to_user={}
+
+        self.game_kind = {}
+        self.client_hid_to_game_type = {}
+        self.username_to_game_type = {}
+
+        self.msg_dict = {}
+
+        self.init()
+
+    def init(self):
+        self.game_kind[GameKindManager.SINGLE_GAME] = GameKindManager(self.host, GameKindManager.SINGLE_GAME)
+        self.game_kind[GameKindManager.NORMAL_GAME] = GameKindManager(self.host, GameKindManager.NORMAL_GAME)
+        self.game_kind[GameKindManager.BATTLE_GAME] = GameKindManager(self.host, GameKindManager.BATTLE_GAME)
+
+        self.add_msg_listener()
+
+    def add_msg_listener(self):
+        EventManager.add_observer(conf.MSG_CS_GM_ROOM_CMD, self.set_room_num)
+
+    def set_room_num(self,client_hid, msg):
+        if msg.num <= 0:
+            msg.num = 1
+
+        self.game_kind[GameKindManager.NORMAL_GAME].max_room_user_default = msg.num
+        self.game_kind[GameKindManager.BATTLE_GAME].max_room_user_default = msg.num
+        DebugAux.Log("[server] [room_manager] received gm command set room num ", msg.num)
 
     def handle_received_msg(self, msg_type, data, client_hid):
-        if self.client_hid_to_user.has_key(client_hid) is False:
+        if client_hid not in self.client_hid_to_game_type:
             return
 
-        # find room and send msg
-        room = self.username_to_room_map[self.client_hid_to_user[client_hid].username]
-        room.handle_received_msg(msg_type,data,client_hid)
-
-    def generate_room_id(self):
-        for id in xrange(1,len(self.rid_to_game_room_map)+2):
-            if self.rid_to_game_room_map.has_key(id) is False:
-                return id
+        gkm = self.game_kind[self.client_hid_to_game_type[client_hid]]
+        gkm.handle_received_msg(msg_type, data, client_hid)
 
     def tick(self):
-        invalid_room = []
-        for room in self.rid_to_game_room_map.itervalues():
-            if room.is_valid() is False:
-                invalid_room.append(room)
-            else:
-                room.tick()
+        for game in self.game_kind.itervalues():
+            game.tick()
 
-        for room in invalid_room:
-            self._remove_room(room)
+    def add_user(self, user, game_type = -1):
+        '''
+        :param user:
+        :param game_type: if game_type is -1 then there is a reconnect
+        :return:
+        '''
 
-    def add_user(self, user):
-
-        # join the room again
-        if self.username_to_room_map.has_key(user.username) is True:
-            room = self.username_to_room_map[user.username]
-            room.add_user(user)
+        if game_type == -1:
+            if user in self.username_to_game_type:
+                self.game_kind[self.username_to_game_type[user]].add_user()
             return
 
-        # new user is coming
-        self.waiting_room.add_user(user)
-        self.username_to_room_map[user.username] = self.waiting_room
-        self.client_hid_to_user[user.client_hid] = user
-
-        if self.waiting_room.is_full() is True:
-            self.rid_to_game_room_map[self.waiting_room.rid] = self.waiting_room
-            self.waiting_room = Room(self.generate_room_id(), self.host)
+        self.game_kind[game_type].add_user(user)
+        self.username_to_game_type[user.username] = game_type
+        self.client_hid_to_game_type[user.client_hid] = game_type
 
     def remove_user(self, user):
-        if self.username_to_room_map.has_key(user.username) is False:
+        if user.username not in self.username_to_game_type:
             return
 
-        room = self.username_to_room_map[user.username]
+        index = self.username_to_game_type[user.username]
 
-        if room is self.waiting_room:
-            room.remove_user(user)
-            return
+        self.game_kind[index].remove_user(user)
 
-        if room.remove_user(user) is True:
-            # The room is empty
-            del self.rid_to_game_room_map[room.rid]
-            for k,v in room.username_to_user_map.items():
-                del self.username_to_room_map[k]
-
-    # remove invalid room
-    def _remove_room(self, room):
-        del self.rid_to_game_room_map[room.rid]
-
-        for user in room.username_to_user_map.itervalues():
-            del self.username_to_room_map[user.username]
-            del self.client_hid_to_user[user.client_hid]
-
-    # if the user is already in the arena return True else False
     def is_in_arena(self, user):
-        if self.username_to_room_map.has_key(user.username) is True:
-            room = self.username_to_room_map[user.username]
-            if room is self.waiting_room:
-                return False
-            else:
-                return True
+        if user.username not in self.username_to_game_type:
+            return False
 
-        return False
+        index = self.username_to_game_type[user.username]
+        return self.game_kind[index].is_in_arena(user)

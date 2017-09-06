@@ -10,6 +10,7 @@
      2. 2017-08-15 finish function 'pile' 'consume' 'split'
 '''
 from Configuration import MaterialDB
+from common import DebugAux
 
 
 class BPItemManager(object):
@@ -92,16 +93,16 @@ class BPItemObject(object):
         return obj
 
     def get_attack(self):
-        if hasattr(self, "attack") is True:
+        if hasattr(self, "attack") is True and self.pile_bool is False:
             self.health -= self.costblood
-            print "[server] backpack item object health ",self.health
+            DebugAux.Log( "[server] backpack item object health ",self.health)
             return self.attack
         return 0
 
     def get_defense(self):
         if hasattr(self, "defense") is True:
             self.health -= self.costblood
-            print "[server] backpack item object health ", self.health
+            DebugAux.Log( "[server] backpack item object health ", self.health)
             return self.defense
 
         return 0

@@ -25,7 +25,7 @@ material_DB = {
         "describe": '随随便便从野外捡到的树枝，似乎可以拿来造点什么。',
         "pile_bool": True,
         "icon_name": "1001.png",
-        "gim": "model/dead_tree/dead_tree.gim",
+        "item": 11,
     },
     "mutou": {
         "ID": 1002,
@@ -33,7 +33,7 @@ material_DB = {
         "describe": '一截从树上砍下来的木头，可以用来制作各种工具。',
         "pile_bool": True,
         "icon_name": "1002.png",
-        "gim": "model/wood/wood.gim",
+        "item": 10,
     },
     "cao": {
         "ID": 1003,
@@ -41,15 +41,18 @@ material_DB = {
         "describe": '一截从树上砍下来的木头，可以用来制作各种工具。',
         "pile_bool": True,
         "icon_name": "1003.png",
-        "gim": "model/dead_tree/dead_tree.gim",
+        "item": 6,
     },
     "shitou": {
         "ID": 1004,
         "name": '石头',
-        "describe": '坚硬的石头。',
+        "describe": '坚硬的石头，丢石头不是正道，你要蓄力丢那更坏了！',
         "pile_bool": True,
         "icon_name": "1004.png",
-        "gim": "model/dead_tree/dead_tree.gim",
+        "attackskill": 10040,
+        "gim": "model/stone/stone_03.gim",
+        "item": 105,
+        'socket': 'weapon',
     },
 }
 
@@ -62,19 +65,20 @@ weapon_DB = {
         "gim": "",
         "pile_bool": False,  # 是否可叠加
         "attack": 0,  # 攻击力
-        "attackskill": 1000,  # 攻击技能ID
-        "collectskill": [[100, 1], [100, 3], [100, 5], [100, 7]],
+        "attackskill": 2000,  # 攻击技能ID
+        "collectskill": [[101, 7], [101, 8]],
     },
     "futou": {
         "ID": 2001,
         "name": '斧头',
         "describe": '可以用来砍树和砍...人。',
         "icon_name": '2001.png',
-        "gim": "model/axe/axe.gim",
+        "gim": "player/explorer/axe.gim",
+        "item": 2001,
         "pile_bool": False,  # 是否可叠加
-        "attack": 10,  # 攻击力
+        "attack": 15,  # 攻击力
         "attackskill": 1000,  # 攻击技能ID
-        "collectskill": [[2001, 3], [2001, 7]],
+        "collectskill": [[2001, 7], [2001, 8]],
         "make_speed": 2,  # 制作时间
         "costblood": 2,  # 每次使用消耗物品的生命，物品生命默认为100
         "make_list": {1001: 2, 1004: 4},  # 制作材料
@@ -84,9 +88,10 @@ weapon_DB = {
         "name": '锤子',
         "describe": '能把人打倒的大锤子',
         "icon_name": "2002.png",
-        "gim": "model/dead_tree/dead_tree.gim",
+        "gim": "model/branch/branch.gim",
+        "item": 2002,
         "pile_bool": False,
-        "attack": 20,  # 攻击力
+        "attack": 25,  # 攻击力
         "attackskill": 1002,  # 攻击技能ID
         "make_speed": 4,  # 制作时间
         "costblood": 4,  # 每次使用消耗物品的生命，物品生命默认为100
@@ -97,7 +102,8 @@ weapon_DB = {
         "name": '标枪',
         "describe": '投掷的标枪',
         "icon_name": "2003.png",
-        "gim": "model/dead_tree/dead_tree.gim",
+        "gim": "player/explorer/lance.gim",
+        "item": 2003,
         "pile_bool": True,
         "attack": 15,  # 攻击力
         "attackskill": 1003,  # 攻击技能ID
@@ -105,16 +111,17 @@ weapon_DB = {
         "costblood": 100,  # 每次使用消耗物品的生命，物品生命默认为100
         "make_list": {1002: 2, 1003: 2},  # 制作材料
     },
+
     "bishou": {
         "ID": 2004,
         "name": '匕首',
         "describe": '伤害很高的近战武器',
         "icon_name": "2004.png",
-        "gim": "model/dead_tree/dead_tree.gim",
+        "gim": "model/branch/branch.gim",
+        "item": 2004,
         "pile_bool": True,
         "attack": 20,  # 攻击力
         "attackskill": 1004,  # 攻击技能ID
-        "costblood": 2,  # 每次使用消耗物品的生命，物品生命默认为100
         "make_speed": 2,  # 制作时间
         "costblood": 4,  # 每次使用消耗物品的生命，物品生命默认为100
     },
@@ -126,9 +133,10 @@ armor_DB = {
         "name": '木盾牌',
         "describe": '并不是很坚硬的护甲',
         "icon_name": '3001.png',
-        "gim": "model/dead_tree/dead_tree.gim",
+        "gim": "player/explorer/shield.gim",
+        "item": 3001,
         "pile_bool": False,
-        "defense": 5,
+        "defense": 15,
         "costblood": 5,
         "make_list": {1002: 2, 1003: 2},
     },
@@ -137,9 +145,10 @@ armor_DB = {
         "name": '铁盾牌',
         "describe": '稍微坚硬点护甲',
         "icon_name": '3001.png',
-        "gim": "model/dead_tree/dead_tree.gim",
+        "gim": "player/explorer/shield.gim",
+        "item": 3002,
         "pile_bool": False,
-        "defense": 10,
+        "defense": 30,
         "costblood": 4,
         "make_list": {1002: 6, 1004: 4},
     },
@@ -151,11 +160,11 @@ hat_DB = {
         "name": '帽子',
         "describe": '带上奇特颜色的帽子，防御会更强!',
         "icon_name": '4001.png',
-        "gim": "model/dead_tree/dead_tree.gim",
+        "gim": "model/hat/hat.gim",
+        "item": 4001,
         "pile_bool": False,
         "defense": 10,
-        "health": 100,
-        "costblood": 2,  # 每次使用消耗物品的生命，物品生命默认为100
+        "costblood": 2,
         "make_list": {1001: 2, 1002: 2},
     },
     "haomaozi": {
@@ -163,10 +172,11 @@ hat_DB = {
         "name": '更强的帽子',
         "describe": '带上最强的帽子，就是最强的！',
         "icon_name": '4001.png',
-        "gim": "model/dead_tree/dead_tree.gim",
+        "gim": "model/hat/hat.gim",
+        "item": 4002,
         "pile_bool": False,
+        "costblood": 4,
         "defense": 20,
-        "costblood": 2,  # 每次使用消耗物品的生命，物品生命默认为100
         "make_list": {1002: 2, 1003: 2},
     },
 }
@@ -177,7 +187,8 @@ trap_DB = {
         "name": '木制陷阱',
         "describe": '布置完之后，非常的可怕！',
         "icon_name": '5001.png',
-        "gim": "model/dead_tree/dead_tree.gim",
+        "gim": "model/branch/branch.gim",
+        "drop_gim": "model/hat/hat.gim",
         "pile_bool": True,
         "attack": 40,
         "attackskill": 5001,
@@ -189,7 +200,8 @@ trap_DB = {
         "ID": 5002,
         "name": '精致陷阱',
         "describe": '可怕的陷阱',
-        "gim": "model/dead_tree/dead_tree.gim",
+        "gim": "model/branch/branch.gim",
+        "drop_gim": "model/hat/hat.gim",
         "icon_name": '5001.png',
         "pile_bool": True,
         "attack": 60,
@@ -205,19 +217,28 @@ food_DB = {
         "name": '浆果',
         "describe": '味道微甜的果子',
         "icon_name": '6001.png',
-        "gim": "model/dead_tree/dead_tree.gim",
+        "gim": "model/berry/berry_01.gim",
+        "item": 3,
         "pile_bool": True,
-        "food": 20,
+		"attackskill": 60010,
+        "attack": 5,  # 攻击力
+        "collectskill": [[60011, -1]],  # 场景对象为-1为吃东西
+        'socket': 'weapon',  # 挂接点名字，没有此项默认为weapon
     },
 
     "niaodan": {
         "ID": 6002,
         "name": '鸟蛋',
-        "describe": '大鸟留下来的蛋，可以吃',
+        "describe": '大鸟留下来的蛋，可以吃。丢人据说可以加血',
         "icon_name": '6002.png',
-        "gim": "model/dead_tree/dead_tree.gim",
+        "gim": "model/egg/egg.gim",
+        "item": 6002,
         "pile_bool": True,
-        "food": 50,
+        "attackskill": 60020,
+        # "food": 50,
+        "collectskill": [[60021, -1]],  # 场景对象为-1为吃东西
+        "attack": 40,
+        'socket': 'weapon',
     },
 
     "darou": {
@@ -225,9 +246,12 @@ food_DB = {
         "name": '大肉',
         "describe": '美味的大肉，生吃也不是不可以',
         "icon_name": '6003.png',
-        "gim": "model/dead_tree/dead_tree.gim",
+        "gim": "model/branch/branch.gim",
+        "item": 6003,
         "pile_bool": True,
-        "food": 80,
+        "collectskill": [[60031, -1]],  # 场景对象为-1为吃东西
+        "attack": 80,
+        'socket': 'weapon',
     },
 }
 

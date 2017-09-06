@@ -10,6 +10,7 @@
 '''
 from GameObject.BPItemObject import BPItemObject
 from Configuration import MaterialDB
+from common import DebugAux
 
 
 class BackpackManager(object):
@@ -57,6 +58,9 @@ class BackpackManager(object):
         item = BPItemObject(1002, 10)
         self.bring_in_ex(item)
 
+        item = BPItemObject(6002, 10)
+        self.bring_in_ex(item)
+
         item = BPItemObject(2001, 1)
         self.bring_in_ex(item)
 
@@ -85,9 +89,6 @@ class BackpackManager(object):
         self.bring_in_ex(item)
 
         item = BPItemObject(6001, 10)
-        self.bring_in_ex(item)
-
-        item = BPItemObject(6002, 10)
         self.bring_in_ex(item)
 
         item = BPItemObject(6003, 10)
@@ -143,7 +144,7 @@ class BackpackManager(object):
         return None
 
     def get_active_weapon(self):
-        if self.active_index<0 and self.active_index>2:
+        if self.active_index<0 or self.active_index>2:
             return None
 
         return self.weapon[self.active_index]
@@ -305,7 +306,7 @@ class BackpackManager(object):
     def parse_backpack_syn_message_ex(self, msg):
         import struct
         data = struct.unpack(msg.format, msg.data)
-        print data
+        DebugAux.Log(data)
 
         self.entity_id_to_backpack_obj_map = {}
 
@@ -355,6 +356,7 @@ class BackpackManager(object):
         :param num: request make number
         :return: success return True else return False
         '''
+        DebugAux.Log("[server] make request ",ID, " num ", num)
         info = MaterialDB.get_info_by_ID(ID)
         res = False
 
@@ -453,7 +455,7 @@ class BackpackManager(object):
         die_id_list = []
         active_weapon = self.get_active_weapon()
 
-        if active_weapon is not None and active_weapon.health <= 0:
+        if active_weapon is not None and (active_weapon.health <= 0 or active_weapon.num <=0):
             if active_weapon.pile_bool is False:
                 die_id_list.append(self.weapon[self.active_index].ID)
                 self.weapon[self.active_index] = None

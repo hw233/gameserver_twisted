@@ -2,14 +2,24 @@ from Arena import Arena
 from Services.ArenaServices import ArenaServices
 from common.dispatcher import Dispatcher
 from common.events import *
+from common import DebugAux
 
 
 class Room(object):
 
-    def __init__(self, rid, host, max_user_num=2, arena_conf_filename='Configuration.ArenaConf', player_conf_filename='Configuration.PlayerConf'):
+    def __init__(self, rid, host, max_user_num = 1, arena_conf_filename='Configuration.ArenaConf', player_conf_filename='Configuration.PlayerConf', game_type = 0):
+        '''
+        :param rid:
+        :param host:
+        :param max_user_num:
+        :param arena_conf_filename:
+        :param player_conf_filename:
+        :param room_type: single 0, normal 1, battle 2
+        '''
         super(Room, self).__init__()
         self.rid = rid
         self.host = host
+        self.game_type=game_type
         self.arena = None
 
         self.max_user_num = max_user_num
@@ -62,7 +72,7 @@ class Room(object):
             else:
                 EventManager.trigger_event(msg_type, client_hid, msg)
         else:
-            print "Can't handle received message in room"
+            DebugAux.Log( "Can't handle received message in room")
 
     def tick(self):
         if self.arena:
@@ -73,7 +83,7 @@ class Room(object):
         if self.arena and self.arena.is_game_start and not self.arena.is_game_stop:
             return False
 
-        self.arena = Arena(self.host, self.arena_conf_filename, self.player_conf_filename)
+        self.arena = Arena(self.host, self.arena_conf_filename, self.player_conf_filename, self.game_type)
 
         self.register_dispatcher_services()
 
@@ -99,6 +109,8 @@ class Room(object):
         self.username_to_user_map[user.username] = user
         self.broadcast_roommate_add(user.username)
 
+        self.send_roommates_to_user(user)
+
         if len(self.username_to_user_map) >= self.max_user_num:
             self.start_game()
 
@@ -119,6 +131,12 @@ class Room(object):
                 return True
 
         return False
+
+    def send_roommates_to_user(self, user):
+        for username in self.username_to_user_map.keys():
+            msg = MsgSCRoommateAdd(username)
+            data = msg.marshal()
+            self.host.sendClient(user.client_hid, data)
 
     def broadcast_roommate_add(self, username):
         msg = MsgSCRoommateAdd(username)
