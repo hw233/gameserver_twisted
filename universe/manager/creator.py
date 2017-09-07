@@ -33,8 +33,9 @@ class Creator(object):
 
     @staticmethod
     def create_region(data):
-        region = graph.Region()
-        for block_data in data:
+        region = graph.Region(horizontal_scale=data['world']['tile']['width'],
+                              vertical_scale=data['world']['tile']['length'])
+        for block_data in data['block']:
             origin = graph.Node(
                 horizontal=block_data['center'][0],
                 vertical=block_data['center'][1]
@@ -105,13 +106,15 @@ class Creator(object):
         for block in block_data:
             if 'spots' not in block:
                 continue
-
+            TRY_TIMES = 800
+            try_times = TRY_TIMES
             area = block['spots']['area'] * block['area']
-
             while area > 0:
-                if not grid.tiles:
+                try_times -= 1
+                if try_times <= 0:
+                    area -= 1
                     break
-                tile = PseudoRandom.get().choice(grid.tiles)
+                tile = PseudoRandom.get().choice(grid.tiles(block['landform']['id']))
                 spot = PseudoRandom.get().choice(block['spots']['spot'])
                 width = spot['horizontal']
                 length = spot['vertical']
@@ -152,6 +155,7 @@ class Creator(object):
                         }
                     }
                 ])
+
 
         return spots
 
@@ -226,7 +230,8 @@ class Creator(object):
 
         population = []
         count = amount
-        try_times = 5000    # 最多尝试次数
+        TRY_TIMES = 2000
+        try_times = TRY_TIMES
         while count > 0:
             try_times -= 1
             if try_times <= 0:
@@ -281,6 +286,7 @@ class Creator(object):
     def create_building(grid, data):
         building_h = data['world']['building']['horizontal']
         building_v = data['world']['building']['vertical']
+        margin = data['world']['building']['margin']
         def create_part(horizontal, vertical, side):
             offsets = [
                 (0, building_v),
@@ -321,23 +327,30 @@ class Creator(object):
 
             area = block['buildings']['area'] * block['area']
 
-            try_times = 1000
+            try_times = 100
             while area > 0:
                 try_times -= 1
                 if try_times <=0 :
                     break
 
-                tile = PseudoRandom.get().choice(grid.tiles)
+                tiles = grid.tiles(block['landform']['id'])
+                if not tiles:
+                    continue
 
-                if grid.validate_chunk(tile.horizontal, tile.vertical,
-                                       tile.horizontal, tile.vertical, block['landform']['id']):
+                tile = PseudoRandom.get().choice(tiles)
+
+                if not grid.validate_chunk(
+                        tile.horizontal - margin, tile.vertical - margin,
+                        tile.horizontal + building_h * 2+ margin - 1,
+                        tile.vertical + building_v * 2 + margin - 1, block['landform']['id']):
                     continue
 
                 for side in xrange(0, 4):
                     part = create_part(tile.horizontal, tile.vertical, side)
                     if part:
                         buildings.append(part)
-                        area -= 1
+                        area -= building_h * building_v
+
         return buildings
 
     @staticmethod
@@ -357,7 +370,8 @@ class Creator(object):
             min_point = Vector3(min_x, min_y, min_z)
             max_point = Vector3(max_x, max_y, max_z)
             aabb = AABB(min_point, max_point)
-            return Collider(aabb, outline_visible=data.get('outline_visible', False))
+            return Collider(collider=aabb, outline_visible=data.get('outline_visible', False),
+                            static=data.get('static', False))
 
     @staticmethod
     def create_transform(data):

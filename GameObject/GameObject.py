@@ -74,6 +74,8 @@ class GameObject(object):
         self.entity_id = GameObject.game_object_manager.generate_entity_id(self)
         self.backpack_manager = None
 
+        self.debug_damage = 0
+
         # self.state_change = False
         # self.last_processed_input_num = 0
         # self.operation_manager = OperationManager()
@@ -102,6 +104,8 @@ class GameObject(object):
         val = val * (1.0 - 1.0 * self.backpack_manager.get_defense() / 100.0) * attack_percent
         if val < 0:
             val = 0
+
+        self.debug_damage = val
 
         self.health -= int(val)
 
@@ -135,4 +139,7 @@ class GameObject(object):
 
     def set_rotation(self, rot):
         self.rotation = rot
+
+    def update(self):
+        pass
 

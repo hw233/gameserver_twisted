@@ -80,7 +80,7 @@ weapon_DB = {
         "attackskill": 1000,  # 攻击技能ID
         "collectskill": [[2001, 7], [2001, 8]],
         "make_speed": 2,  # 制作时间
-        "costblood": 2,  # 每次使用消耗物品的生命，物品生命默认为100
+        "costblood": 25,  # 每次使用消耗物品的生命，物品生命默认为100
         "make_list": {1001: 2, 1004: 4},  # 制作材料
     },
     "chuizi": {
@@ -94,7 +94,7 @@ weapon_DB = {
         "attack": 25,  # 攻击力
         "attackskill": 1002,  # 攻击技能ID
         "make_speed": 4,  # 制作时间
-        "costblood": 4,  # 每次使用消耗物品的生命，物品生命默认为100
+        "costblood": 25,  # 每次使用消耗物品的生命，物品生命默认为100
         "make_list": {1002: 2, 1004: 4},  # 制作材料
     },
     "biaoqiang": {

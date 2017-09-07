@@ -98,6 +98,12 @@ class MsgSCStartGame(SimpleHeader):
         super(MsgSCStartGame, self).__init__(conf.MSG_SC_START_GAME)
 
 
+class MsgCSPlayerQuit(SimpleHeader):
+    def __init__(self, pid=-1):
+        super(MsgCSPlayerQuit, self).__init__(conf.MSG_CS_PLAYER_QUIT)
+        self.append_param('pid', pid, 'i')
+
+
 class MsgSCPlayerBorn(SimpleHeader):
     '''
         @describe:

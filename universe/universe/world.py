@@ -126,10 +126,8 @@ class World:
         :param component_instance: 组件实例
         '''
         component_type = type(component_instance)
-
         if component_type not in self._components:
             self._components[component_type] = set()
-
         self._components[component_type].add(entity)
 
         if entity not in self._entities:

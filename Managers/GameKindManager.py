@@ -12,6 +12,7 @@
 
 
 from Entity.Room import Room
+from common import DebugAux
 
 
 class GameKindManager(object):
@@ -37,6 +38,18 @@ class GameKindManager(object):
 
         self.username_to_room_map = {}
         self.client_hid_to_user={}
+
+    def player_quit(self, client_hid, msg):
+        if client_hid not in self.client_hid_to_user:
+            return
+
+        DebugAux.Log("[server] [GameKindManger] receive player quit")
+        user = self.client_hid_to_user[client_hid]
+        room = self.username_to_room_map[user.username]
+        room.player_quit(client_hid, msg)
+
+        del self.client_hid_to_user[client_hid]
+        del self.username_to_room_map[user.username]
 
     def set_default_room_num(self, num):
         self.max_room_user_default = num

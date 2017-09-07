@@ -189,6 +189,7 @@ item_tree = {
         {
             "comp": "collider",
             "type": "AABB",
+            "static": True,
             "shape": {
                 "width": 150,
                 "height": 500,
@@ -221,19 +222,19 @@ item_withered_tree = {
         "range": 80
     },
     "components": [
-        {
-            "comp": "collider",
-            "type": "AABB",
-            "shape": {
-                "width": 80,
-                "height": 300,
-                "length": 80,
-            },
-            "center": {
-                "x": 0, "y": 150, "z": -10
-            },
-            "outline_visible": False
-        },
+        # {
+        #     "comp": "collider",
+        #     "type": "AABB",
+        #     "shape": {
+        #         "width": 80,
+        #         "height": 300,
+        #         "length": 80,
+        #     },
+        #     "center": {
+        #         "x": 0, "y": 150, "z": -10
+        #     },
+        #     "outline_visible": False
+        # },
         {
             "comp": "animator",
             "#animator": "tree"
@@ -406,7 +407,8 @@ item_stone04 = {
             "comp": "item",
             "id": STONE04_ID,
             "name": "stone04",
-            "kind": "none",
+            "kind": "good",
+            "good": 1004
         }
     ],
 }
@@ -656,7 +658,7 @@ item_egg = {
     "components": [
         {
             "comp": "renderer",
-            "gim": "model/egg/egg.gim",
+            "gim": "model/egg/egg_obj.gim",
         },
         {
             "comp": "item",

@@ -47,6 +47,7 @@ class Server(object):
 
         self.room_manager_msg_dict = {
             conf.MSG_CS_GM_ROOM_CMD: events.MsgCSGMRoomCmd(),
+            conf.MSG_CS_PLAYER_QUIT: events.MsgCSPlayerQuit(),
         }
 
     def register_dispatcher_services(self):

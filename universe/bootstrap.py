@@ -54,33 +54,9 @@ class Universe(object):
         biosphere = Creator.create_biosphere(self.region, self.data)
         self.create_entities('biont', biosphere)
 
-    def create_test_terrain(self):
-        # 创建区域
-        from manager import graph
-        self.region = graph.Region()
-        self.region.add_node(graph.Node(
-            horizontal=0,
-            vertical=0,
-            value=1
-        ))
-        self.region.add_node(graph.Node(
-            horizontal=0,
-            vertical=1,
-            value=1
-        ))
-
-        terrains = Creator.create_terrain(self.region.grid().tiles, self.data)
-        for tile_data in terrains:
-            # 创建实体并加入层
-            entity = self.world.create_entity()
-            self.layer.add_entity('terrain', entity)
-
-            comps = Creator.create_components(tile_data)
-            self.world.add_components(entity, *comps)
-
     def create_terrain_entity(self):
         # 创建区域
-        self.region = Creator.create_region(self.data['block'])
+        self.region = Creator.create_region(self.data)
         grid = self.region.grid()
 
         # 创建建筑
@@ -92,7 +68,7 @@ class Universe(object):
         self.create_entities('terrain', spots)
 
         # 创建地形
-        terrains = Creator.create_terrain(grid.tiles, self.data)
+        terrains = Creator.create_terrain(grid.tiles(), self.data)
         self.create_entities('terrain', terrains)
 
     def create_processor(self):
@@ -105,21 +81,17 @@ class Universe(object):
         self.world.add_processor(render_processor, priority=88)
 
         # 创建碰撞处理器
-        # collider_processor = ColliderProcessor()
-        # self.world.add_processor(collider_processor)
+        collider_processor = ColliderProcessor()
+        self.world.add_processor(collider_processor)
 
         # 创建动画处理器
-        animator_processor = AnimatorProcessor()
-        self.world.add_processor(animator_processor, priority=1)
+        # animator_processor = AnimatorProcessor()
+        # self.world.add_processor(animator_processor, priority=1)
 
     def create_player(self):
         entity = self.world.create_entity()
         self.layer.add_entity('player', entity)
-        comps = Creator.create_components([
-            {
-                'comp': 'transform'
-            }
-        ])
+        comps = Creator.create_components(self.data['world']['player']['components'])
         self.world.add_components(entity, *comps)
         self.player_entity = entity
 
@@ -135,7 +107,6 @@ class Universe(object):
 
         # 创造地形
         self.create_terrain_entity()
-        # self.create_test_terrain()
 
         # 创造生物
         self.create_biont_entity()
@@ -166,9 +137,8 @@ class Universe(object):
         # 降临
         self.world.start()
 
-
     def update(self):
-        self.world.update(self.timer.delta_time)
+        # self.world.update(self.timer.delta_time)
         self.timer.update()
 
     def set_player_position(self, position):
@@ -179,6 +149,7 @@ class Universe(object):
         '''
         transform = self.world.component_for_entity(self.player_entity, Transform)
         transform.position = position
+        self.world.update(self.timer.delta_time)
 
     @client.only
     def player_occlusion_transparency(self):
@@ -203,7 +174,6 @@ class Universe(object):
         renderer = self.world.component_for_entity(entity, Renderer)
         item = self.world.component_for_entity(entity, Item)
         return entity, renderer.model if renderer else None, item
-
 
     def get_target_entity(self, origin, radius=200):
         '''
@@ -234,22 +204,44 @@ class Universe(object):
 
         return target_entity, target_renderer.model if target_renderer else None, target_item
 
+    def terrain_move_limit(self, src_pos, dst_pos):
+        '''
+        地形移动限制
+        :param src_pos: 当前位置
+        :param dst_pos: 目标移动位置
+        :return: 允许移动到的位置
+        '''
+        sh, _ = self.region.world_to_local(src_pos.x, dst_pos.z)
+        _, sv = self.region.world_to_local(dst_pos.x, src_pos.z)
+        dh, dv = self.region.world_to_local(dst_pos.x, dst_pos.z)
 
-    def correct_moving(self, src_pos, dst_pos):
-        '''
-        修正移动
-        :param src_pos:
-        :param dst_pos:
-        :return:
-        '''
-        src = Vector3().copy(src_pos)
-        dst = Vector3().copy(dst_pos)
-        dh = dst.x / self.data['world']['tile']['width']
-        dv = dst.z / self.data['world']['tile']['length']
-        if self.region.inside(dh, dv):
-            return dst_pos
+        if self.region.inside(round(dh), round(dv)):
+            return Vector3(dst_pos.x, dst_pos.y, dst_pos.z)
+        elif self.region.inside(round(sh), round(dv)):
+            return Vector3(src_pos.x, dst_pos.y, dst_pos.z)
+        elif self.region.inside(round(dh), round(sv)):
+            return Vector3(dst_pos.x, dst_pos.y, src_pos.z)
         else:
-            return src_pos
+            return Vector3(src_pos.x, src_pos.y, src_pos.z)
+
+    def collision_move_limit(self, src_pos, dst_pos):
+        collider = self.world.component_for_entity(self.player_entity, Collider)
+        transform = self.world.component_for_entity(self.player_entity, Transform)
+
+        transform.position = dst_pos
+        self.world.update(self.timer.delta_time)
+        if not collider.collisions:
+            return dst_pos
+
+        transform.position = Vector3(dst_pos.x, dst_pos.y, src_pos.z)
+        self.world.update(self.timer.delta_time)
+        if not collider.collisions:
+            return Vector3(dst_pos.x, dst_pos.y, src_pos.z)
+
+        transform.position = Vector3(src_pos.x, dst_pos.y, dst_pos.z)
+        self.world.update(self.timer.delta_time)
+        if not collider.collisions:
+            return Vector3(src_pos.x, dst_pos.y, dst_pos.z)
 
     def approach(self, src_pos, dst_pos):
         '''
@@ -258,16 +250,30 @@ class Universe(object):
         :param dst_pos:
         :return:
         '''
+        src_pos = Vector3().copy(src_pos)
+        dst_pos = Vector3().copy(dst_pos)
+        # correct_pos = self.terrain_move_limit(src_pos, dst_pos)
 
-        correct_pos = self.correct_moving(src_pos, dst_pos)
+        correct_pos = self.collision_move_limit(src_pos, dst_pos)
 
         # 设置玩家位置
-        self.set_player_position(Vector3(correct_pos.x, correct_pos.y, correct_pos.z))
+        self.set_player_position(correct_pos)
 
         # 玩家遮挡透明
         # self.player_occlusion_transparency()
-        # return correct_pos
-        return dst_pos
+        return correct_pos
+
+    def get_born_position(self):
+        node = PseudoRandom.get().choice(self.region.get_nodes())
+        x, z = self.region.local_to_world(node.horizontal, node.vertical)
+        return [x, 0, z]
+        # positions = []
+        # for _ in xrange(amount):
+        #     node = PseudoRandom.get().choice(self.region.get_nodes())
+        #     position = self.region.local_to_world(node.horizontal, node.vertical)
+        #     positions.append(position)
+        # return positions
+
 
     def drop(self, position, good):
         '''

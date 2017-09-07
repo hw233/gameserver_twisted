@@ -8,7 +8,7 @@ block_town = {
     "area @rand.int": (1000, 1500),
     "landform #landform": "mud",
     "buildings": {
-        'area @rand.float': (0.005, 0.01),
+        'area @rand.float': (0.2, 0.5),
     },
     "biomes": [
         {
@@ -46,10 +46,15 @@ block_town = {
             "proportion @rand.float": (0.01, 0.02),
             "density": 0.2,
         },
+        {
+            "item #item": "stone04",
+            "proportion @rand.float": (0.01, 0.02),
+            "density": 0.2,
+        },
     ],
     "spots": {
         "spot #spot": "adobe",
-        "area @rand.float": (0.5, 0.6),
+        "area @rand.float": (0.3, 0.4),
     },
 }
 
@@ -65,7 +70,7 @@ block_grass = {
     },
     "spots": {
         "spot #spot": "soil",
-        "area @rand.float": (0.05, 0.10),
+        "area @rand.float": (0.2, 0.3),
     },
     "biomes": [
         {
@@ -113,6 +118,11 @@ block_grass = {
         {
             "item #item": "egg",
             "proportion @rand.float": (0.008, 0.01),
+            "density": 0.2,
+        },
+        {
+            "item #item": "stone04",
+            "proportion @rand.float": (0.01, 0.02),
             "density": 0.2,
         },
     ],

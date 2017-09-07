@@ -75,11 +75,11 @@ class Tile(object):
 
     @property
     def kinds(self):
-        return filter(lambda x: x != NULL, set(self._corners.values()))
+        return filter(lambda x: x != NULL, sorted(set(self._corners.values())))
 
     @property
     def filled(self):
-        return filter(lambda x: x != NULL, self._corners.values())
+        return filter(lambda x: x != NULL, sorted(self._corners.values()))
 
     @property
     def rank(self):
@@ -161,9 +161,14 @@ class Grid(object):
             tiles += '\n'
         return tiles
 
-    @property
-    def tiles(self):
-        sorted_tiles = [self._tiles[k] for k in sorted(self._tiles.keys())]
+    def tiles(self, key=None):
+        if key is None:
+            sorted_tiles = [self._tiles[k] for k in sorted(self._tiles.keys())]
+        else:
+            sorted_tiles = []
+            for k in sorted(self._tiles.keys()):
+                if self._tiles[k].major == key:
+                    sorted_tiles.append(self._tiles[k])
         return sorted_tiles
 
     def get_key(self, horizontal, vertical):
@@ -198,9 +203,11 @@ class Grid(object):
                 self.remove_tile(h, v)
 
 class Region(object):
-    def __init__(self):
+    def __init__(self, horizontal_scale=1, vertical_scale=1):
         self.boundary = Boundary()
         self._nodes = {}
+        self.horizontal_scale = horizontal_scale
+        self.vertical_scale = vertical_scale
 
     def __str__(self):
         nodes = ''
@@ -211,6 +218,13 @@ class Region(object):
                 nodes += pattern[node.value] if node else ' '
             nodes += '\n'
         return nodes
+
+    def local_to_world(self, horizontal, vertical):
+        return self.horizontal_scale * horizontal, self.vertical_scale * vertical
+
+    def world_to_local(self, x, z):
+        return x / self.horizontal_scale if self.horizontal_scale != 0 else 0, \
+               z / self.vertical_scale if self.vertical_scale != 0 else 0
 
     def grid(self):
         '''
@@ -264,6 +278,8 @@ class Region(object):
         return self._nodes.get(self.get_key(horizontal, vertical))
 
     def get_key(self, horizontal, vertical):
+        horizontal = 0.0 if horizontal == -0.0 else horizontal
+        vertical = 0.0 if vertical == -0.0 else vertical
         return '%.1f %.1f' % (horizontal, vertical)
 
     def add_node(self, node):
@@ -278,9 +294,13 @@ class Region(object):
             # 加入节点列表
             self._nodes[self.get_key(node.horizontal, node.vertical)] = node
 
-    def get_nodes(self, value):
-        sorted_nodes = [self._nodes[k] for k in sorted(self._nodes.keys())]
-        return filter(lambda x: x.value == value, sorted_nodes)
+    def get_nodes(self, value=None):
+        if value is not None:
+            sorted_nodes = [self._nodes[k] for k in sorted(self._nodes.keys())]
+            nodes = filter(lambda x: x.value == value, sorted_nodes)
+        else:
+            nodes = [self._nodes[k] for k in sorted(self._nodes.keys())]
+        return nodes
 
     def inside(self, horizontal, vertical, padding=0):
         '''

@@ -55,6 +55,16 @@ class Room(object):
             conf.MSG_CS_GM_BP_CMD: MsgCSGMBPCmd(),
         }
 
+    def player_quit(self, client_hid, msg):
+        DebugAux.Log("[server] [Room] receive player quit")
+        for user in self.username_to_user_map.itervalues():
+            if user.client_hid == client_hid:
+                del self.username_to_user_map[user.username]
+                self.broadcast_roommate_del(user.username)
+                if self.arena:
+                    self.arena.player_quit(client_hid, msg)
+                return
+
     def register_dispatcher_services(self):
         self.dispatcher.register(conf.ARENA_SERVICES, ArenaServices(self.host, self.arena))
         # another services such as combat or trade & not implemented

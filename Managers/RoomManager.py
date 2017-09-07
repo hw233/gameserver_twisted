@@ -25,6 +25,7 @@ class RoomManager(object):
         self.game_kind = {}
         self.client_hid_to_game_type = {}
         self.username_to_game_type = {}
+        self.client_hid_to_user = {}
 
         self.msg_dict = {}
 
@@ -39,6 +40,22 @@ class RoomManager(object):
 
     def add_msg_listener(self):
         EventManager.add_observer(conf.MSG_CS_GM_ROOM_CMD, self.set_room_num)
+        EventManager.add_observer(conf.MSG_CS_PLAYER_QUIT, self.player_quit)
+
+    def player_quit(self, client_hid, msg):
+
+        if client_hid not in self.client_hid_to_game_type:
+            return
+
+        username = self.client_hid_to_user[client_hid].username
+        game_type = self.client_hid_to_game_type[client_hid]
+
+        del self.username_to_game_type[username]
+        del self.client_hid_to_game_type[client_hid]
+        del self.client_hid_to_user[client_hid]
+
+        # player quit
+        self.game_kind[game_type].player_quit(client_hid, msg)
 
     def set_room_num(self,client_hid, msg):
         if msg.num <= 0:
@@ -72,8 +89,10 @@ class RoomManager(object):
             return
 
         self.game_kind[game_type].add_user(user)
+
         self.username_to_game_type[user.username] = game_type
         self.client_hid_to_game_type[user.client_hid] = game_type
+        self.client_hid_to_user[user.client_hid] = user
 
     def remove_user(self, user):
         if user.username not in self.username_to_game_type:
@@ -82,6 +101,10 @@ class RoomManager(object):
         index = self.username_to_game_type[user.username]
 
         self.game_kind[index].remove_user(user)
+
+        #self.username_to_game_type[user.username] = game_type
+        #self.client_hid_to_game_type[user.client_hid] = game_type
+        #self.client_hid_to_user[user.client_hid] = user
 
     def is_in_arena(self, user):
         if user.username not in self.username_to_game_type:

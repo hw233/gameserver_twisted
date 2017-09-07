@@ -84,6 +84,9 @@ MSG_CS_SET_TRAP = 4020
 '''GM指令 设置默认房间人数'''
 MSG_CS_GM_ROOM_CMD = 4021
 
+'''Player quit game'''
+MSG_CS_PLAYER_QUIT = 4022
+
 # 掉落消息 可以是玩家掉落，可以是砍伐掉落
 MSG_SC_MAP_ITEM_DROP = 4030
 

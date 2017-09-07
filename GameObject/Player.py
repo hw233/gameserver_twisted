@@ -1,5 +1,6 @@
 from common.events import MsgSCPlayerBorn
 from GameObject import GameObject
+from common import DebugAux
 
 
 class PlayerAttributes(object):
@@ -37,6 +38,15 @@ class Player(GameObject):
 
         self.backpack_manager = BackpackManager()
 
+    def debug_base_attack(self):
+        return object.__getattribute__(self, "attack")
+
+    def debug_weapon_attack(self):
+        return self.backpack_manager.debug_weapon_attack()
+
+    def debug_base_defense(self):
+        return self.backpack_manager.debug_defense()
+
     def generate_born_msg(self, send_to_others):
         return MsgSCPlayerBorn(self.entity_id, send_to_others, self.name, self.health, self.position[0],
                                self.position[1], self.position[2], self.rotation[0], self.rotation[1], self.rotation[2])
@@ -70,11 +80,20 @@ class Player(GameObject):
 
         return msg
 
-    def __getattribute__(self, item):
-        if item == "attack":
-            return self.get_attack_value()
-        else:
-            return object.__getattribute__(self, item)
+    def update(self):
+        pass
 
-    def get_attack_value(self):
-        return object.__getattribute__(self, "attack") + self.backpack_manager.get_attack()
+    def spirit_update(self):
+        pass
+
+    def get_attack_value(self, weapon_deduce = True):
+        if hasattr(self, "attack") is False:
+            return
+
+        if weapon_deduce is True:
+            DebugAux.Log("[server] [player] True")
+            return self.attack + self.backpack_manager.get_attack()
+        else:
+            DebugAux.Log("[server] [player] False")
+            return self.attack + self.backpack_manager.debug_weapon_attack()
+

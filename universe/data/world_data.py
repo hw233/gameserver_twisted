@@ -14,6 +14,27 @@ data = {
         "margin": 1,
     },
 
+    "player": {
+        "components": [
+            {
+                'comp': 'transform'
+            },
+            {
+                'comp': 'collider',
+                'type': 'AABB',
+                "shape": {
+                    "width": 100,
+                    "height": 180,
+                    "length": 100,
+                },
+                "center": {
+                    "x": 0, "y": 90, "z": 0
+                },
+                "outline_visible": True
+            }
+        ]
+    },
+
     # 层
     # :param name: 层名称
     # :param altitude: 海拔高度
@@ -62,7 +83,7 @@ data = {
 
         "collision": {
             "outline": {
-                "visible": False
+                "visible": True
             }
         },
     }

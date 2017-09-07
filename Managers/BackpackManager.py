@@ -29,6 +29,26 @@ class BackpackManager(object):
         self.init()
         self._just_for_test_delete_me()
 
+    def debug_weapon_attack(self):
+        weapon = self.get_active_weapon()
+        if weapon is None:
+            return 0
+
+        if hasattr(weapon, "attack"):
+            return weapon.attack
+
+    def debug_defense(self):
+        num = 0
+        if self.armor is not None:
+            if hasattr(self.armor, "defense"):
+                num += self.armor.defense
+
+        if self.hat is not None:
+            if hasattr(self.hat, "defense"):
+                num += self.hat.defense
+
+        return num
+
     def init(self):
         self.weapon = []
         self.weapon.append(None)
@@ -73,19 +93,10 @@ class BackpackManager(object):
         item = BPItemObject(2003, 2)
         self.bring_in_ex(item)
 
-        item = BPItemObject(2004, 2)
-        self.bring_in_ex(item)
-
-        item = BPItemObject(2004, 2)
-        self.bring_in_ex(item)
-
         item = BPItemObject(3001, 2)
         self.bring_in_ex(item)
 
         item = BPItemObject(4001, 2)
-        self.bring_in_ex(item)
-
-        item = BPItemObject(5001, 10)
         self.bring_in_ex(item)
 
         item = BPItemObject(6001, 10)
@@ -451,26 +462,49 @@ class BackpackManager(object):
 
         return val
 
+    def auto_equipment(self, ID):
+
+        weapon = None
+        entity_id = None
+
+        for entity_id, obj in self.entity_id_to_backpack_obj_map.items():
+            if obj.ID == ID:
+                weapon = obj
+                entity_id = entity_id
+                del self.entity_id_to_backpack_obj_map[entity_id]
+                break
+
+        if entity_id is not None and weapon is not None:
+            if self.armor is not None and self.armor.ID == weapon.ID:
+                self.armor = weapon
+            elif self.hat is not None and self.hat.ID == weapon.ID:
+                self.hat = weapon
+            elif self.get_active_weapon() is not None:
+                self.weapon[self.active_index] = weapon
+            return True
+        else:
+            return False
+
     def inquire_weapon_die(self):
         die_id_list = []
         active_weapon = self.get_active_weapon()
 
         if active_weapon is not None and (active_weapon.health <= 0 or active_weapon.num <=0):
-            if active_weapon.pile_bool is False:
+            if active_weapon.pile_bool is False and self.auto_equipment(active_weapon.ID) is False:
                 die_id_list.append(self.weapon[self.active_index].ID)
                 self.weapon[self.active_index] = None
                 self.active_index = -1
             else:
-                if active_weapon.num <= 0:
+                if active_weapon.num <= 0 and self.auto_equipment(active_weapon.ID) is False:
                     die_id_list.append(self.weapon[self.active_index].ID)
                     self.weapon[self.active_index] = None
                     self.active_index = -1
 
-        if self.hat is not None and self.hat.health <= 0:
+        if self.hat is not None and self.hat.health <= 0 and self.auto_equipment(self.hat.ID) is False:
             die_id_list.append(self.hat.ID)
             self.hat = None
 
-        if self.armor is not None and self.armor.health <= 0:
+        if self.armor is not None and self.armor.health <= 0 and self.auto_equipment(self.armor.ID) is False:
             die_id_list.append(self.armor.ID)
             self.armor = None
 
