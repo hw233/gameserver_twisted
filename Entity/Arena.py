@@ -702,3 +702,5 @@ class Arena(object):
             self.universe.drop(player.position, item)
             drop_msg = MsgSCMapItemDrop(player.position.x, player.position.y, player.position.z, item.ID)
             self.broadcast(drop_msg)
+
+        DebugAux.Log("[server] [arena] how many player remain ,",len(self.client_id_to_player_map))

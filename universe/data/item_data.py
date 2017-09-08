@@ -500,7 +500,7 @@ item_axe = {
     "components": [
         {
             "comp": "renderer",
-            "gim": "player/explorer/axe.gim",
+            "gim": "model/axe/axe_obj.gim",
         },
         {
             "comp": "item",
@@ -520,7 +520,7 @@ item_hammer = {
     "components": [
         {
             "comp": "renderer",
-            "gim": "model/hammer/hammer.gim",
+            "gim": "model/hammer/hammer_obj.gim",
         },
         {
             "comp": "item",
@@ -540,7 +540,7 @@ item_lance = {
     "components": [
         {
             "comp": "renderer",
-            "gim": "player/explorer/lance.gim",
+            "gim": "model/lance/lance_obj.gim",
         },
         {
             "comp": "item",
@@ -560,7 +560,7 @@ item_dagger = {
     "components": [
         {
             "comp": "renderer",
-            "gim": "player/explorer/dagger.gim",
+            "gim": "model/dagger/dagger_obj.gim",
         },
         {
             "comp": "item",
@@ -580,7 +580,7 @@ item_wood_shield = {
     "components": [
         {
             "comp": "renderer",
-            "gim": "player/explorer/shield.gim",
+            "gim": "model/shield/shield_obj.gim",
         },
         {
             "comp": "item",
@@ -600,7 +600,7 @@ item_iron_shield = {
     "components": [
         {
             "comp": "renderer",
-            "gim": "player/explorer/shield.gim",
+            "gim": "model/shield/shield_obj.gim",
         },
         {
             "comp": "item",

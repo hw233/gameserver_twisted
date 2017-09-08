@@ -81,7 +81,7 @@ weapon_DB = {
         "name": '斧头',
         "describe": '可以用来砍树和砍...人。',
         "icon_name": '2001.png',
-        "gim": "player/explorer/axe.gim",
+        "gim": "model/axe/axe_obj.gim",
         "item": 2001,
         "pile_bool": False,  # 是否可叠加
         "attack": 15,  # 攻击力
@@ -110,7 +110,7 @@ weapon_DB = {
         "name": '标枪',
         "describe": '投掷的标枪',
         "icon_name": "2003.png",
-        "gim": "player/explorer/lance.gim",
+        "gim": "model/lance/lance.gim",
         "item": 2003,
         "pile_bool": True,
         "attack": 15,  # 攻击力
@@ -140,7 +140,7 @@ armor_DB = {
         "name": '木盾牌',
         "describe": '并不是很坚硬的护甲',
         "icon_name": '3001.png',
-        "gim": "player/explorer/shield.gim",
+        "gim": "model/shield/shield.gim",
         "item": 3001,
         "pile_bool": False,
         "defense": 15,
@@ -152,7 +152,7 @@ armor_DB = {
         "name": '铁盾牌',
         "describe": '稍微坚硬点护甲',
         "icon_name": '3001.png',
-        "gim": "player/explorer/shield.gim",
+        "gim": "model/shield/shield.gim",
         "item": 3002,
         "pile_bool": False,
         "defense": 30,

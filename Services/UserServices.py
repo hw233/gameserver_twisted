@@ -73,7 +73,7 @@ class UserServices(Service):
         EventManager.add_observer(conf.MSG_CS_LOGIN_GUEST, self.guest_login)
 
     def client_alive(self, msg, client_hid):
-        pass
+        DebugAux.Log("[server] [user services]player alive")
 
     def match_cancel(self, msg, client_hid):
         if self.client_hid_to_user_map.has_key(client_hid) is False:
