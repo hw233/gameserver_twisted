@@ -15,6 +15,7 @@ class Client(object):
     def __init__(self):
         self.scene = None
         self.scene_manager = None
+        self.main_camera = None
         self.world = world
         self.math3d = math3d
         self.render = render
@@ -37,6 +38,7 @@ class Client(object):
             from ui.PanelFight import PanelFight
             self.panel_fight = PanelFight(self.scene_manager)
             self.panel_fight.show(True)
+            # self.camera_plan_view()
 
     def get_total_models(self):
         return self.total_models
@@ -73,6 +75,34 @@ class Client(object):
     def set_scene(self, val):
         self.scene = val
 
+    def camera_plan_view(self):
+        self.main_camera = self.scene.active_camera
+        cam = self.scene.create_camera(False)
+        cam.set_perspect(40, 1334.0 / 750.0, 10, 20000)
+        cam.set_placement(
+            math3d.vector(0, 10000, 0),
+            math3d.vector(0, -1, 0),
+            math3d.vector(1, 0, 0)
+        )
+        self.scene.active_camera = cam
+
+        def callback(space_object, user_data):
+            print 'finish'
+            self.scene.active_camera = self.main_camera
+            pass
+
+        cam.move_to(
+            self.main_camera.position,
+            1,
+            callback,
+            None,
+            cam.position,
+            False
+        )
+        cam.look_at = self.main_camera.look_at
+        # cam = render.camera(True, self.scene)
+        # cam.move_to(math3d.vector(0, 1000, 0))
+        pass
 
 _inst = Client()
 get_loaded_models = _inst.get_loaded_models

@@ -2,8 +2,8 @@ class DebugAux(object):
     def __init__(self):
         super(DebugAux, self).__init__()
 
-    def Log(self, *args):
-        print(args)
+    def Log(self, *args, **kwargs):
+        print(args, kwargs)
 
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, 'instance'):

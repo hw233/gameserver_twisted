@@ -47,8 +47,33 @@ block_town = {
             "density": 0.2,
         },
         {
-            "item #item": "stone04",
+            "item #item": "tree",              #资源树
             "proportion @rand.float": (0.01, 0.02),
+            "density": 0.8,
+        },
+        {
+            "item #item": "branch",             #资源树枝
+            "proportion @rand.float": (0.03, 0.08),
+            "density": 0.4,
+        },
+		{
+            "item #item": "reed",               #资源草
+            "proportion @rand.float": (0.005, 0.02),
+            "density": 0.8,
+        },
+		{
+            "item #item": "berry",        #浆果
+            "proportion @rand.float": (0, 0.000001),
+            "density": 0.8,
+        },
+		{
+            "item #item": "egg",          #资源鸟蛋
+            "proportion @rand.float": (0.005, 0.01),
+            "density": 0.2,
+        },
+		{
+            "item #item": "stone04",       #石头
+            "proportion @rand.float": (0.03, 0.08),
             "density": 0.2,
         },
     ],
@@ -74,26 +99,39 @@ block_grass = {
     },
     "biomes": [
         {
-            "item #item": "tree",
-            "proportion @rand.float": (0.05, 0.10),
+            "item #item": "tree",              #资源树
+            "proportion @rand.float": (0.03, 0.2),
             "density": 0.8,
-            "associated": [
-                # {
-                #     "item #item": "tree_reaped",
-                #     "proportion @rand.float": (0.002, 0.005),
-                #     "density": 0.4,
-                # }
-            ]
+        },
+        {
+            "item #item": "branch",             #资源树枝
+            "proportion @rand.float": (0.01, 0.02),
+            "density": 0.4,
+        },
+		{
+            "item #item": "reed",               #资源草
+            "proportion @rand.float": (0.02, 0.05),
+            "density": 0.8,
+        },
+		{
+            "item #item": "berry",        #浆果
+            "proportion @rand.float": (0.05, 0.15),
+            "density": 0.8,
+        },
+		{
+            "item #item": "egg",          #资源鸟蛋
+            "proportion @rand.float": (0, 0.00001),
+            "density": 0.2,
+        },
+		{
+            "item #item": "stone04",       #石头
+            "proportion @rand.float": (0.005, 0.02),
+            "density": 0.2,
         },
         {
             "item #item": "withered_tree",
             "proportion @rand.float": (0.02, 0.03),
             "density": 0.2,
-        },
-        {
-            "item #item": "reed",
-            "proportion @rand.float": (0.02, 0.05),
-            "density": 0.8,
         },
         {
             "item #item": "bush",
@@ -105,23 +143,14 @@ block_grass = {
             "proportion @rand.float": (0.01, 0.03),
             "density": 0.8,
         },
-        {
-            "item #item": "berry",
-            "proportion @rand.float": (0.1, 0.15),
-            "density": 0.8,
-        },
+
         {
             "item #item": "stone01",
             "proportion @rand.float": (0.01, 0.02),
             "density": 0.2,
         },
         {
-            "item #item": "egg",
-            "proportion @rand.float": (0.008, 0.01),
-            "density": 0.2,
-        },
-        {
-            "item #item": "stone04",
+            "item #item": "rabbit",
             "proportion @rand.float": (0.01, 0.02),
             "density": 0.2,
         },

@@ -54,6 +54,14 @@ material_DB = {
         "item": 105,
         'socket': 'weapon',
     },
+	"tie": {
+        "ID": 1005,
+        "name": '铁',
+        "describe": '一截从树上砍下来的木头，可以用来制作各种工具。',
+        "pile_bool": True,
+        "icon_name": "1003.png",
+        "item": 6004,
+    },
 }
 
 weapon_DB = {
@@ -121,7 +129,6 @@ weapon_DB = {
         "item": 2004,
         "pile_bool": True,
         "attack": 20,  # 攻击力
-        "attackskill": 1004,  # 攻击技能ID
         "make_speed": 2,  # 制作时间
         "costblood": 4,  # 每次使用消耗物品的生命，物品生命默认为100
     },
@@ -191,7 +198,7 @@ trap_DB = {
         "drop_gim": "model/hat/hat.gim",
         "pile_bool": True,
         "attack": 40,
-        "attackskill": 5001,
+        # "attackskill": 5001,
         "health": 100,
         "make_list": {1002: 4, 1004: 4},
     },
@@ -205,7 +212,7 @@ trap_DB = {
         "icon_name": '5001.png',
         "pile_bool": True,
         "attack": 60,
-        "attackskill": 5001,
+        # "attackskill": 5001,
         "health": 100,
         "make_list": {1002: 4, 1004: 4},
     },
@@ -220,7 +227,7 @@ food_DB = {
         "gim": "model/berry/berry_01.gim",
         "item": 3,
         "pile_bool": True,
-		"attackskill": 60010,
+        "attackskill": 60010,
         "attack": 5,  # 攻击力
         "collectskill": [[60011, -1]],  # 场景对象为-1为吃东西
         'socket': 'weapon',  # 挂接点名字，没有此项默认为weapon
@@ -246,7 +253,7 @@ food_DB = {
         "name": '大肉',
         "describe": '美味的大肉，生吃也不是不可以',
         "icon_name": '6003.png',
-        "gim": "model/branch/branch.gim",
+        "gim": "model/meat/meat.gim",
         "item": 6003,
         "pile_bool": True,
         "collectskill": [[60031, -1]],  # 场景对象为-1为吃东西
@@ -354,6 +361,7 @@ class MaterialDB(object):
 
 material_db = MaterialDB()
 
+data_map = material_db.ID_to_data_map
 get_info_by_ID = material_db.get_info_by_ID
 get_material_info_by_ID = material_db.get_material_info_by_ID
 get_weapon_info_by_ID = material_db.get_weapon_info_by_ID

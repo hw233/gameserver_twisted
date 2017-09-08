@@ -8,11 +8,11 @@ class Vector3:
     y = .0
     z = .0
 
-    def __init__(self, x=.0, y=.0, z=.0, obj=None):
+    def __init__(self, x=.0, y=.0, z=.0):
         if isinstance(x, Vector3):
             self.x, self.y, self.z = x.x, x.y, x.z
-        elif obj is not None:
-            self.x, self.y, self.z = obj.x, obj.y, obj.z 
+        elif isinstance(x, list):
+            self.x, self.y, self.z = x[0], x[1], x[2]
         else:
             self.x, self.y, self.z = x, y, z
 
@@ -87,6 +87,7 @@ class Vector3:
     @staticmethod
     def distance(v1, v2):
         return (v1 - v2).magnitude
+
 
 class Vector2:
     x = .0

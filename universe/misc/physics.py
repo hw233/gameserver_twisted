@@ -89,8 +89,15 @@ class AABB(object):
         )
 
     def intersect(self, other):
+        if type(other) == list:
+            for collider in other:
+                if self.intersect(collider):
+                    return True
+            return False
+
         if isinstance(other, Ray):
             return self.intersect_ray(other)
+
         elif isinstance(other, AABB):
             return self.intersect_aabb(other)
 

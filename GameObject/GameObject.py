@@ -6,6 +6,7 @@
     @log:
          1. 2017-08-10 created
 '''
+from common.timer import TimerManager
 
 
 class GameObjectManager(object):
@@ -60,21 +61,27 @@ class GameObjectManager(object):
 '''
 from common.vector import Vector3
 from Synchronization.PlayerOperation import OperationManager
+from collections import defaultdict
+import weakref
+from common import DebugAux
 
 
 class GameObject(object):
     game_object_manager = GameObjectManager()
+
+    EVENT_DEAD = 0
 
     def __init__(self, health=0, position=Vector3(), rotation=Vector3()):
         # super(GameObject, self).__init__()
         self.position = position
         self.rotation = rotation
         self.health = health
-        self.spirit = 0
         self.entity_id = GameObject.game_object_manager.generate_entity_id(self)
-        self.backpack_manager = None
+        self.timer_manager = TimerManager()
 
         self.debug_damage = 0
+
+        self.events_listener_map = defaultdict(list)
 
         # self.state_change = False
         # self.last_processed_input_num = 0
@@ -90,6 +97,31 @@ class GameObject(object):
     #
     #         # cache the movement
     #         self.operation_manager.push(move)
+
+    def add_listener(self, btype, handler):
+        if handler in self.events_listener_map[btype]:
+            return
+        #handler = weakref.proxy(handler)
+        self.events_listener_map[btype].append(handler)
+
+    def remove_listener(self, btype, handler):
+        if handler not in self.events_listener_map[btype]:
+            return
+
+        self.events_listener_map[btype].remove(handler)
+
+    def trigger_event(self, btype, *args):
+        invalid_list = []
+        for fun in self.events_listener_map[btype]:
+            try:
+                fun(args)
+            except:
+                invalid_list.append(fun)
+                raise
+
+        # remove invalid handler in the event list
+        for fun in invalid_list:
+            self.events_listener_map[btype].remove(fun)
 
     def health_damage(self, val, attack_percent):
         """
@@ -110,6 +142,8 @@ class GameObject(object):
         self.health -= int(val)
 
         if self.health <= 0:
+            DebugAux.Log("[server] [gameobject] health damage health <= 0")
+            self.trigger_event(GameObject.EVENT_DEAD, self)
             return False
         else:
             return True
@@ -120,11 +154,6 @@ class GameObject(object):
         if self.health > 100:
             self.health = 100
 
-    def add_spirit(self, val, spirit):
-        self.spirit = self.spirit + int(val * spirit)
-        if self.spirit > 100:
-            self.spirit = 100
-
     def get_entity_id(self):
         return self.entity_id
 
@@ -132,14 +161,28 @@ class GameObject(object):
         return self.position
 
     def set_position(self, pos):
-        self.position = pos
+        if type(pos) is list:
+            self.position = Vector3(pos[0], pos[1], pos[2])
+        elif isinstance(pos, Vector3):
+            self.position = pos
 
     def get_rotation(self):
         return self.rotation
 
     def set_rotation(self, rot):
-        self.rotation = rot
+        if type(rot) is list:
+            self.rotation = Vector3(rot[0], rot[1], rot[2])
+        elif isinstance(rot, Vector3):
+            self.rotation = rot
 
+    def set_dead(self):
+        self.health = 0
+
+    def is_dead(self):
+        return self.health <= 0
+
+    def get_health(self):
+        return self.health
     def update(self):
         pass
 

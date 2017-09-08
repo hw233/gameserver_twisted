@@ -7,7 +7,7 @@ from common import DebugAux
 
 class Room(object):
 
-    def __init__(self, rid, host, max_user_num = 1, arena_conf_filename='Configuration.ArenaConf', player_conf_filename='Configuration.PlayerConf', game_type = 0):
+    def __init__(self, rid, host, max_user_num=2, arena_conf_filename='Configuration.ArenaConf', player_conf_filename='Configuration.PlayerConf', game_type = 0):
         '''
         :param rid:
         :param host:
@@ -40,6 +40,7 @@ class Room(object):
             conf.MSG_CS_PLAYER_MOVE: MsgCSPlayerMove(),
             conf.MSG_CS_PLAYER_ATTACK: MsgCSPlayerAttack(),
             conf.MSG_CS_PLAYER_HIT: MsgCSPlayerHit(),
+            conf.MSG_CS_BULLET_SPAWN: MsgCSBulletSpawn(),
             conf.MSG_CS_PLAYER_DEFEND: MsgCSPlayerDefend(),
             conf.MSG_CS_LOAD_FINISHED: MsgCSLoadFinished(),
             conf.MSG_CS_PLAYER_COLLECT: MsgCSPlayerCollect(),

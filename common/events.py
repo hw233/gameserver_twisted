@@ -165,18 +165,34 @@ class MsgCSPlayerAttack(SimpleHeader):
 
 
 class MsgCSPlayerHit(SimpleHeader):
-    def __init__(self, pid=-1, px=0, py=0, pz=0, skill_id=0, node_name='', targets_str='', attack_percent=0):
+    def __init__(self, pid=-1, px=0, py=0, pz=0, rx=0, ry=0, rz=0, skill_id=0, node_name=''):
         super(MsgCSPlayerHit, self).__init__(conf.MSG_CS_PLAYER_HIT)
         self.append_param('pid', pid, 'i')
         self.append_param('px', px, 'f')
         self.append_param('py', py, 'f')
         self.append_param('pz', pz, 'f')
+        self.append_param('rx', rx, 'f')
+        self.append_param('ry', ry, 'f')
+        self.append_param('rz', rz, 'f')
+        self.append_param('skill_id', skill_id, 'i')
+        self.append_param('node_name', node_name, 's')
+        self.sid = conf.ARENA_SERVICES
+        self.cmdid = 3
+
+
+class MsgSCPlayerHit(SimpleHeader):
+    def __init__(self, pid=-1, px=0, py=0, pz=0, rx=0, ry=0, rz=0, skill_id=0, node_name='', targets_str=''):
+        super(MsgSCPlayerHit, self).__init__(conf.MSG_SC_PLAYER_HIT)
+        self.append_param('pid', pid, 'i')
+        self.append_param('px', px, 'f')
+        self.append_param('py', py, 'f')
+        self.append_param('pz', pz, 'f')
+        self.append_param('rx', rx, 'f')
+        self.append_param('ry', ry, 'f')
+        self.append_param('rz', rz, 'f')
         self.append_param('skill_id', skill_id, 'i')
         self.append_param('node_name', node_name, 's')
         self.append_param('targets_str', targets_str, 's')
-        self.append_param('attack_percent', attack_percent, 'f')
-        self.sid = conf.ARENA_SERVICES
-        self.cmdid = 3
 
 
 class MsgCSPlayerDefend(SimpleHeader):
@@ -270,6 +286,56 @@ class MsgCSPlayerReapHit(SimpleHeader):
         self.append_param('attack_percent', attack_percent, 'f')
         self.sid = conf.ARENA_SERVICES
         self.cmdid = 9
+
+
+class MsgCSBulletSpawn(SimpleHeader):
+    def __init__(self, pid=-1, px=0, py=0, pz=0, dx=0, dy=0, dz=0, skill_id=0, node_name=''):
+        super(MsgCSBulletSpawn, self).__init__(conf.MSG_CS_BULLET_SPAWN)
+        self.append_param('pid', pid, 'i')
+        self.append_param('px', px, 'f')
+        self.append_param('py', py, 'f')
+        self.append_param('pz', pz, 'f')
+        self.append_param('dx', dx, 'f')
+        self.append_param('dy', dy, 'f')
+        self.append_param('dz', dz, 'f')
+        self.append_param('skill_id', skill_id, 'i')
+        self.append_param('node_name', node_name, 's')
+        self.sid = conf.ARENA_SERVICES
+        self.cmdid = 10
+
+
+class MsgSCBulletSpawn(SimpleHeader):
+    def __init__(self, pid=-1, owner_id=-1, px=0, py=0, pz=0, dx=0, dy=0, dz=0, skill_id=0, node_name=''):
+        super(MsgSCBulletSpawn, self).__init__(conf.MSG_SC_BULLET_SPAWN)
+        self.append_param('pid', pid, 'i')
+        self.append_param('owner_id', owner_id, 'i')
+        self.append_param('px', px, 'f')
+        self.append_param('py', py, 'f')
+        self.append_param('pz', pz, 'f')
+        self.append_param('dx', dx, 'f')
+        self.append_param('dy', dy, 'f')
+        self.append_param('dz', dz, 'f')
+        self.append_param('skill_id', skill_id, 'i')
+        self.append_param('node_name', node_name, 's')
+
+
+class MsgSCBulletMove(SimpleHeader):
+    def __init__(self, pid=-1, px=0, py=0, pz=0):
+        super(MsgSCBulletMove, self).__init__(conf.MSG_SC_BULLET_MOVE)
+        self.append_param('pid', pid, 'i')
+        self.append_param('px', px, 'f')
+        self.append_param('py', py, 'f')
+        self.append_param('pz', pz, 'f')
+
+
+class MsgSCBulletHit(SimpleHeader):
+    def __init__(self, pid=-1, px=0, py=0, pz=0, targets_str=''):
+        super(MsgSCBulletHit, self).__init__(conf.MSG_SC_BULLET_HIT)
+        self.append_param('pid', pid, 'i')
+        self.append_param('px', px, 'f')
+        self.append_param('py', py, 'f')
+        self.append_param('pz', pz, 'f')
+        self.append_param('targets_str', targets_str, 's')
 
 
 class MsgSCPlayerReapHit(SimpleHeader):

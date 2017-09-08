@@ -90,7 +90,7 @@ class BackpackManager(object):
         item = BPItemObject(2002, 2)
         self.bring_in_ex(item)
 
-        item = BPItemObject(2003, 2)
+        item = BPItemObject(2003, 100)
         self.bring_in_ex(item)
 
         item = BPItemObject(3001, 2)
@@ -522,3 +522,27 @@ class BackpackManager(object):
                     self.active_index = k
                     return self.weapon[k]
         return None
+
+    def take_away_all_item(self):
+
+        weapon = self.get_active_weapon()
+        if weapon is not None:
+            self.weapon[self.active_index] = None
+            self.bring_in_ex(weapon)
+
+        if self.armor is not None:
+            armor = self.armor
+            self.armor = None
+            self.bring_in_ex(armor)
+
+        if self.hat is not None:
+            hat = self.hat
+            self.hat = None
+            self.bring_in_ex(hat)
+
+        val = self.entity_id_to_backpack_obj_map
+        self.entity_id_to_backpack_obj_map = {}
+
+        return val
+
+

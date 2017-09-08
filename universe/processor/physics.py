@@ -9,35 +9,40 @@ class ColliderProcessor(universe.Processor):
 
     def start(self, *args, **kwargs):
         for entity, (tran, coll) in self.world.get_components(Transform, Collider):
-            # 调试线框
-            if coll.outline_visible:
-                if client.get_scene() is None:
-                    return
-                prim = client.nexo_world.primitives(client.get_scene())
-                prim.create_line(debug.create_collision_box(coll.collider))
-                coll.outline = prim
+            for collider in coll.colliders:
+                    # 调试线框
+                if coll.outline_visible:
+                    if client.get_scene() is not None:
+                        prim = client.nexo_world.primitives(client.get_scene())
+                        prim.create_line(debug.create_collision_box(collider))
+                        coll.outlines.append(prim)
 
-                prim.position = client.nexo_math3d.vector(
-                    tran.position.x,
-                    tran.position.y,
-                    tran.position.z
-                )
-            coll.collider.position = tran.position
+                        prim.position = client.nexo_math3d.vector(
+                            tran.position.x,
+                            tran.position.y,
+                            tran.position.z
+                        )
+
+                collider.position = tran.position
 
     def update(self, dt, *args, **kwargs):
         for entity, (tran, coll) in self.world.get_components(Transform, Collider):
             if coll.static:
                 continue
-            if coll.outline_visible:
-                coll.outline.position = client.nexo_math3d.vector(
+
+            coll.collisions = []
+
+            for entity_other, (tran_other, coll_other) in self.world.get_components(Transform, Collider):
+                if coll != coll_other:
+                    for collider in coll.colliders:
+                        collider.position = tran.position
+                        if collider.intersect(coll_other.colliders):
+                            # 碰撞加入碰撞列表
+                            coll.collisions.append(coll_other)
+
+            for outline in coll.outlines:
+                outline.position = client.nexo_math3d.vector(
                     tran.position.x,
                     tran.position.y,
                     tran.position.z
                 )
-            coll.collisions = []
-            coll.collider.position = tran.position
-            for entity_other, (tran_other, coll_other) in self.world.get_components(Transform, Collider):
-                if coll != coll_other:
-                    if coll.collider.intersect(coll_other.collider):
-                        # 碰撞加入碰撞列表
-                        coll.collisions.append(coll_other)

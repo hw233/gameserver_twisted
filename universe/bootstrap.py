@@ -153,7 +153,6 @@ class Universe(object):
 
     @client.only
     def player_occlusion_transparency(self):
-
         transform = self.world.component_for_entity(self.player_entity, Transform)
 
         ray_origin = transform.position + Vector3(0,100,0)
@@ -161,10 +160,10 @@ class Universe(object):
         ray = Ray(ray_origin, ray_direction)
 
         for ent, (rend, coll) in self.world.get_components(Renderer, Collider):
-            if coll.collider.intersect(ray):
+            if coll.intersect(ray):
                 rend.model.enable_instancing(False)
                 rend.model.all_materials.transparent_mode = client.nexo_render.TRANSPARENT_MODE_ALPHA_R_Z
-                rend.model.alpha = 100
+                rend.model.alpha = 50
             else:
                 rend.model.enable_instancing(True)
                 rend.model.all_materials.transparent_mode = client.nexo_render.TRANSPARENT_MODE_UNSET
@@ -228,6 +227,11 @@ class Universe(object):
         collider = self.world.component_for_entity(self.player_entity, Collider)
         transform = self.world.component_for_entity(self.player_entity, Transform)
 
+        transform.position = src_pos
+        self.world.update(self.timer.delta_time)
+        if collider.collisions:
+            return dst_pos
+
         transform.position = dst_pos
         self.world.update(self.timer.delta_time)
         if not collider.collisions:
@@ -243,6 +247,8 @@ class Universe(object):
         if not collider.collisions:
             return Vector3(src_pos.x, dst_pos.y, dst_pos.z)
 
+        return src_pos
+
     def approach(self, src_pos, dst_pos):
         '''
         玩家移动
@@ -252,15 +258,16 @@ class Universe(object):
         '''
         src_pos = Vector3().copy(src_pos)
         dst_pos = Vector3().copy(dst_pos)
-        # correct_pos = self.terrain_move_limit(src_pos, dst_pos)
 
         correct_pos = self.collision_move_limit(src_pos, dst_pos)
+        correct_pos = self.terrain_move_limit(src_pos, correct_pos)
 
         # 设置玩家位置
         self.set_player_position(correct_pos)
 
         # 玩家遮挡透明
         # self.player_occlusion_transparency()
+
         return correct_pos
 
     def get_born_position(self):

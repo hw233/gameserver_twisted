@@ -54,7 +54,9 @@ ADVANCED_HAT_ID = 4002
 
 EGG_ID = 6002
 MEAT_ID = 6003
+IRON_ID = 6004
 
+RABBIT_ID = 9001
 
 item_berry = {
     # 整株浆果
@@ -186,20 +188,20 @@ item_tree = {
         "range": 150
     },
     "components": [
-        {
-            "comp": "collider",
-            "type": "AABB",
-            "static": True,
-            "shape": {
-                "width": 150,
-                "height": 500,
-                "length": 150,
-            },
-            "center": {
-                "x": 0, "y": 250, "z": 0
-            },
-            "outline_visible": False
-        },
+        # {
+        #     "comp": "collider",
+        #     "type": "AABB",
+        #     "static": True,
+        #     "shape": {
+        #         "width": 150,
+        #         "height": 500,
+        #         "length": 150,
+        #     },
+        #     "center": {
+        #         "x": 0, "y": 250, "z": 0
+        #     },
+        #     "outline_visible": False
+        # },
         {
             "comp": "renderer",
             "gim": "model/tree/tree.gim",
@@ -209,7 +211,7 @@ item_tree = {
             "id": TREE_ID,
             "name": "tree",
             "kind": "fell",
-            "health": 50,
+            "health": 100,
             "reaped": "stump",
             "good": "wood",
         }
@@ -690,6 +692,49 @@ item_meat = {
     ],
 }
 
+item_iron = {
+    # 铁
+    "creator": {
+        "range": 100
+    },
+    "components": [
+        {
+            "comp": "renderer",
+            "gim": "model/stone/stone_03.gim",
+        },
+        {
+            "comp": "item",
+            "id": IRON_ID,
+            "name": "iron",
+            "kind": "good",
+            "good": 1005,
+        }
+    ],
+}
+
+item_rabbit = {
+    # 兔子
+    "creator": {
+        "range": 100
+    },
+    "components": [
+        {
+            "comp": "renderer",
+            "gim": "model/rabbit/rabbit.gim",
+        },
+        {
+            "comp": "item",
+            "id": RABBIT_ID,
+            "name": "rabbit",
+            "kind": "fell",
+            "health": 100,
+            "good": 6003,
+        }
+    ],
+}
+
+
+
 data = {
     "berry": item_berry, BERRY_ID: item_berry,
     "reaped_berry": item_reaped_berry, REAPED_BERRY_ID: item_reaped_berry,
@@ -728,4 +773,7 @@ data = {
 
     "egg": item_egg, EGG_ID: item_egg,
     "meat": item_meat, MEAT_ID: item_meat,
+    "iron": item_iron, IRON_ID: item_iron,
+
+    "rabbit": item_rabbit, RABBIT_ID: item_rabbit,
 }

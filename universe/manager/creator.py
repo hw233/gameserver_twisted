@@ -304,9 +304,15 @@ class Creator(object):
                     block['landform']['id']):
                 return
 
+            part_renderer = PseudoRandom.get().weight_choice(data['building'][side],
+                                                             value=lambda x: x['part'], weight=lambda x: x['weight'])
+
+            # 空地块
+            if not part_renderer:
+                return
+
             # 移除地块
             grid.remove_chunk(h, v, h + building_h - 1, v + building_v - 1)
-            part_renderer = PseudoRandom.get().choice(data['building'][side])
 
             part_transform = [{
                 'comp': 'transform',
@@ -354,24 +360,27 @@ class Creator(object):
         return buildings
 
     @staticmethod
-    def create_collider(data):
+    def create_colliders(data):
         if data['comp'] != 'collider':
             raise TypeError
-        if data['type'] == 'AABB':
-            # AABB碰撞盒
-            from universe.component import Collider
-            from universe.misc import Vector3, AABB
-            min_x = data['center']['x'] - data['shape']['width'] / 2.0
-            min_y = data['center']['y'] - data['shape']['height'] / 2.0
-            min_z = data['center']['z'] - data['shape']['length'] / 2.0
-            max_x = data['center']['x'] + data['shape']['width'] / 2.0
-            max_y = data['center']['y'] + data['shape']['height'] / 2.0
-            max_z = data['center']['z'] + data['shape']['length'] / 2.0
-            min_point = Vector3(min_x, min_y, min_z)
-            max_point = Vector3(max_x, max_y, max_z)
-            aabb = AABB(min_point, max_point)
-            return Collider(collider=aabb, outline_visible=data.get('outline_visible', False),
-                            static=data.get('static', False))
+        from universe.component import Collider
+        from universe.misc import Vector3, AABB
+        colliders = []
+        for collider_data in data.get('colliders', []):
+            if collider_data['type'] == 'AABB':
+                # AABB碰撞盒
+
+                min_x = collider_data['center']['x'] - collider_data['shape']['width'] / 2.0
+                min_y = collider_data['center']['y'] - collider_data['shape']['height'] / 2.0
+                min_z = collider_data['center']['z'] - collider_data['shape']['length'] / 2.0
+                max_x = collider_data['center']['x'] + collider_data['shape']['width'] / 2.0
+                max_y = collider_data['center']['y'] + collider_data['shape']['height'] / 2.0
+                max_z = collider_data['center']['z'] + collider_data['shape']['length'] / 2.0
+                min_point = Vector3(min_x, min_y, min_z)
+                max_point = Vector3(max_x, max_y, max_z)
+                aabb = AABB(min_point, max_point)
+                colliders.append(aabb)
+        return Collider(colliders=colliders, outline_visible=data.get('outline_visible', False), static=data.get('static', False))
 
     @staticmethod
     def create_transform(data):
@@ -438,7 +447,7 @@ class Creator(object):
         comps = []
         for comp_data in data:
             if comp_data['comp'] == 'collider':
-                comps.append(Creator.create_collider(comp_data))
+                comps.append(Creator.create_colliders(comp_data))
             elif comp_data['comp'] == 'transform':
                 comps.append(Creator.create_transform(comp_data))
             elif comp_data['comp'] == 'renderer':
