@@ -96,7 +96,7 @@ weapon_DB = {
         "name": '锤子',
         "describe": '能把人打倒的大锤子',
         "icon_name": "2002.png",
-        "gim": "model/branch/branch.gim",
+        "gim": "model/hammer/hammer.gim",
         "item": 2002,
         "pile_bool": False,
         "attack": 25,  # 攻击力

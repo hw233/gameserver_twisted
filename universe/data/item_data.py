@@ -188,20 +188,24 @@ item_tree = {
         "range": 150
     },
     "components": [
-        # {
-        #     "comp": "collider",
-        #     "type": "AABB",
-        #     "static": True,
-        #     "shape": {
-        #         "width": 150,
-        #         "height": 500,
-        #         "length": 150,
-        #     },
-        #     "center": {
-        #         "x": 0, "y": 250, "z": 0
-        #     },
-        #     "outline_visible": False
-        # },
+        {
+            "comp": "collider",
+            "static": True,
+            "outline_visible": False,
+            "colliders": [
+                {
+                    "type": "AABB",
+                    "shape": {
+                        "width": 150,
+                        "height": 500,
+                        "length": 150,
+                    },
+                    "center": {
+                        "x": 0, "y": 250, "z": 0
+                    },
+                }
+            ]
+        },
         {
             "comp": "renderer",
             "gim": "model/tree/tree.gim",
@@ -560,7 +564,7 @@ item_dagger = {
     "components": [
         {
             "comp": "renderer",
-            "gim": "model/dagger/dagger_obj.gim",
+            "gim": "model/dagger/dagger.gim",
         },
         {
             "comp": "item",

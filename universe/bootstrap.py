@@ -1,6 +1,6 @@
 # coding=utf-8
 import universe
-from manager import Creator, Data, Layer, client
+from manager import Creator, DataLoader, Layer, client
 from misc import PseudoRandom, Vector3, Ray
 from component import Renderer, Transform, Collider, Item
 from processor import RenderProcessor, AnimatorProcessor, TransformProcessor, ColliderProcessor
@@ -13,6 +13,9 @@ class Universe(object):
         self.timer = universe.Timer()
         self.data = {}
         self.player_entity = None
+        self.creator = None
+        self.random = None
+        self.data_loader = None
 
     @client.only
     def debug(self):
@@ -33,16 +36,17 @@ class Universe(object):
                 rend.model = None
 
         for entity, coll in self.world.get_component(Collider):
-            if coll.outline:
-                coll.outline.destroy()
-                coll.outline = None
+            for outline in coll.outlines:
+                outline.destroy()
+            coll.outlines = []
+
         self.world.clear()
 
     def create_entity(self, layer, entity_data):
         entity = self.world.create_entity()
         self.layer.add_entity(layer, entity)
 
-        comps = Creator.create_components(entity_data)
+        comps = self.creator.create_components(entity_data)
         self.world.add_components(entity, *comps)
         return entity
 
@@ -51,24 +55,24 @@ class Universe(object):
             self.create_entity(layer, data)
 
     def create_biont_entity(self):
-        biosphere = Creator.create_biosphere(self.region, self.data)
+        biosphere = self.creator.create_biosphere(self.region, self.data)
         self.create_entities('biont', biosphere)
 
     def create_terrain_entity(self):
         # 创建区域
-        self.region = Creator.create_region(self.data)
+        self.region = self.creator.create_region(self.data)
         grid = self.region.grid()
 
         # 创建建筑
-        buildings = Creator.create_building(grid, self.data)
+        buildings = self.creator.create_building(grid, self.data)
         self.create_entities('terrain', buildings)
 
         # 地图污点装饰
-        spots = Creator.create_spot(grid, self.data)
+        spots = self.creator.create_spot(grid, self.data)
         self.create_entities('terrain', spots)
 
         # 创建地形
-        terrains = Creator.create_terrain(grid.tiles(), self.data)
+        terrains = self.creator.create_terrain(grid.tiles(), self.data)
         self.create_entities('terrain', terrains)
 
     def create_processor(self):
@@ -91,7 +95,7 @@ class Universe(object):
     def create_player(self):
         entity = self.world.create_entity()
         self.layer.add_entity('player', entity)
-        comps = Creator.create_components(self.data['world']['player']['components'])
+        comps = self.creator.create_components(self.data['world']['player']['components'])
         self.world.add_components(entity, *comps)
         self.player_entity = entity
 
@@ -116,20 +120,23 @@ class Universe(object):
 
     def start(self, seed, finish_loading=None):
         # 设置伪随机
-        PseudoRandom.set(seed)
+        self.random = PseudoRandom(seed)
+        self.creator = Creator(self.random)
+        self.data_loader = DataLoader(self.random)
+
         # 配置文件在种子设置之后，结果才能一致
         self.data = {
-            "world": Data.load('world'),
-            "landform": Data.load('landform'),
-            "block": Data.load('block'),
-            "tile": Data.load('tile'),
-            "spot": Data.load('spot'),
-            "building": Data.load('building'),
-            "item": Data.load('item')
+            "world": self.data_loader.load('world'),
+            "landform": self.data_loader.load('landform'),
+            "block": self.data_loader.load('block'),
+            "tile": self.data_loader.load('tile'),
+            "spot": self.data_loader.load('spot'),
+            "building": self.data_loader.load('building'),
+            "item": self.data_loader.load('item')
         }
 
         # 层管理
-        self.layer = Layer(self.world, data=self.data['world']['layers'])
+        self.layer = Layer(self, data=self.data['world']['layers'])
 
         # 创世
         self.create()
@@ -137,9 +144,11 @@ class Universe(object):
         # 降临
         self.world.start()
 
+
     def update(self):
         # self.world.update(self.timer.delta_time)
         self.timer.update()
+        # client.camera_look_at()
 
     def set_player_position(self, position):
         '''
@@ -249,6 +258,24 @@ class Universe(object):
 
         return src_pos
 
+    def outline_near_item(self, origin, radius=200):
+        '''
+        高亮附近可采集物体
+        :return:
+        '''
+        entities = self.layer.get_entities('drop') + self.layer.get_entities('biont')
+        for entity in entities:
+            transform = self.world.component_for_entity(entity, Transform)
+            renderer = self.world.component_for_entity(entity, Renderer)
+            item = self.world.component_for_entity(entity, Item)
+            if item is None or item.none:
+                continue
+
+            item_pos = transform.position
+            origin_pos = Vector3().copy(origin)
+            dist = Vector3.distance(origin_pos, item_pos)
+            client.outline(renderer, dist < radius)
+
     def approach(self, src_pos, dst_pos):
         '''
         玩家移动
@@ -265,22 +292,18 @@ class Universe(object):
         # 设置玩家位置
         self.set_player_position(correct_pos)
 
+        # 高亮附近可采集物体
+        # self.outline_near_item(correct_pos)
+
         # 玩家遮挡透明
         # self.player_occlusion_transparency()
 
         return correct_pos
 
     def get_born_position(self):
-        node = PseudoRandom.get().choice(self.region.get_nodes())
+        node = self.random.choice(self.region.get_nodes())
         x, z = self.region.local_to_world(node.horizontal, node.vertical)
         return [x, 0, z]
-        # positions = []
-        # for _ in xrange(amount):
-        #     node = PseudoRandom.get().choice(self.region.get_nodes())
-        #     position = self.region.local_to_world(node.horizontal, node.vertical)
-        #     positions.append(position)
-        # return positions
-
 
     def drop(self, position, good):
         '''
@@ -325,21 +348,21 @@ class Universe(object):
         item = self.world.component_for_entity(entity, Item)
         tran = self.world.component_for_entity(entity, Transform)
         rend = self.world.component_for_entity(entity, Renderer)
+
+        if item and item.reapable:
+            self.drop(tran.position, item.reaped)
+        if item and item.droppable:
+            self.drop(tran.position + Vector3(120, 0, -120), item.good)
+
         if rend and rend.model:
             if rend.model.has_anim_event('fall', 'end'):
-                def end_drop(model, anim_name, key, *data):
+                def end_drop(model, anim_name, key, data):
                     model.destroy()
                 rend.model.stop_animation()
                 rend.model.play_animation('fall')
                 rend.model.register_anim_key_event('fall', 'end', end_drop)
             else:
                 rend.model.destroy()
-
-
-        if item and item.reapable:
-            self.drop(tran.position, item.reaped)
-        if item and item.droppable:
-            self.drop(tran.position + Vector3(120, 0, -120), item.good)
 
         self.world.delete_entity(entity)
         self.layer.remove(entity)

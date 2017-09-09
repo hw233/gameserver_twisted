@@ -302,7 +302,7 @@ class Region(object):
             nodes = [self._nodes[k] for k in sorted(self._nodes.keys())]
         return nodes
 
-    def inside(self, horizontal, vertical, padding=0):
+    def inside(self, horizontal, vertical, padding=0, key=None):
         '''
         判断点是否在区域内部
         :param horizontal:
@@ -311,7 +311,10 @@ class Region(object):
         '''
         for h in frange(horizontal - padding, horizontal + padding + 1):
             for v in frange(vertical - padding, vertical + padding + 1):
-                if not self.get_node(h, v):
+                node = self.get_node(h, v)
+                if not node:
+                    return False
+                if key is not None and node.value != key:
                     return False
         return True
 

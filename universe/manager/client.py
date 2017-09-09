@@ -25,6 +25,11 @@ class Client(object):
         self.total_models = 0
         self.panel_fight = None
 
+    def clear(self):
+        self.loaded = False
+        self.loaded_models = 0
+        self.total_models = 0
+
     def show_loading(self):
         from ui.LoadingPanel import LoadingPanel
         self.loading_panel = LoadingPanel()
@@ -38,7 +43,17 @@ class Client(object):
             from ui.PanelFight import PanelFight
             self.panel_fight = PanelFight(self.scene_manager)
             self.panel_fight.show(True)
-            # self.camera_plan_view()
+            self.scene_manager.send_load_map_finished_msg()
+            self.enable_outline()
+
+    def enable_outline(self):
+        render.set_post_process_active('smooth_outline', True)
+        mat = render.get_post_process_material('smooth_outline', 0)
+        mat.set_var('width', 1.0)
+        mat = render.get_post_process_material('smooth_outline', 1)
+        mat.set_var('width', 1.0)
+        mat = render.get_post_process_material('smooth_outline', 2)
+        mat.set_var('brightness', 2.0)
 
     def get_total_models(self):
         return self.total_models
@@ -87,9 +102,7 @@ class Client(object):
         self.scene.active_camera = cam
 
         def callback(space_object, user_data):
-            print 'finish'
             self.scene.active_camera = self.main_camera
-            pass
 
         cam.move_to(
             self.main_camera.position,
@@ -103,6 +116,16 @@ class Client(object):
         # cam = render.camera(True, self.scene)
         # cam.move_to(math3d.vector(0, 1000, 0))
         pass
+
+    def camera_look_at(self):
+        self.scene.active_camera.look_at()
+
+    def outline(self, renderer, enable_outline=True):
+        if renderer and renderer.model:
+            renderer.model.show_ext_technique(render.EXT_TECH_SMOOTH_OUTLINE, enable_outline)
+            renderer.model.set_ext_technique_var(render.EXT_TECH_SMOOTH_OUTLINE, "OutlineColor", (1.0, 1.0, 0.0, 1.0))
+
+
 
 _inst = Client()
 get_loaded_models = _inst.get_loaded_models
@@ -119,6 +142,9 @@ set_loading_progress = _inst.set_loading_progress
 
 get_scene = _inst.get_scene
 set_scene = _inst.set_scene
+
+outline = _inst.outline
+clear = _inst.clear
 
 nexo_world = _inst.world
 nexo_math3d = _inst.math3d

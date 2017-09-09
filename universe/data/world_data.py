@@ -14,6 +14,11 @@ data = {
         'margin': 1,
     },
 
+    "biomes": {
+        "cluster": (3, 5),
+        "rotation": (-30, 30)
+    },
+
     'player': {
         'components': [
             {

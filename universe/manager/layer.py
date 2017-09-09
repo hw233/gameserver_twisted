@@ -1,19 +1,18 @@
 # coding=utf-8
 
 class Layer(object):
-    def __init__(self, world, data=None):
-        self.world = world
+    def __init__(self, universe, data=None):
+        self.world = universe.world
         self._altitudes = {}
         self._layers = {}
         if data is not None:
-            from universe.manager import Creator
             for name, layer in data.iteritems():
                 self._layers.setdefault(name, [])
                 self._altitudes.setdefault(name, layer['altitude'])
                 # 预制体
                 for preset_data in layer['presets']:
-                    comps = Creator.create_components(preset_data)
-                    entity = world.create_entity()
+                    comps = universe.creator.create_components(preset_data)
+                    entity = self.world.create_entity()
                     self.world.add_components(entity, *comps)
 
 

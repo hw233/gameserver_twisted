@@ -8,9 +8,19 @@ block_town = {
     "area @rand.int": (1000, 1500),
     "landform #landform": "mud",
     "buildings": {
-        'area @rand.float': (0.2, 0.5),
+        'proportion @rand.float': (0.02, 0.05),
+    },
+    "spots": {
+        "spot #spot": "adobe",
+        "proportion @rand.float": (0.3, 0.4),
     },
     "biomes": [
+        {
+            # 资源树
+            "item #item": "tree",
+            "proportion @rand.float": (0.005, 0.01),
+            "density": 0.8,
+        },
         {
             "item #item": "stone01",
             "proportion @rand.float": (0.01, 0.02),
@@ -47,40 +57,36 @@ block_town = {
             "density": 0.2,
         },
         {
-            "item #item": "tree",              #资源树
-            "proportion @rand.float": (0.01, 0.02),
-            "density": 0.8,
-        },
-        {
-            "item #item": "branch",             #资源树枝
+            # 资源树枝
+            "item #item": "branch",
             "proportion @rand.float": (0.03, 0.08),
             "density": 0.4,
         },
 		{
-            "item #item": "reed",               #资源草
+            # 资源草
+            "item #item": "reed",
             "proportion @rand.float": (0.005, 0.02),
             "density": 0.8,
         },
 		{
-            "item #item": "berry",        #浆果
+            # 浆果
+            "item #item": "berry",
             "proportion @rand.float": (0, 0.000001),
             "density": 0.8,
         },
 		{
-            "item #item": "egg",          #资源鸟蛋
+            # 资源鸟蛋
+            "item #item": "egg",
             "proportion @rand.float": (0.005, 0.01),
             "density": 0.2,
         },
 		{
-            "item #item": "stone04",       #石头
+            # 石头
+            "item #item": "stone04",
             "proportion @rand.float": (0.03, 0.08),
             "density": 0.2,
         },
     ],
-    "spots": {
-        "spot #spot": "adobe",
-        "area @rand.float": (0.3, 0.4),
-    },
 }
 
 block_grass = {
@@ -95,12 +101,13 @@ block_grass = {
     },
     "spots": {
         "spot #spot": "soil",
-        "area @rand.float": (0.2, 0.3),
+        "proportion @rand.float": (0.2, 0.3),
     },
     "biomes": [
         {
-            "item #item": "tree",              #资源树
-            "proportion @rand.float": (0.03, 0.2),
+            # 资源树
+            "item #item": "tree",
+            "proportion @rand.float": (0.15, 0.2),
             "density": 0.8,
         },
         {

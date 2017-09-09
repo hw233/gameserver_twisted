@@ -1,4 +1,4 @@
-import PseudoRandom
+from PseudoRandom import PseudoRandom
 from .mathematics import Vector3, is_close
 from .physics import Ray, AABB
 

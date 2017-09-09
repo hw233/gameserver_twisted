@@ -18,8 +18,10 @@ class World:
         :return:
         '''
         self._next_entity_id = START_ENTITY_ID
-        self._components.clear()
-        self._entities.clear()
+        self._components = {}
+        self._processors = []
+        self._entities = {}
+        self._dead_entities = set()
 
     def add_processor(self, processor_instance, priority=0):
         '''
