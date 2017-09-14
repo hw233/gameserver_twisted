@@ -102,7 +102,7 @@ class GameKindManager(object):
             if self.game_type == GameKindManager.SINGLE_GAME:
                 self.waiting_room = Room(self.generate_room_id(), self.host, 1)
             else:
-                self.waiting_room = Room(self.generate_room_id(), self.host, self.max_room_user_default)
+                self.waiting_room = Room(self.generate_room_id(), self.host, self.max_room_user_default, self.game_type)
 
     def remove_user(self, user):
         if self.username_to_room_map.has_key(user.username) is False:

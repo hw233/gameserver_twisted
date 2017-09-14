@@ -7,7 +7,7 @@ from common import DebugAux
 
 class Room(object):
 
-    def __init__(self, rid, host, max_user_num=2, arena_conf_filename='Configuration.ArenaConf', player_conf_filename='Configuration.PlayerConf', game_type = 0):
+    def __init__(self, rid, host, max_user_num=2, game_type = 0, arena_conf_filename='Configuration.ArenaConf', player_conf_filename='Configuration.PlayerConf'):
         '''
         :param rid:
         :param host:
