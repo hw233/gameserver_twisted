@@ -3,7 +3,7 @@ import time
 
 
 class MaxTime(behavior.Decorator):
-    def __init__(self, child, max_time=0):
+    def __init__(self, child = None, max_time=0):
         super(MaxTime, self).__init__(child)
 
         self.max_time = max_time

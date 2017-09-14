@@ -6,7 +6,7 @@ class Tick(object):
         self.debug = debug
 
         self._open_nodes = []
-        self._node_count = []
+        self._node_count = 0
 
     def _enter_node(self, node):
         self._node_count += 1

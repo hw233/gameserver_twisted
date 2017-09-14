@@ -31,6 +31,10 @@ from behavior.actions.Runner import Runner
 from behavior.actions.Error import Error
 from behavior.actions.Wait import Wait
 from behavior.actions.Route import Route
+from behavior.actions.Moving import Moving
+from behavior.actions.Idle import Idle
+from behavior.actions.Beaten import Beaten
+from behavior.actions.SearchTarget import SearchTarget
 
 # decorators
 from behavior.decorators.Inverter import Inverter

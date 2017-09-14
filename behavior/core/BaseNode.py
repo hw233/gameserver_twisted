@@ -1,7 +1,6 @@
 import uuid
 import behavior
 
-__all__ = ["BaseNode"]
 
 class BaseNode(object):
 

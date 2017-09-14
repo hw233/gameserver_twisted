@@ -2,7 +2,7 @@ import behavior
 
 
 class RepeatUntilFailure(behavior.Decorator):
-    def __init__(self, child, max_loop=-1):
+    def __init__(self, child = None, max_loop=-1):
         super(RepeatUntilFailure, self).__init__(child)
 
         self.max_loop = max_loop

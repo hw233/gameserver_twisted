@@ -38,6 +38,20 @@ class BehaviorTree(object):
             node.properties = spec['properties'] or node.properties
             nodes[key] = node
 
+        for key in data['nodes']:
+            spec = data['nodes'][key]
+            node = nodes[key]
+
+            if node.category == behavior.COMPOSITE and 'children' in spec:
+                for cid in spec['children']:
+                    node.children.append(nodes[cid])
+
+            elif node.category == behavior.DECORATOR and 'child' in spec:
+                node.child = nodes[spec['child']]
+
+        if data['root']:
+            self.root = nodes[data['root']]
+
     def dump(self):
         data = {}
         custom_names = []
