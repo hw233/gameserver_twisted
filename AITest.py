@@ -1,8 +1,8 @@
 
-import AI.behavior
-from AI.monster_ai import AI_Lib
+import behavior
+from ai.monster_ai import AI_Lib
 
-tree = AI.behavior.BehaviorTree()
+tree = behavior.BehaviorTree()
 
 tree.load(AI_Lib.ChaseMonster)
 

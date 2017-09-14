@@ -1,4 +1,3 @@
-from AI import behavior
 
 ChaseMonster = {
   "id": "d64ad51d-712b-4b47-8e51-c5b4bdc47a7e",
