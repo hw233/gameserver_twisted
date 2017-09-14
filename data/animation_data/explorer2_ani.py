@@ -18,11 +18,19 @@ data = {
     'quanji': 1000,
 
     # 标枪
-    'throw_ready': 733,
+    'throw_ready': 433,
     'throw_attack': 833,
 
     # 锤子
+    'hammer_ready': 400,
     'hammer_attack01': 1500,
     'hammer_attack02': 1667,
-    'hammer_attack03': 2967,
+    'hammer_attack03': 2867,
+    'hammer_attack_0301': 1333,
+
+    # 受击
+    'hit': 500,
+    'hit02': 500,
+    'fall02': 1100,
+    'up': 1500,
 }

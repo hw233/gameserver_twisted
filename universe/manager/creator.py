@@ -2,18 +2,31 @@
 
 from universe.misc import Vector3
 from rule import AreaRule
-import graph
+import graph, math
 
 class Creator(object):
 
     def __init__(self, random):
         self.random = random
 
+    # ============ Environment ============
+
     def create_block(self, region, origin, data):
         '''
         创建区域
         :return:
         '''
+
+        # 检查是否可以互相连接
+        def check_socket(horizontal, vertical, key, sockets):
+            for offset in graph.OFFSET_AROUND:
+                h = horizontal + offset[0]
+                v = vertical + offset[1]
+                node = region.get_node(h, v)
+                if node and (node.value != key and node.value not in sockets):
+                    return False
+            return True
+
         # 面积约束
         area_rule = AreaRule(data['area'])
         origin.value = data['landform']['id']
@@ -27,21 +40,48 @@ class Creator(object):
                 further = current.neighbour(direction)
                 further.value = data['landform']['id']
                 if region.get_node(further.horizontal, further.vertical) is None:
-                    region.add_node(further)
-                    area_rule.increase()
-                    if not area_rule.validated:
-                        break
-                    task.append(further)
+                    if check_socket(further.horizontal, further.vertical, current.value, data['sockets']):
+                        region.add_node(further)
+                        area_rule.increase()
+                        if not area_rule.validated:
+                            break
+                        task.append(further)
 
     def create_region(self, data):
         region = graph.Region(horizontal_scale=data['world']['tile']['width'],
                               vertical_scale=data['world']['tile']['length'])
-        for block_data in data['block']:
-            origin = graph.Node(
-                horizontal=block_data['center'][0],
-                vertical=block_data['center'][1]
-            )
-            self.create_block(region, origin, block_data)
+
+        def find_origin(region, radian):
+            border_nodes = region.border_nodes
+            min_diff = float('inf')
+            min_h, min_v = 0, 0
+            for node in border_nodes:
+                diff = Vector3.angle(
+                    Vector3(node.horizontal, 0, node.vertical),
+                    Vector3(math.cos(radian), 0, math.sin(radian))
+                )
+                if diff < min_diff:
+                    min_diff = diff
+                    min_h, min_v = node.horizontal, node.vertical
+
+            for offset in graph.OFFSET_NEIGHBORS:
+                if region.get_node(min_h + offset[0], min_v + offset[1]) is None:
+                    return graph.Node(min_h + offset[0], min_v + offset[1])
+
+        import math
+        current_radian = self.random.uniform(0, 2 * math.pi)
+        step_radian = 2 * math.pi / (len(data['block']) - 1)
+        for idx, block_data in enumerate(data['block']):
+            if idx == 0:
+                # 中心城区
+                origin = graph.Node(horizontal=0, vertical=0)
+                self.create_block(region, origin, block_data)
+            else:
+                # 其他地块
+                origin = find_origin(region, current_radian)
+                if origin:
+                    self.create_block(region, origin, block_data)
+                current_radian += step_radian
         return region
 
     def create_tile(self, tile, tile_data, landform_data):
@@ -105,12 +145,12 @@ class Creator(object):
         for block in block_data:
             if 'spots' not in block:
                 continue
-            proportion = block['spots']['proportion']
+            amount = block['spots']['amount']
             task = grid.tiles(block['landform']['id'])
             while task:
                 tile = task.pop()
 
-                if not self.random.random_pass(proportion):
+                if not self.random.random_pass(amount):
                     continue
 
                 # 概率检查
@@ -192,17 +232,17 @@ class Creator(object):
 
         for block in data['block']:
             for biome in block['biomes']:
-                proportion = biome['proportion']
+                amount = int(biome['amount'] * block['area'])
                 nodes = region.get_nodes(block['landform']['id'])
-                while proportion > 0 and nodes:
+                while amount > 0 and nodes:
                     # 随机选择源点
                     origin_index = self.random.randint(0, len(nodes) - 1)
                     origin = nodes.pop(origin_index)
-                    cluster, proportion = self.create_cluster(region, block, biosphere_created, origin, biome, data, proportion)
+                    cluster, amount = self.create_cluster(region, block, biosphere_created, origin, biome, data, amount)
                     biosphere.extend(cluster)
         return biosphere
 
-    def create_cluster(self, region, block, biosphere_created, origin, biome_data, data, proportion):
+    def create_cluster(self, region, block, biosphere_created, origin, biome_data, data, amount):
         '''
         地图上随机创建种群
         :param region: 创建的区域
@@ -222,16 +262,20 @@ class Creator(object):
             return True
 
         cluster = []
-        amount = self.random.randint(*data['world']['biomes']['cluster'])
-        for _ in xrange(amount):
+        cluster_amount = self.random.randint(*data['world']['biomes']['cluster'])
+        for _ in xrange(cluster_amount):
             biome_range = biome_data['item']['creator']['range']
-            size = max(data['world']['tile']['width'], data['world']['tile']['length'])
-            proportion -= biome_range * 1.0 / size / block['area']
+            size = data['world']['tile']['width'] * data['world']['tile']['length']
+
+            amount -= 1
+
+            if amount <= 0:
+                break
 
             h = origin.horizontal + self.random.uniform(-0.5, 0.5) + self.random.gauss(0, 1.0 / biome_data['density'])
             v = origin.vertical + self.random.uniform(-0.5, 0.5) + self.random.gauss(0, 1.0 / biome_data['density'])
 
-            padding = biome_range / size
+            padding = biome_range ** 2 / size
 
             if not region.inside(round(h), round(v), padding + 1, block['landform']['id']):
                 continue
@@ -267,7 +311,7 @@ class Creator(object):
 
             cluster.append(comps_data)
 
-        return cluster, proportion
+        return cluster, amount
 
     def create_building(self, grid, data):
         building_h = data['world']['building']['horizontal']
@@ -317,13 +361,13 @@ class Creator(object):
             if 'buildings' not in block:
                 continue
 
-            proportion = block['buildings']['proportion']
+            amount = block['buildings']['amount']
 
             task = grid.tiles(block['landform']['id'])
             while task:
                 tile = task.pop()
 
-                if not self.random.random_pass(proportion):
+                if not self.random.random_pass(amount):
                     continue
 
                 if not grid.validate_chunk(
@@ -339,29 +383,48 @@ class Creator(object):
 
         return buildings
 
-    def create_colliders(self, data):
+    # ============ Monster ============
+
+    def create_monster(self, region, data):
+        return data['monster'][1]
+
+    def create_collider(self, data):
+        from universe.misc import Vector3, AABB
+        if data['type'] == 'AABB':
+            # AABB碰撞盒
+            min_x = data['center']['x'] - data['shape']['width'] / 2.0
+            min_y = data['center']['y'] - data['shape']['height'] / 2.0
+            min_z = data['center']['z'] - data['shape']['length'] / 2.0
+            max_x = data['center']['x'] + data['shape']['width'] / 2.0
+            max_y = data['center']['y'] + data['shape']['height'] / 2.0
+            max_z = data['center']['z'] + data['shape']['length'] / 2.0
+            min_point = Vector3(min_x, min_y, min_z)
+            max_point = Vector3(max_x, max_y, max_z)
+            aabb = AABB(min_point, max_point)
+            return aabb
+
+    # ============ ECS components ============
+
+    def create_colliders_comp(self, data):
         if data['comp'] != 'collider':
             raise TypeError
         from universe.component import Collider
-        from universe.misc import Vector3, AABB
         colliders = []
         for collider_data in data.get('colliders', []):
-            if collider_data['type'] == 'AABB':
-                # AABB碰撞盒
+            collider = self.create_collider(collider_data)
+            colliders.append(collider)
+        return Collider(colliders=colliders, outline_visible=data.get('outline_visible', False))
 
-                min_x = collider_data['center']['x'] - collider_data['shape']['width'] / 2.0
-                min_y = collider_data['center']['y'] - collider_data['shape']['height'] / 2.0
-                min_z = collider_data['center']['z'] - collider_data['shape']['length'] / 2.0
-                max_x = collider_data['center']['x'] + collider_data['shape']['width'] / 2.0
-                max_y = collider_data['center']['y'] + collider_data['shape']['height'] / 2.0
-                max_z = collider_data['center']['z'] + collider_data['shape']['length'] / 2.0
-                min_point = Vector3(min_x, min_y, min_z)
-                max_point = Vector3(max_x, max_y, max_z)
-                aabb = AABB(min_point, max_point)
-                colliders.append(aabb)
-        return Collider(colliders=colliders, outline_visible=data.get('outline_visible', False), static=data.get('static', False))
+    def create_state_comp(self, data):
+        if data['comp'] != 'state':
+            raise TypeError
+        from universe.component import StateMachine
+        return StateMachine(
+            default=data['default'],
+            transitions=data['transitions']
+        )
 
-    def create_transform(self, data):
+    def create_transform_comp(self, data):
         if data['comp'] != 'transform':
             raise TypeError
         from universe.component import Transform
@@ -387,24 +450,23 @@ class Creator(object):
             scale_data.get('y', 1),
             scale_data.get('z', 1),
         )
-        return Transform(position, rotation, scale)
+        return Transform(position, rotation, scale, static=data.get('static', True))
 
-    def create_renderer(self, data):
+    def create_renderer_comp(self, data):
         if data['comp'] != 'renderer':
             raise TypeError
         from universe.component import Renderer
-        return Renderer(gim=data['gim'])
+        return Renderer(gim=data['gim'], grand_gim=data.get('grand_gim'))
 
-    def create_animator(self, data):
+    def create_animator_comp(self, data):
         if data['comp'] != 'animator':
             raise TypeError
-        # from universe.component import Animator
-        # print data
-        # return Animator(
-        #     default=
-        # )
+        from universe.component import Animator
+        return Animator(
+            animations=data['animations']
+        )
 
-    def create_item(self, data):
+    def create_item_comp(self, data):
         if data['comp'] != 'item':
             raise TypeError
         from universe.component import Item
@@ -417,18 +479,41 @@ class Creator(object):
             good=data.get('good')
         )
 
+    def create_monster_comp(self, data):
+        if data['comp'] != 'monster':
+            raise TypeError
+        from universe.component import Monster
+        return Monster(
+            move_speed=data['move_speed'],
+            attack_speed=data['attack_speed'],
+            attack_range=data['attack_range'],
+            detection_range=data['detection_range']
+        )
+
+    def create_player_comp(self, data):
+        if data['comp'] != 'player':
+            raise TypeError
+        from universe.component import Player
+        return Player()
+
     def create_components(self, data):
         comps = []
         for comp_data in data:
             if comp_data['comp'] == 'collider':
-                comps.append(self.create_colliders(comp_data))
+                comps.append(self.create_colliders_comp(comp_data))
+            elif comp_data['comp'] == 'state':
+                comps.append(self.create_state_comp(comp_data))
             elif comp_data['comp'] == 'transform':
-                comps.append(self.create_transform(comp_data))
+                comps.append(self.create_transform_comp(comp_data))
             elif comp_data['comp'] == 'renderer':
-                comps.append(self.create_renderer(comp_data))
-            # elif comp_data['comp'] == 'animator':
-            #     Creator.create_animator(comp_data)
+                comps.append(self.create_renderer_comp(comp_data))
+            elif comp_data['comp'] == 'animator':
+                comps.append(self.create_animator_comp(comp_data))
             elif comp_data['comp'] == 'item':
-                comps.append(self.create_item(comp_data))
+                comps.append(self.create_item_comp(comp_data))
+            elif comp_data['comp'] == 'monster':
+                comps.append(self.create_monster_comp(comp_data))
+            elif comp_data['comp'] == 'player':
+                comps.append(self.create_player_comp(comp_data))
         return comps
 

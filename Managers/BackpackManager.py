@@ -10,12 +10,21 @@
 '''
 from GameObject.BPItemObject import BPItemObject
 from Configuration import MaterialDB
+from GameObject.GameObject import GameObject
 from common import DebugAux
 
 
-class BackpackManager(object):
-    def __init__(self, max_block = 100):
+class BackpackManager(GameObject):
+
+    BP_INSTALL_UNINSTALL_LISTENER = 0
+    BP_QUANTITY_CHANGE_LISTENER = 1
+    BP_TAKE_AWAY_LISTENER = 2
+    BP_BRING_IN_LISTENER = 3
+
+    def __init__(self,parent=None, max_block = 100):
         super(BackpackManager, self).__init__()
+
+        self.parent = parent
 
         self.weapon = None
         self.armor = None
@@ -27,7 +36,7 @@ class BackpackManager(object):
         self.max_block = max_block
 
         self.init()
-        self._just_for_test_delete_me()
+        #self._just_for_test_delete_me()
 
     def debug_weapon_attack(self):
         weapon = self.get_active_weapon()
@@ -64,10 +73,10 @@ class BackpackManager(object):
         if info["pile_bool"] is False:
             for k in xrange(0, num):
                 item = BPItemObject(ID)
-                self.bring_in_ex(item)
+                self.bring_in_ex(item, 1, True)
         else:
             item = BPItemObject(ID, num)
-            self.bring_in_ex(item)
+            self.bring_in_ex(item, num, True)
 
         return True
 
@@ -115,7 +124,11 @@ class BackpackManager(object):
         num = 0
         for value in self.entity_id_to_backpack_obj_map.itervalues():
             if value.ID == ID:
-                num += value.num
+                info = MaterialDB.get_info_by_ID(ID)
+                if info["pile_bool"] is False:
+                    num += 1
+                else:
+                    num += value.num
         return num
 
     def get_entity_id_by_ID(self, ID):
@@ -125,21 +138,32 @@ class BackpackManager(object):
 
         return None
 
-    def bring_in_ex(self, obj, num = 1):
+    def bring_in_ex(self, obj, num = 1, trigger = False):
         if type(obj) is int:
             obj = BPItemObject(obj, num)
 
         if obj.pile_bool is False:
             self.entity_id_to_backpack_obj_map[obj.entity_id] = obj
+            if trigger is True:
+                self.trigger_event(BackpackManager.BP_BRING_IN_LISTENER, self.parent,
+                                   obj.entity_id, obj.ID, obj.health, obj.num)
             return
         else:
             for v in self.entity_id_to_backpack_obj_map.itervalues():
                 if v.ID == obj.ID:
                     v.num += obj.num
+
+                    if trigger is True:
+                        self.trigger_event(BackpackManager.BP_BRING_IN_LISTENER, self.parent,
+                                           obj.entity_id, obj.ID,obj.health, obj.num)
                     return
             self.entity_id_to_backpack_obj_map[obj.entity_id] = obj
 
-    def take_away_ex(self, entity_id, num = 1):
+            if trigger is True:
+                self.trigger_event(BackpackManager.BP_BRING_IN_LISTENER, self.parent, obj.entity_id,
+                                   obj.ID, obj.health,obj.num)
+
+    def take_away_ex(self, entity_id, num = 1, trigger = False):
         if entity_id in self.entity_id_to_backpack_obj_map:
             item = self.entity_id_to_backpack_obj_map[entity_id]
             if item.pile_bool is False:
@@ -149,7 +173,11 @@ class BackpackManager(object):
                     del self.entity_id_to_backpack_obj_map[entity_id]
                 else:
                     self.entity_id_to_backpack_obj_map[entity_id].num -= num
+                    item = BPItemObject(self.entity_id_to_backpack_obj_map[entity_id].ID, num)
 
+            if trigger is True:
+                self.trigger_event(BackpackManager.BP_TAKE_AWAY_LISTENER, self.parent, item.entity_id,
+                                   item.ID, item.health, item.num)
             return item
 
         return None
@@ -190,16 +218,16 @@ class BackpackManager(object):
         for k in xrange(0, 3):
             if self.weapon[k] and self.weapon[k].ID == item.ID:
                  if k == slots_index:
-                    self.bring_in_ex(self.weapon[k])
-                    item = self.take_away_ex(item.entity_id, item.num)
+                    self.bring_in_ex(self.weapon[k], self.weapon[k].num, True)
+                    item = self.take_away_ex(item.entity_id, item.num, True)
                     self.weapon[k] = item
                     self.active_index = slots_index
                     return True
 
         if self.weapon[slots_index] is not None:
-            self.bring_in_ex(self.weapon[slots_index])
+            self.bring_in_ex(self.weapon[slots_index], self.weapon[slots_index].num, True)
 
-        item = self.take_away_ex(item.entity_id, item.num)
+        item = self.take_away_ex(item.entity_id, item.num, True)
         self.weapon[slots_index] = item
         self.active_index = slots_index
         return True
@@ -212,7 +240,7 @@ class BackpackManager(object):
             if self.weapon[k].entity_id == entity_id:
                 item = self.weapon[k]
                 self.weapon[k] = None
-                self.bring_in_ex(item)
+                self.bring_in_ex(item, item.num, True)
                 if self.active_index == k:
                     self.active_index = -1
                 return item
@@ -220,13 +248,13 @@ class BackpackManager(object):
         if self.armor is not None and self.armor.entity_id == entity_id:
             item = self.armor
             self.armor = None
-            self.bring_in_ex(item)
+            self.bring_in_ex(item, item.num, True)
             return item
 
         if self.hat is not None and self.hat.entity_id == entity_id:
             item = self.hat
             self.hat = None
-            self.bring_in_ex(item)
+            self.bring_in_ex(item, item.num, True)
             return item
 
         return None
@@ -238,10 +266,10 @@ class BackpackManager(object):
         item = self.entity_id_to_backpack_obj_map[entity_id]
 
         if self.armor:
-            self.bring_in_ex(self.armor)
+            self.bring_in_ex(self.armor, self.armor, True)
             self.armor = None
 
-        self.armor = self.take_away_ex(item.entity_id, item.num)
+        self.armor = self.take_away_ex(item.entity_id, item.num, True)
 
         return self.armor
 
@@ -252,10 +280,10 @@ class BackpackManager(object):
         item = self.entity_id_to_backpack_obj_map[entity_id]
 
         if self.hat:
-            self.bring_in_ex(self.hat)
+            self.bring_in_ex(self.hat, self.armor, True)
             self.hat = None
 
-        self.hat = self.take_away_ex(item.entity_id, item.num)
+        self.hat = self.take_away_ex(item.entity_id, item.num, True)
 
         return self.hat
 
@@ -347,6 +375,7 @@ class BackpackManager(object):
             self.armor.entity_id = data[15]
             self.armor.health = data[16]
             self.armor.num = data[17]
+            DebugAux.Log("print armor num", self.armor.num)
 
         self.hat = BPItemObject(data[18], 1) if data[18] != -1 else None
         if self.hat is not None:
@@ -384,6 +413,9 @@ class BackpackManager(object):
         return res
 
     def make_object(self, ID, num=1):
+
+        DebugAux.Log("[server] [backpack] begin")
+
         data = MaterialDB.get_info_by_ID(ID)
         if data is None:
             return None
@@ -406,17 +438,18 @@ class BackpackManager(object):
         left_num_total = self.get_item_num_by_ID(left_id)
         right_num_total = self.get_item_num_by_ID(right_id)
 
+        DebugAux.Log("[server] [backpack] ", left_num, right_num, left_num_total, right_num_total)
         if left_num > left_num_total or right_num > right_num_total:
             return None
 
         left_entity_id = self.get_entity_id_by_ID(left_id)
         right_entity_id = self.get_entity_id_by_ID(right_id)
 
-        self.take_away_ex(left_entity_id, left_num)
-        self.take_away_ex(right_entity_id, right_num)
+        self.take_away_ex(left_entity_id, left_num, True)
+        self.take_away_ex(right_entity_id, right_num, True)
 
         item = BPItemObject(ID, num)
-        self.bring_in_ex(item)
+        self.bring_in_ex(item, item.num, True)
 
         return item
 
@@ -426,7 +459,7 @@ class BackpackManager(object):
 
         item = self.entity_id_to_backpack_obj_map[entity_id]
 
-        item = self.take_away_ex(item.entity_id, item.num)
+        item = self.take_away_ex(item.entity_id, item.num, True)
 
         return item
 
@@ -444,7 +477,19 @@ class BackpackManager(object):
         if self.armor is not None:
             val += self.armor.get_defense()
 
+        self._trigger_syn_msg()
+
         return val
+
+    def _trigger_syn_msg(self):
+        die_list = self.inquire_weapon_die()
+
+        if len(die_list) >= 0:
+            # trigger weapon install or uninstall message
+            self.trigger_event(BackpackManager.BP_INSTALL_UNINSTALL_LISTENER, self.parent, die_list)
+
+        # trigger weapon blood msg
+        self.trigger_event(BackpackManager.BP_QUANTITY_CHANGE_LISTENER, self.parent)
 
     def get_attack(self):
         val = 0
@@ -459,6 +504,8 @@ class BackpackManager(object):
 
         if self.armor is not None:
             val += self.armor.get_attack()
+
+        self._trigger_syn_msg()
 
         return val
 

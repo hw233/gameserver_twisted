@@ -1,6 +1,6 @@
 ﻿# coding=utf-8
 data = {
-    'start': ['act1' , 'act2'],
+    'start': ['act1', 'act2'],
 
     'act1': {
         'type': 'act',
@@ -29,7 +29,7 @@ data = {
         'damage': {
             'percentage': 1.0,  # 攻击百分比
             'single': True,
-			},
+        },
         'hitact': 'hit',
     },
 
@@ -37,7 +37,7 @@ data = {
         'type': 'att',
         'damage': {
             'percentage': 1.0,  # 攻击百分比
-            'single': True,           
+            'single': True,
         },
         'hitact': 'hit',
     },

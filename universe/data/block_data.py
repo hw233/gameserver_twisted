@@ -1,89 +1,138 @@
 # coding=utf-8
 
+AMOUNT_0 = (0)
+AMOUNT_1 = (0.005, 0.008)
+AMOUNT_2 = (0.008, 0.01)
+AMOUNT_3 = (0.01, 0.02)
+AMOUNT_4 = (0.02, 0.03)
+AMOUNT_5 = (0.03, 0.04)
+AMOUNT_6 = (0.04, 0.05)
+AMOUNT_7 = (0.05, 0.06)
+AMOUNT_8 = (0.06, 0.07)
+AMOUNT_9 = (0.07, 0.08)
+AMOUNT_10 = (0.08, 0.10)
+
 block_town = {
     # 城镇区
     "id": 1,
     "name": "town",
-    "center": (0, 0),
-    "area @rand.int": (1000, 1500),
+    "area @rand.int": (1000, 2000),
     "landform #landform": "mud",
+    "sockets": [2, 3, 4],
     "buildings": {
-        'proportion @rand.float': (0.02, 0.05),
+        'amount @rand.float': (0.02, 0.05),
     },
     "spots": {
         "spot #spot": "adobe",
-        "proportion @rand.float": (0.3, 0.4),
+        "amount @rand.float": (0.3, 0.4),
     },
     "biomes": [
         {
             # 资源树
             "item #item": "tree",
-            "proportion @rand.float": (0.005, 0.01),
+            "amount @rand.float": AMOUNT_2,
             "density": 0.8,
         },
-        {
-            "item #item": "stone01",
-            "proportion @rand.float": (0.01, 0.02),
+		{
+            # 资源铁，最后需要注释掉
+            "item #item": "iron",
+            "amount @rand.float": AMOUNT_5,
+            "density": 0.8,
+        },
+		{
+            # 资源黄色的树
+            "item #item": "yellow_tree",
+            "amount @rand.float": AMOUNT_5,
+            "density": 0.8,
+        },
+		{
+			# 资源枯树
+            "item #item": "withered_tree",
+            "amount @rand.float": AMOUNT_1,
             "density": 0.2,
         },
-        {
-            "item #item": "stone02",
-            "proportion @rand.float": (0.01, 0.02),
-            "density": 0.2,
-        },
-        {
-            "item #item": "box01",
-            "proportion @rand.float": (0.01, 0.02),
-            "density": 0.2,
-        },
-        {
-            "item #item": "stump",
-            "proportion @rand.float": (0.01, 0.02),
-            "density": 0.2,
-        },
-        {
-            "item #item": "weeds",
-            "proportion @rand.float": (0.01, 0.02),
-            "density": 0.2,
-        },
-        {
-            "item #item": "jar",
-            "proportion @rand.float": (0.01, 0.02),
-            "density": 0.2,
-        },
-        {
-            "item #item": "cask",
-            "proportion @rand.float": (0.01, 0.02),
-            "density": 0.2,
-        },
-        {
+		{
             # 资源树枝
             "item #item": "branch",
-            "proportion @rand.float": (0.03, 0.08),
+            "amount @rand.float": AMOUNT_2,
             "density": 0.4,
         },
 		{
             # 资源草
             "item #item": "reed",
-            "proportion @rand.float": (0.005, 0.02),
+            "amount @rand.float": AMOUNT_2,
             "density": 0.8,
         },
 		{
-            # 浆果
+            # 资源浆果
             "item #item": "berry",
-            "proportion @rand.float": (0, 0.000001),
+            "amount @rand.float": AMOUNT_2,
             "density": 0.8,
         },
 		{
             # 资源鸟蛋
             "item #item": "egg",
-            "proportion @rand.float": (0.005, 0.01),
+            "amount @rand.float": AMOUNT_3,
             "density": 0.2,
         },
 		{
-            # 石头
+            # 资源石头
             "item #item": "stone04",
-            "proportion @rand.float": (0.03, 0.08),
+            "amount @rand.float": AMOUNT_4,
+            "density": 0.2,
+        },
+        {
+			# 小怪 兔子
+            "item #item": "rabbit",
+            "amount @rand.float": AMOUNT_2,
+            "density": 0.2,
+        },
+		{
+			# 普通物品树桩
+            "item #item": "stump",
+            "amount @rand.float": AMOUNT_3,
+            "density": 0.2,
+        },
+		{
+			# 普通物品黄色小草
+            "item #item": "yellow_weeds",
+            "amount @rand.float": AMOUNT_3,
+            "density": 0.2,
+        },
+		{
+			# 普通物品小草
+            "item #item": "weeds",
+            "amount @rand.float": AMOUNT_2,
+            "density": 0.2,
+        },
+        {
+			# 普通物品草丛
+            "item #item": "bush",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.8,
+        },
+		{
+			# 普通物品小石块1
+            "item #item": "stone01",
+            "amount @rand.float": AMOUNT_7,
+            "density": 0.2,
+        },
+		{
+			# 普通物品，小罐子
+            "item #item": "jar",
+            "amount @rand.float": AMOUNT_4,
+            "density": 0.2,
+        },
+		{
+			# 普通物品，小桶
+            "item #item": "cask",
+            "amount @rand.float": AMOUNT_3,
+            "density": 0.2,
+        },
+		{
+			# 普通物品，小巷子
+            "item #item": "box01",
+            "amount @rand.float": AMOUNT_4,
             "density": 0.2,
         },
     ],
@@ -93,72 +142,114 @@ block_grass = {
     # 草地区
     "id": 2,
     "name": "grass",
-    "center": (-20, 20),
-    "area @rand.int": (500, 700),
+    "area @rand.int": (1000, 1500),
     "landform #landform": "grass",
-    "holes": {
-        "area @rand.int": (10, 30)
-    },
+    "sockets": [1],
     "spots": {
         "spot #spot": "soil",
-        "proportion @rand.float": (0.2, 0.3),
+        "amount @rand.float": (0.2, 0.3),
     },
     "biomes": [
         {
+			# 普通物品草丛
+            "item #item": "bush",
+            "amount @rand.float": AMOUNT_5,
+            "density": 0.8,
+        },
+        {
             # 资源树
             "item #item": "tree",
-            "proportion @rand.float": (0.15, 0.2),
+            "amount @rand.float": AMOUNT_8,
             "density": 0.8,
         },
         {
-            "item #item": "branch",             #资源树枝
-            "proportion @rand.float": (0.01, 0.02),
+            # 资源黄色的树
+            "item #item": "yellow_tree",
+            "amount @rand.float": AMOUNT_8,
+            "density": 0.8,
+        },
+        {
+			# 资源枯树
+            "item #item": "withered_tree",
+            "amount @rand.float": AMOUNT_3,
+            "density": 0.2,
+        },
+        {
+            # 资源树枝
+            "item #item": "branch",
+            "amount @rand.float": AMOUNT_5,
             "density": 0.4,
         },
-		{
-            "item #item": "reed",               #资源草
-            "proportion @rand.float": (0.02, 0.05),
-            "density": 0.8,
-        },
-		{
-            "item #item": "berry",        #浆果
-            "proportion @rand.float": (0.05, 0.15),
-            "density": 0.8,
-        },
-		{
-            "item #item": "egg",          #资源鸟蛋
-            "proportion @rand.float": (0, 0.00001),
-            "density": 0.2,
-        },
-		{
-            "item #item": "stone04",       #石头
-            "proportion @rand.float": (0.005, 0.02),
-            "density": 0.2,
-        },
         {
-            "item #item": "withered_tree",
-            "proportion @rand.float": (0.02, 0.03),
-            "density": 0.2,
-        },
-        {
-            "item #item": "bush",
-            "proportion @rand.float": (0.01, 0.02),
+            # 资源草
+            "item #item": "reed",
+            "amount @rand.float": AMOUNT_6,
             "density": 0.8,
         },
         {
-            "item #item": "stump",
-            "proportion @rand.float": (0.01, 0.03),
+            # 资源浆果
+            "item #item": "berry",
+            "amount @rand.float": AMOUNT_7,
             "density": 0.8,
         },
-
         {
-            "item #item": "stone01",
-            "proportion @rand.float": (0.01, 0.02),
+            # 资源鸟蛋
+            "item #item": "egg",
+            "amount @rand.float": AMOUNT_2,
             "density": 0.2,
         },
         {
+            # 资源石头
+            "item #item": "stone04",
+            "amount @rand.float": AMOUNT_5,
+            "density": 0.2,
+        },
+        {
+			# 小怪 兔子
             "item #item": "rabbit",
-            "proportion @rand.float": (0.01, 0.02),
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.2,
+        },
+        {
+			# 普通物品树桩
+            "item #item": "stump",
+            "amount @rand.float": AMOUNT_4,
+            "density": 0.2,
+        },
+        {
+			# 普通物品黄色小草
+            "item #item": "yellow_weeds",
+            "amount @rand.float": AMOUNT_6,
+            "density": 0.2,
+        },
+        {
+			# 普通物品小草
+            "item #item": "weeds",
+            "amount @rand.float": AMOUNT_6,
+            "density": 0.2,
+        },
+        {
+			# 普通物品小石块1
+            "item #item": "stone01",
+            "amount @rand.float": AMOUNT_6,
+            "density": 0.2,
+        },
+        {
+			# 普通物品，小罐子
+            "item #item": "jar",
+            "amount @rand.float": AMOUNT_3,
+            "density": 0.2,
+        },
+        {
+			# 普通物品，小桶
+            "item #item": "cask",
+            "amount @rand.float": AMOUNT_2,
+            "density": 0.2,
+        },
+        {
+			# 普通物品，小巷子
+            "item #item": "box01",
+            "amount @rand.float": AMOUNT_3,
             "density": 0.2,
         },
     ],
@@ -168,11 +259,116 @@ block_withered = {
     # 枯草地
     "id": 3,
     "name": "withered",
-    "center": (0, -15),
-    "area @rand.int": (500, 700),
+    "area @rand.int": (1000, 1500),
     "landform #landform": "withered",
-    "spots": {},
+    "sockets": [1],
+    "spots": {
+        "spot #spot": "barren",
+        "amount @rand.float": (0.2, 0.3),
+    },
     "biomes": [
+	    {
+            # 资源树
+            "item #item": "tree",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.8,
+        },
+		{
+            # 资源黄色的树
+            "item #item": "yellow_tree",
+            "amount @rand.float": AMOUNT_5,
+            "density": 0.8,
+        },
+		{
+			# 资源枯树
+            "item #item": "withered_tree",
+            "amount @rand.float": AMOUNT_7,
+            "density": 0.2,
+        },
+		{
+            # 资源树枝
+            "item #item": "branch",
+            "amount @rand.float": AMOUNT_5,
+            "density": 0.4,
+        },
+		{
+            # 资源草
+            "item #item": "reed",
+            "amount @rand.float": AMOUNT_7,
+            "density": 0.8,
+        },
+		{
+            # 资源浆果
+            "item #item": "berry",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.8,
+        },
+		{
+            # 资源鸟蛋
+            "item #item": "egg",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.2,
+        },
+		{
+            # 资源石头
+            "item #item": "stone04",
+            "amount @rand.float": AMOUNT_6,
+            "density": 0.2,
+        },
+        {
+			# 小怪 兔子
+            "item #item": "rabbit",
+            "amount @rand.float": AMOUNT_6,
+            "density": 0.2,
+        },
+		{
+			# 普通物品树桩
+            "item #item": "stump",
+            "amount @rand.float": AMOUNT_4,
+            "density": 0.2,
+        },
+		{
+			# 普通物品黄色小草
+            "item #item": "yellow_weeds",
+            "amount @rand.float": AMOUNT_7,
+            "density": 0.2,
+        },
+		{
+			# 普通物品小草
+            "item #item": "weeds",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.2,
+        },
+        {
+			# 普通物品草丛
+            "item #item": "bush",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.8,
+        },
+		{
+			# 普通物品小石块1
+            "item #item": "stone01",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.2,
+        },
+		{
+			# 普通物品，小罐子
+            "item #item": "jar",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.2,
+        },
+		{
+			# 普通物品，小桶
+            "item #item": "cask",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.2,
+        },
+		{
+			# 普通物品，小巷子
+            "item #item": "box01",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.2,
+        },
     ],
 }
 
@@ -180,17 +376,123 @@ block_marsh = {
     # 沼泽
     "id": 4,
     "name": "marsh",
-    "center": (15, 15),
-    "area @rand.int": (500, 700),
+    "area @rand.int": (1000, 1500),
     "landform #landform": "marsh",
-    "spots": {},
+    "sockets": [1],
+    "spots": {
+        "spot #spot": "puddle",
+        "amount @rand.float": (0.2, 0.3),
+    },
     "biomes": [
+	    {
+            # 资源树
+            "item #item": "tree",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.8,
+        },
+		{
+            # 资源黄色的树
+            "item #item": "yellow_tree",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.8,
+        },
+		{
+			# 资源枯树
+            "item #item": "withered_tree",
+            "amount @rand.float": AMOUNT_8,
+            "density": 0.2,
+        },
+		{
+            # 资源树枝
+            "item #item": "branch",
+            "amount @rand.float": AMOUNT_4,
+            "density": 0.4,
+        },
+		{
+            # 资源草
+            "item #item": "reed",
+            "amount @rand.float": AMOUNT_5,
+            "density": 0.8,
+        },
+		{
+            # 资源浆果
+            "item #item": "berry",
+            "amount @rand.float": AMOUNT_5,
+            "density": 0.8,
+        },
+		{
+            # 资源鸟蛋
+            "item #item": "egg",
+            "amount @rand.float": AMOUNT_6,
+            "density": 0.2,
+        },
+		{
+            # 资源石头
+            "item #item": "stone04",
+            "amount @rand.float": AMOUNT_6,
+            "density": 0.2,
+        },
+        {
+			# 小怪 兔子
+            "item #item": "rabbit",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.2,
+        },
+		{
+			# 普通物品树桩
+            "item #item": "stump",
+            "amount @rand.float": AMOUNT_5,
+            "density": 0.2,
+        },
+		{
+			# 普通物品小草
+            "item #item": "weeds",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.2,
+        },
+		{
+			# 普通物品黄色小草
+            "item #item": "yellow_weeds",
+            "amount @rand.float": AMOUNT_8,
+            "density": 0.2,
+        },
+        {
+			# 普通物品草丛
+            "item #item": "bush",
+            "amount @rand.float": AMOUNT_6,
+            "density": 0.8,
+        },
+		{
+			# 普通物品小石块1
+            "item #item": "stone01",
+            "amount @rand.float": AMOUNT_6,
+            "density": 0.2,
+        },
+		{
+			# 普通物品，小罐子
+            "item #item": "jar",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.2,
+        },
+		{
+			# 普通物品，小桶
+            "item #item": "cask",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.2,
+        },
+		{
+			# 普通物品，小巷子
+            "item #item": "box01",
+            "amount @rand.float": AMOUNT_1,
+            "density": 0.2,
+        },
+	
     ],
 }
 
 data = [
     block_town,
     block_grass,
-    # block_withered,
-    # block_marsh
+    block_withered,
+    block_marsh
 ]

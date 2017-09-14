@@ -40,7 +40,7 @@ data = {
     'hit_1': {
         'type': 'att',
         'damage': {
-            'percentage': 1.5,  # 攻击百分比
+            'percentage': 3,  # 攻击百分比
             'add': 0,  # 攻击附加
             'stop': 6,
             'quake': [1, 6, 2],
@@ -79,7 +79,7 @@ data = {
     'hit_2': {
         'type': 'att',
         'damage': {
-            'percentage': 1.0,  # 攻击百分比
+            'percentage': 1.5,  # 攻击百分比
             'add': 0,  # 攻击附加
             'shake': [1, 2],
             'bullet': {

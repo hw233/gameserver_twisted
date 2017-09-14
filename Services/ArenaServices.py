@@ -18,6 +18,9 @@ class ArenaServices(Service):
             8: self.player_reap,
             9: self.player_reap_hit,
             10: self.bullet_spawn,
+            11: self.player_position,
+            12: self.player_run_act_node,
+            13: self.player_hit_recover,
         }
         self.register_commands(commands)
 
@@ -53,3 +56,12 @@ class ArenaServices(Service):
 
     def bullet_spawn(self, msg, client_hid):
         self.arena.create_bullet(msg, client_hid)
+
+    def player_position(self, msg, client_hid):
+        self.arena.handle_player_position(msg, client_hid)
+
+    def player_run_act_node(self, msg, client_hid):
+        self.arena.handle_player_run_act_node(msg, client_hid)
+
+    def player_hit_recover(self, msg, client_hid):
+        self.arena.handle_player_hit_recover(msg, client_hid)

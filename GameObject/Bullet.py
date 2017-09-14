@@ -1,9 +1,7 @@
 # coding=utf-8
-import time
 
 from GameObject import GameObject
-from common import Util
-from common.events import MsgSCBulletMove
+from common import Util, GameTime
 
 
 class Bullet(GameObject):
@@ -14,8 +12,8 @@ class Bullet(GameObject):
         self.skill_id = skill_id
         self.node_name = node_name
 
-        node_config = self.owner.skill_handler.get_skill_node_config(skill_id, node_name)
-        self.damage_data = node_config.get('damage')
+        self.node_config = self.owner.skill_handler.get_skill_node_config(skill_id, node_name)
+        self.damage_data = self.node_config.get('damage')
 
         bullet_data = self.damage_data.get('bullet')
 
@@ -24,27 +22,21 @@ class Bullet(GameObject):
         self.set_position(pos)
         self.origin_pos = pos
 
-        self.velocity = direct * bullet_data.get('speed')
-        self.acceleration = direct * bullet_data.get('acceleration')
+        self.move_velocity = direct * bullet_data.get('speed')
+        self.accelerate_velocity = direct * bullet_data.get('acceleration')
 
         # 特效最大飞行距离
         self.max_dis = bullet_data.get('max_dis')
-
-        self.last_update_time = time.time()
-
-        self.timer_manager.add_repeat_timer(0.06, self.send_move_msg)
 
     def update(self):
         if self.is_dead():
             return
 
-        self.timer_manager.scheduler()
-
         self.move()
 
     def move(self):
-        now = time.time()
-        target_pos = self.get_position() + Util.calculate_move_distance(self.velocity, self.acceleration, now - self.last_update_time)
+        target_pos = self.get_position() + Util.calculate_move_distance(self.move_velocity, self.accelerate_velocity,
+                                                                        GameTime.delta_time)
 
         if (target_pos - self.origin_pos).magnitude > self.max_dis:
             self.destroy_me()
@@ -52,8 +44,7 @@ class Bullet(GameObject):
         if self.check_hit_target(self.get_position(), target_pos):
             return
         self.set_position(target_pos)
-        self.velocity += self.acceleration * (now - self.last_update_time)
-        self.last_update_time = now
+        self.move_velocity += self.accelerate_velocity * GameTime.delta_time
 
     def check_hit_target(self, src_pos, target_pos):
         # 静态检测  FIX ME !!!
@@ -75,6 +66,8 @@ class Bullet(GameObject):
         if hit_target is None:
             return False
 
+        self.arena.handle_player_hit_move(self.get_position(), [hit_target, ], self.node_config, hit_time=0)
+
         self.destroy_me(hit_target)
         return True
 
@@ -82,9 +75,4 @@ class Bullet(GameObject):
         if self.is_dead():
             return
         self.set_dead()
-        self.arena.handle_bullet_destroy(self, hit_target)
-
-    def send_move_msg(self):
-        pos = self.get_position()
-        msg = MsgSCBulletMove(self.get_entity_id(), pos.x, pos.y, pos.z)
-        self.arena.broadcast(msg)
+        self.arena.handle_bullet_hit(self, hit_target)

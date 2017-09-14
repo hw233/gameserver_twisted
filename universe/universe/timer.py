@@ -2,13 +2,15 @@
 import time
 class Timer(object):
 
-    def __init__(self):
-        self._time = time.time()
+    def __init__(self, now=None):
+        self._time = now if now is not None else time.time()
+        self._delta_time = 0
         self._tasks = []
         self._done_tasks = []
 
-    def update(self):
-        self._time = time.time()
+    def update(self, dt=None):
+        self._delta_time = dt if dt is not None else time.time() - self._time
+        self._time = dt if dt is not None else time.time()
         # 先清空已完成的任务
         self.clear()
         # 执行任务
@@ -36,7 +38,7 @@ class Timer(object):
 
     @property
     def delta_time(self):
-        return time.time() - self.time
+        return self._delta_time
 
     def clear(self):
         for task in self._done_tasks:

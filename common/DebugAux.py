@@ -3,10 +3,12 @@ class DebugAux(object):
         super(DebugAux, self).__init__()
 
     def Log(self, *args, **kwargs):
-        print(args, kwargs)
+        pass
+        #print(args, kwargs)
+
 
     def __new__(cls, *args, **kwargs):
-        if not hasattr(cls, 'instance'):
+        if not hasattr(cls, '_instance'):
             cls._instance = super(DebugAux, cls).__new__(cls, *args, **kwargs)
 
         return cls._instance

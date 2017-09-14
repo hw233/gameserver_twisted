@@ -32,13 +32,18 @@ class Layer(object):
         container = self._layers.setdefault(layer, [])
         container.append(entity)
 
-    def get_entities(self, layer):
+    def get_entities(self, layer=None):
         '''
         获取层内的所有对象
         :param layer: 层名称
         :return: 对象集合
         '''
-        return self._layers.get(layer, [])
+        if layer is None:
+            entities = []
+            for layer in self._layers:
+                entities.extend(self._layers.get(layer, []))
+        else:
+            return self._layers.get(layer, [])
 
     def remove(self, entity):
         '''

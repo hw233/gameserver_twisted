@@ -8,6 +8,7 @@ explorer = {
     'make_speed': 1,
     'collect_speed': 1,
     'body_radius': 50,  # cm
-    'spirit_deduce_time' : 2,
-    'spirit_deduce_val' : 2,
+    'spirit_deduce_time': 10,
+    'spirit_deduce_val': 2,
+    'blood_deduce_val': 2,
 }

@@ -1,0 +1,354 @@
+<NeoX>
+	<InitPlayAnim
+		AnimName = "attack" />
+	<AnimationEventTracks
+		Version = "2">
+		<EventTrack_attack>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.0677"
+				Name = "ready" />
+			<Event
+				TimeRatio = "0.1132"
+				Name = "mov" />
+			<Event
+				TimeRatio = "0.1589"
+				Name = "hit" />
+			<Event
+				TimeRatio = "0.2495"
+				Name = "att_end" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_attack>
+		<EventTrack_attack02>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.2371"
+				Name = "hit" />
+			<Event
+				TimeRatio = "0.0943"
+				Name = "mov" />
+			<Event
+				TimeRatio = "0.5229"
+				Name = "att_end" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_attack02>
+		<EventTrack_attack03>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.0747"
+				Name = "mov" />
+			<Event
+				TimeRatio = "0.3"
+				Name = "hit" />
+			<Event
+				TimeRatio = "0.5997"
+				Name = "att_end" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_attack03>
+		<EventTrack_collect_kan>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.1501"
+				Name = "holdforce_single" />
+			<Event
+				TimeRatio = "0.3997"
+				Name = "hit" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_collect_kan>
+		<EventTrack_eat>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.2045"
+				Name = "holdforce_single" />
+			<Event
+				TimeRatio = "0.227"
+				Name = "hit" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_eat>
+		<EventTrack_fall02>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.3328"
+				Name = "fx_shuaidao" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_fall02>
+		<EventTrack_quanji02>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.1992"
+				Name = "hit" />
+			<Event
+				TimeRatio = "0.0792"
+				Name = "mov" />
+			<Event
+				TimeRatio = "0.48"
+				Name = "att_end" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_quanji02>
+		<EventTrack_quanji>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.0658"
+				Name = "mov" />
+			<Event
+				TimeRatio = "0.166"
+				Name = "hit" />
+			<Event
+				TimeRatio = "0.366"
+				Name = "att_end" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_quanji>
+		<EventTrack_run>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.099"
+				Name = "you" />
+			<Event
+				TimeRatio = "0.6"
+				Name = "zuo" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_run>
+		<EventTrack_run_weapon>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.099"
+				Name = "you" />
+			<Event
+				TimeRatio = "0.4995"
+				Name = "zuo" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_run_weapon>
+		<EventTrack_walk_guard>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.095"
+				Name = "zuo" />
+			<Event
+				TimeRatio = "0.595"
+				Name = "you" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_walk_guard>
+		<EventTrack_throw_walk>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.0619"
+				Name = "zuo" />
+			<Event
+				TimeRatio = "0.5625"
+				Name = "you" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_throw_walk>
+		<EventTrack_throw_attack>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.24"
+				Name = "hit" />
+			<Event
+				TimeRatio = "0.12"
+				Name = "mov" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_throw_attack>
+		<EventTrack_throw_ready>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.9545"
+				Name = "holdforce" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_throw_ready>
+		<EventTrack_collect>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.45"
+				Name = "hit" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_collect>
+		<EventTrack_attack_ready>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.1748"
+				Name = "hit" />
+			<Event
+				TimeRatio = "0.3495"
+				Name = "att_end" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_attack_ready>
+		<EventTrack_hammer_attack01>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.0887"
+				Name = "mov" />
+			<Event
+				TimeRatio = "0.1773"
+				Name = "hit" />
+			<Event
+				TimeRatio = "0.2887"
+				Name = "att_end" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_hammer_attack01>
+		<EventTrack_hammer_attack02>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.0798"
+				Name = "mov" />
+			<Event
+				TimeRatio = "0.18"
+				Name = "hit" />
+			<Event
+				TimeRatio = "0.24"
+				Name = "att_end" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_hammer_attack02>
+		<EventTrack_hammer_attack03>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.0579"
+				Name = "mov" />
+			<Event
+				TimeRatio = "0.1047"
+				Name = "hit_01" />
+			<Event
+				TimeRatio = "0.1744"
+				Name = "hit_02" />
+			<Event
+				TimeRatio = "0.2442"
+				Name = "hit_03" />
+			<Event
+				TimeRatio = "0.3255"
+				Name = "hit_04" />
+			<Event
+				TimeRatio = "0.3952"
+				Name = "hit_05" />
+			<Event
+				TimeRatio = "0.4535"
+				Name = "hit_06" />
+			<Event
+				TimeRatio = "0.5233"
+				Name = "hit_07" />
+			<Event
+				TimeRatio = "0.593"
+				Name = "hit_08" />
+			<Event
+				TimeRatio = "0.9767"
+				Name = "att_end" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_hammer_attack03>
+		<EventTrack_hammer_attack_0301>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.225"
+				Name = "mov" />
+			<Event
+				TimeRatio = "0.3997"
+				Name = "hit" />
+			<Event
+				TimeRatio = "0.7245"
+				Name = "att_end" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_hammer_attack_0301>
+		<EventTrack_hammer_ready_run>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.1426"
+				Name = "zuo" />
+			<Event
+				TimeRatio = "0.6064"
+				Name = "you" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_hammer_ready_run>
+		<EventTrack_hammer_ready>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.9157"
+				Name = "holdforce" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_hammer_ready>
+	</AnimationEventTracks>
+</NeoX>

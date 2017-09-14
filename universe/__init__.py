@@ -1,7 +1,7 @@
 from .bootstrap import Universe
-from .manager import client
+from .manager import Client, ClientOnly
 
-__all__ = ('client')
+__all__ = ('Client', 'ClientOnly')
 
 class God(object):
     def __init__(self):

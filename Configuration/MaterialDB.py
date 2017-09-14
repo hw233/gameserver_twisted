@@ -25,7 +25,7 @@ material_DB = {
         "describe": '随随便便从野外捡到的树枝，似乎可以拿来造点什么。',
         "pile_bool": True,
         "icon_name": "1001.png",
-        "item": 11,
+        "item": 12,
     },
     "mutou": {
         "ID": 1002,
@@ -33,31 +33,20 @@ material_DB = {
         "describe": '一截从树上砍下来的木头，可以用来制作各种工具。',
         "pile_bool": True,
         "icon_name": "1002.png",
-        "item": 10,
+        "item": 11,
     },
     "cao": {
         "ID": 1003,
-        "name": '草',
-        "describe": '一截从树上砍下来的木头，可以用来制作各种工具。',
+        "name": '草片',
+        "describe": '路边拔的小草，可以用来捏工具。',
         "pile_bool": True,
         "icon_name": "1003.png",
         "item": 6,
     },
-    "shitou": {
-        "ID": 1004,
-        "name": '石头',
-        "describe": '坚硬的石头，丢石头不是正道，你要蓄力丢那更坏了！',
-        "pile_bool": True,
-        "icon_name": "1004.png",
-        "attackskill": 10040,
-        "gim": "model/stone/stone_03.gim",
-        "item": 105,
-        'socket': 'weapon',
-    },
-	"tie": {
+    "tie": {
         "ID": 1005,
-        "name": '铁',
-        "describe": '一截从树上砍下来的木头，可以用来制作各种工具。',
+        "name": '铁块',
+        "describe": '怪物身上掉下来的铁块，制作的防御更加坚硬。',
         "pile_bool": True,
         "icon_name": "1003.png",
         "item": 6004,
@@ -74,21 +63,21 @@ weapon_DB = {
         "pile_bool": False,  # 是否可叠加
         "attack": 0,  # 攻击力
         "attackskill": 2000,  # 攻击技能ID
-        "collectskill": [[101, 7], [101, 8]],
+        "collectskill": [[101, 7], [101, 9], [101, 13], [101, 9001]],
     },
     "futou": {
         "ID": 2001,
         "name": '斧头',
         "describe": '可以用来砍树和砍...人。',
         "icon_name": '2001.png',
-        "gim": "model/axe/axe_obj.gim",
+        "gim": "model/axe/axe.gim",
         "item": 2001,
         "pile_bool": False,  # 是否可叠加
         "attack": 15,  # 攻击力
         "attackskill": 1000,  # 攻击技能ID
-        "collectskill": [[2001, 7], [2001, 8]],
+        "collectskill": [[2001, 7], [2001, 9], [2001, 13]],
         "make_speed": 2,  # 制作时间
-        "costblood": 25,  # 每次使用消耗物品的生命，物品生命默认为100
+        "costblood": 4,  # 每次使用消耗物品的生命，物品生命默认为100
         "make_list": {1001: 2, 1004: 4},  # 制作材料
     },
     "chuizi": {
@@ -102,8 +91,8 @@ weapon_DB = {
         "attack": 25,  # 攻击力
         "attackskill": 1002,  # 攻击技能ID
         "make_speed": 4,  # 制作时间
-        "costblood": 25,  # 每次使用消耗物品的生命，物品生命默认为100
-        "make_list": {1002: 2, 1004: 4},  # 制作材料
+        "costblood": 2,  # 每次使用消耗物品的生命，物品生命默认为100
+        "make_list": {1002: 5, 1004: 2},  # 制作材料
     },
     "biaoqiang": {
         "ID": 2003,
@@ -117,7 +106,7 @@ weapon_DB = {
         "attackskill": 1003,  # 攻击技能ID
         "make_speed": 2,  # 制作时间
         "costblood": 100,  # 每次使用消耗物品的生命，物品生命默认为100
-        "make_list": {1002: 2, 1003: 2},  # 制作材料
+        "make_list": {1002: 1, 1003: 1},  # 制作材料
     },
 
     "bishou": {
@@ -132,32 +121,44 @@ weapon_DB = {
         "make_speed": 2,  # 制作时间
         "costblood": 4,  # 每次使用消耗物品的生命，物品生命默认为100
     },
+    "shitou": {
+        "ID": 1004,
+        "name": '石头',
+        "describe": '制作物品的材料，别丢光了！',
+        "pile_bool": True,
+        "icon_name": "1004.png",
+        "attackskill": 10040,
+        "gim": "model/stone/stone_03.gim",
+        "item": 105,
+        "attack":20,
+        'socket': 'weapon',
+    },
 }
 
 armor_DB = {
     "mudunpai": {
         "ID": 3001,
         "name": '木盾牌',
-        "describe": '并不是很坚硬的护甲',
+        "describe": '并不是很坚硬的盾牌，装上后可以格挡，并且能增加防御',
         "icon_name": '3001.png',
         "gim": "model/shield/shield.gim",
         "item": 3001,
         "pile_bool": False,
-        "defense": 15,
+        "defense": 30,
         "costblood": 5,
-        "make_list": {1002: 2, 1003: 2},
+        "make_list": {1001: 2, 1002: 3},
     },
     "tiedunpai": {
         "ID": 3002,
-        "name": '铁盾牌',
-        "describe": '稍微坚硬点护甲',
+        "name": '精致盾牌',
+        "describe": '更加坚硬的盾牌，装备上后，简直无敌了。',
         "icon_name": '3001.png',
-        "gim": "model/shield/shield.gim",
+        "gim": "model/shield/shield02.gim",
         "item": 3002,
         "pile_bool": False,
-        "defense": 30,
+        "defense": 40,
         "costblood": 4,
-        "make_list": {1002: 6, 1004: 4},
+        "make_list": {3001: 1, 1005: 2},
     },
 }
 
@@ -165,14 +166,14 @@ hat_DB = {
     "maozi": {
         "ID": 4001,
         "name": '帽子',
-        "describe": '带上奇特颜色的帽子，防御会更强!',
+        "describe": '带上奇特颜色的帽子，会提高你的防御力!',
         "icon_name": '4001.png',
         "gim": "model/hat/hat.gim",
         "item": 4001,
         "pile_bool": False,
-        "defense": 10,
+        "defense": 30,
         "costblood": 2,
-        "make_list": {1001: 2, 1002: 2},
+        "make_list": {1003: 5, 1002: 2},
     },
     "haomaozi": {
         "ID": 4002,
@@ -183,8 +184,8 @@ hat_DB = {
         "item": 4002,
         "pile_bool": False,
         "costblood": 4,
-        "defense": 20,
-        "make_list": {1002: 2, 1003: 2},
+        "defense": 40,
+        "make_list": {4001: 1, 1005: 1},
     },
 }
 
@@ -198,9 +199,7 @@ trap_DB = {
         "drop_gim": "model/hat/hat.gim",
         "pile_bool": True,
         "attack": 40,
-        # "attackskill": 5001,
         "health": 100,
-        "make_list": {1002: 4, 1004: 4},
     },
 
     "jingzhixianjing": {
@@ -212,9 +211,7 @@ trap_DB = {
         "icon_name": '5001.png',
         "pile_bool": True,
         "attack": 60,
-        # "attackskill": 5001,
         "health": 100,
-        "make_list": {1002: 4, 1004: 4},
     },
 }
 
@@ -230,7 +227,7 @@ food_DB = {
         "attackskill": 60010,
         "attack": 5,  # 攻击力
         "collectskill": [[60011, -1]],  # 场景对象为-1为吃东西
-        'socket': 'weapon',  # 挂接点名字，没有此项默认为weapon
+        'socket': 'eat',  # 挂接点名字，没有此项默认为weapon
     },
 
     "niaodan": {
@@ -245,7 +242,7 @@ food_DB = {
         # "food": 50,
         "collectskill": [[60021, -1]],  # 场景对象为-1为吃东西
         "attack": 40,
-        'socket': 'weapon',
+        'socket': 'eat',
     },
 
     "darou": {
@@ -258,7 +255,7 @@ food_DB = {
         "pile_bool": True,
         "collectskill": [[60031, -1]],  # 场景对象为-1为吃东西
         "attack": 80,
-        'socket': 'weapon',
+        'socket': 'eat',
     },
 }
 

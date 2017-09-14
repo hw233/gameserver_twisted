@@ -15,9 +15,12 @@ class Vector3(object):
     def list(self):
         return [self.x, self.y, self.z]
 
-    def copy(self, src):
-        self.x, self.y, self.z = src.x, src.y, src.z
-        return self
+    def copy(self, src=None):
+        if src is not None:
+            self.x, self.y, self.z = src.x, src.y, src.z
+            return self
+        else:
+            return Vector3().copy(self)
 
     # 加法
     def __add__(self, obj):
@@ -75,10 +78,32 @@ class Vector3(object):
         return Vector3(v1.y * v2.z - v2.y * v1.z, v1.z * v2.x - v1.x * v2.z,
                        v1.x * v2.y - v2.x * v1.y)
 
+    @staticmethod
+    def dot(v1, v2):
+        return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z
+
     # 求两个向量距离
     @staticmethod
     def distance(v1, v2):
         return (v1 - v2).magnitude
+
+    @staticmethod
+    def angle(from_v, to_v):
+        return math.acos(Vector3.dot(from_v.normalized, to_v.normalized)) * 180 / math.pi
+
+    @staticmethod
+    def sign(val):
+        if val == 0.0:
+            return 0.0
+        return 1 if val > 0 else -1
+
+    @staticmethod
+    def angle_to_axis(v, axis, up):
+        axis = Vector3.forward()
+        up = Vector3.up()
+        normal = Vector3.cross(v, axis).normalized
+        angle = - Vector3.angle(v, axis) * Vector3.sign(Vector3.dot(normal, up))
+        return angle
 
 class Vector2:
     x = .0

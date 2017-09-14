@@ -11,34 +11,16 @@
 '''
 from Configuration import MaterialDB
 from common import DebugAux
+from GameObject import GameObject
 
 
-class BPItemManager(object):
-    def __init__(self):
-        super(BPItemManager, self).__init__()
-        self.entities_id = []
-
-    def generate_entity_id(self):
-        for k in xrange(0, len(self.entities_id)+1):
-            if k not in self.entities_id:
-                self.entities_id.append(k)
-                return k
-
-    def release_entity_id(self, id):
-        self.entities_id.remove(id)
-
-
-bpim = BPItemManager()
-
-
-class BPItemObject(object):
+class BPItemObject(GameObject):
     def __init__(self, ID, num=1):
         super(BPItemObject, self).__init__()
         self.ID = ID
         self.num = num
         self.pile_bool = True
         self.health = 0
-        self.entity_id = bpim.generate_entity_id()
 
         self.init()
 
@@ -97,6 +79,8 @@ class BPItemObject(object):
             self.health -= self.costblood
             DebugAux.Log( "[server] backpack item object health ",self.health)
             return self.attack
+        else:
+            self.num -= 1
         return 0
 
     def get_defense(self):
@@ -106,9 +90,6 @@ class BPItemObject(object):
             return self.defense
 
         return 0
-
-    def __del__(self):
-        bpim.release_entity_id(self.entity_id)
 
 
 

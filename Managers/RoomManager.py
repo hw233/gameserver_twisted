@@ -9,11 +9,11 @@
     @log:
          1. 2017-08-02 created
 '''
-
+import time
 
 from Managers.GameKindManager import GameKindManager
 from common import conf
-from common.events import MsgCSGMRoomCmd
+from common.events import MsgSCDelayQA
 from common import EventManager
 from common import DebugAux
 
@@ -41,6 +41,7 @@ class RoomManager(object):
     def add_msg_listener(self):
         EventManager.add_observer(conf.MSG_CS_GM_ROOM_CMD, self.set_room_num)
         EventManager.add_observer(conf.MSG_CS_PLAYER_QUIT, self.player_quit)
+        EventManager.add_observer(conf.MSG_SC_DELAY_QA, self.delay_msg_for_qa)
 
     def player_quit(self, client_hid, msg):
 
@@ -75,6 +76,12 @@ class RoomManager(object):
     def tick(self):
         for game in self.game_kind.itervalues():
             game.tick()
+
+        # send delay time msg for qa test
+
+        #for hid in self.client_hid_to_game_type.keys():
+            #msg = MsgSCDelayQA(hid, time.time())
+            #self.host.sendClient(hid, msg.marshal())
 
     def add_user(self, user, game_type = -1):
         '''
@@ -112,3 +119,8 @@ class RoomManager(object):
 
         index = self.username_to_game_type[user.username]
         return self.game_kind[index].is_in_arena(user)
+
+    def delay_msg_for_qa(self, client_hid, msg):
+        pass
+        #msg.back_time = time.time()
+        #DebugAux.Log("back time,", msg.back_time, " send time,",msg.send_time)

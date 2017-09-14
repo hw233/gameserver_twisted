@@ -50,7 +50,6 @@ class MsgCSRegister(SimpleHeader):
 
 
 class MsgCSMatchRequest(SimpleHeader):
-
     SINGLE_MATCH = 0
     NORMAL_MATCH = 1
     BATTLE_MATCH = 2
@@ -98,6 +97,12 @@ class MsgSCStartGame(SimpleHeader):
         super(MsgSCStartGame, self).__init__(conf.MSG_SC_START_GAME)
 
 
+class MsgSCGameWinCountDown(SimpleHeader):
+    def __init__(self, remind_time=0):
+        super(MsgSCGameWinCountDown, self).__init__(conf.MSG_SC_GAME_WIN_COUNT_DOWN)
+        self.append_param("remind_time", remind_time, 'i')
+
+
 class MsgCSPlayerQuit(SimpleHeader):
     def __init__(self, pid=-1):
         super(MsgCSPlayerQuit, self).__init__(conf.MSG_CS_PLAYER_QUIT)
@@ -129,7 +134,7 @@ class MsgSCPlayerBorn(SimpleHeader):
 
 class MsgCSPlayerMove(SimpleHeader):
     def __init__(self, pid=-1, px=0, py=0, pz=0, rx=0, ry=0, rz=0, vx=0, vy=0, vz=0,
-                 ax=0, ay=0, az=0, send_time=0):
+                 ax=0, ay=0, az=0, state_names=''):
         super(MsgCSPlayerMove, self).__init__(conf.MSG_CS_PLAYER_MOVE)
         self.append_param('pid', pid, 'i')
         self.append_param('px', px, 'f')
@@ -144,9 +149,21 @@ class MsgCSPlayerMove(SimpleHeader):
         self.append_param('ax', ax, 'f')
         self.append_param('ay', ay, 'f')
         self.append_param('az', az, 'f')
-        self.append_param('send_time', send_time, 'd')
+        self.append_param('state_names', state_names, 's')
         self.sid = conf.ARENA_SERVICES
         self.cmdid = 1
+
+
+class MsgCSPlayerPosition(SimpleHeader):
+    def __init__(self, pid=-1, px=0, pz=0, ry=0, is_moving=False):
+        super(MsgCSPlayerPosition, self).__init__(conf.MSG_CS_PLAYER_POSITION)
+        self.append_param('pid', pid, 'i')
+        self.append_param('px', px, 'f')
+        self.append_param('pz', pz, 'f')
+        self.append_param('ry', ry, 'f')
+        self.append_param('is_moving', is_moving, '?')
+        self.sid = conf.ARENA_SERVICES
+        self.cmdid = 11
 
 
 class MsgCSPlayerAttack(SimpleHeader):
@@ -162,6 +179,25 @@ class MsgCSPlayerAttack(SimpleHeader):
         self.append_param('rz', rz, 'f')
         self.sid = conf.ARENA_SERVICES
         self.cmdid = 2
+
+
+class MsgCSPlayerRunActNode(SimpleHeader):
+    def __init__(self, pid=-1, skill_id=0, node_name=''):
+        super(MsgCSPlayerRunActNode, self).__init__(conf.MSG_CS_PLAYER_RUN_ACT_NODE)
+        self.append_param('pid', pid, 'i')
+        self.append_param('skill_id', skill_id, 'i')
+        self.append_param('node_name', node_name, 's')
+        self.sid = conf.ARENA_SERVICES
+        self.cmdid = 12
+
+
+class MsgCSPlayerHitRecover(SimpleHeader):
+    def __init__(self, pid=-1, is_lie_down=False):
+        super(MsgCSPlayerHitRecover, self).__init__(conf.MSG_CS_PLAYER_HIT_RECOVER)
+        self.append_param('pid', pid, 'i')
+        self.append_param('is_lie_down', is_lie_down, '?')
+        self.sid = conf.ARENA_SERVICES
+        self.cmdid = 13
 
 
 class MsgCSPlayerHit(SimpleHeader):
@@ -181,7 +217,8 @@ class MsgCSPlayerHit(SimpleHeader):
 
 
 class MsgSCPlayerHit(SimpleHeader):
-    def __init__(self, pid=-1, px=0, py=0, pz=0, rx=0, ry=0, rz=0, skill_id=0, node_name='', targets_str=''):
+    def __init__(self, pid=-1, px=0, py=0, pz=0, rx=0, ry=0, rz=0, skill_id=0, node_name='', tag='', hit_idx=0,
+                 targets_str=''):
         super(MsgSCPlayerHit, self).__init__(conf.MSG_SC_PLAYER_HIT)
         self.append_param('pid', pid, 'i')
         self.append_param('px', px, 'f')
@@ -192,6 +229,8 @@ class MsgSCPlayerHit(SimpleHeader):
         self.append_param('rz', rz, 'f')
         self.append_param('skill_id', skill_id, 'i')
         self.append_param('node_name', node_name, 's')
+        self.append_param('tag', tag, 's')
+        self.append_param('hit_idx', hit_idx, 'i')
         self.append_param('targets_str', targets_str, 's')
 
 
@@ -274,7 +313,8 @@ class MsgCSPlayerReap(SimpleHeader):
 
 
 class MsgCSPlayerReapHit(SimpleHeader):
-    def __init__(self, pid=-1, pos_x=0, pos_y=0, pos_z=0, entity_id=0, blood_percent=0, power_percent=0, attack_percent=0):
+    def __init__(self, pid=-1, pos_x=0, pos_y=0, pos_z=0, entity_id=0, blood_percent=0, power_percent=0,
+                 attack_percent=0):
         super(MsgCSPlayerReapHit, self).__init__(conf.MSG_CS_PLAYER_REAP_HIT)
         self.append_param('pid', pid, 'i')
         self.append_param('pos_x', pos_x, 'f')
@@ -305,27 +345,31 @@ class MsgCSBulletSpawn(SimpleHeader):
 
 
 class MsgSCBulletSpawn(SimpleHeader):
-    def __init__(self, pid=-1, owner_id=-1, px=0, py=0, pz=0, dx=0, dy=0, dz=0, skill_id=0, node_name=''):
+    def __init__(self, pid=-1, owner_id=-1, px=0, py=0, pz=0, vx=0, vy=0, vz=0, ax=0, ay=0, az=0, skill_id=0,
+                 node_name=''):
         super(MsgSCBulletSpawn, self).__init__(conf.MSG_SC_BULLET_SPAWN)
         self.append_param('pid', pid, 'i')
         self.append_param('owner_id', owner_id, 'i')
         self.append_param('px', px, 'f')
         self.append_param('py', py, 'f')
         self.append_param('pz', pz, 'f')
-        self.append_param('dx', dx, 'f')
-        self.append_param('dy', dy, 'f')
-        self.append_param('dz', dz, 'f')
+        self.append_param('vx', vx, 'f')
+        self.append_param('vy', vy, 'f')
+        self.append_param('vz', vz, 'f')
+        self.append_param('ax', ax, 'f')
+        self.append_param('ay', ay, 'f')
+        self.append_param('az', az, 'f')
         self.append_param('skill_id', skill_id, 'i')
         self.append_param('node_name', node_name, 's')
 
 
-class MsgSCBulletMove(SimpleHeader):
-    def __init__(self, pid=-1, px=0, py=0, pz=0):
-        super(MsgSCBulletMove, self).__init__(conf.MSG_SC_BULLET_MOVE)
-        self.append_param('pid', pid, 'i')
-        self.append_param('px', px, 'f')
-        self.append_param('py', py, 'f')
-        self.append_param('pz', pz, 'f')
+# class MsgSCBulletMove(SimpleHeader):
+#     def __init__(self, pid=-1, px=0, py=0, pz=0):
+#         super(MsgSCBulletMove, self).__init__(conf.MSG_SC_BULLET_MOVE)
+#         self.append_param('pid', pid, 'i')
+#         self.append_param('px', px, 'f')
+#         self.append_param('py', py, 'f')
+#         self.append_param('pz', pz, 'f')
 
 
 class MsgSCBulletHit(SimpleHeader):
@@ -474,4 +518,103 @@ class MsgCSEatFood(SimpleHeader):
         self.append_param("entity_id", entity_id, 'i')
 
 
+class MsgSCWeaponDeduce(SimpleHeader):
+    def __init__(self, pid=-1, weapon = -1, armor = -1, hat = -1):
+        '''
+        :param pid: player id
+        :param entity_id: weapon id
+        :param num: weapon blood or weapon quantity
+        '''
+        super(MsgSCWeaponDeduce, self).__init__(conf.MSG_SC_WEAPON_DEDUCE)
+        self.append_param("pid", pid, 'i')
+        self.append_param("weapon", weapon, 'i')
+        self.append_param("armor", armor, 'i')
+        self.append_param("hat", hat, 'i')
+
+
+class MsgSCSpiritBloodSyn(SimpleHeader):
+    def __init__(self,pid = -1,spirit = 0, blood = 0):
+        super(MsgSCSpiritBloodSyn, self).__init__(conf.MSG_SC_SPIRIT_BLOOD_SYN)
+        self.append_param('pid', pid, 'i')
+        self.append_param('spirit', spirit, 'i')
+        self.append_param('blood', blood, 'i')
+
+
+class MsgSCBackpackAdd(SimpleHeader):
+    def __init__(self, pid = -1,entity_id=-1, health=-1, ID=-1, num = -1):
+        super(MsgSCBackpackAdd, self).__init__(conf.MSG_SC_BACKPACK_ADD)
+        self.append_param('pid', pid, 'i')
+        self.append_param('entity_id', entity_id, 'i')
+        self.append_param('ID', ID, 'i')
+        self.append_param('health', health, 'i')
+        self.append_param('num', num, 'i')
+
+
+class MsgSCBackpackDel(SimpleHeader):
+    def __init__(self, pid =-1, entity_id=-1, health=-1, ID = -1, num = -1):
+        super(MsgSCBackpackDel, self).__init__(conf.MSG_SC_BACKPACK_DEL)
+        self.append_param('pid', pid, 'i')
+        self.append_param('entity_id', entity_id, 'i')
+        self.append_param('ID', ID, 'i')
+        self.append_param('health', health, 'i')
+        self.append_param('num', num, 'i')
 '''********************************BackpackMessage*******************************************************'''
+
+
+'''***********************************Monster message *****************************************************'''
+
+
+class MsgSCMonsterBorn(SimpleHeader):
+    def __init__(self, entity_id=-1, ID=-1, health=-1, x = 0, y=0, z=0):
+        super(MsgSCMonsterBorn, self).__init__(conf.MSG_SC_MONSTER_BORN_MSG)
+        self.append_param("entity_id", entity_id, 'i')
+        self.append_param("ID", ID, 'i')
+        self.append_param("health", health, 'i')
+        self.append_param("x", x, 'f')
+        self.append_param("y", y, 'f')
+        self.append_param("z", z, 'f')
+
+
+class MsgSCMonsterWaitTime(SimpleHeader):
+    def __init__(self, wait_time=0):
+        super(MsgSCMonsterWaitTime, self).__init__(conf.MSG_SC_MONSTER_WAITING_TIME)
+        self.append_param("wait_time", wait_time, 'i')
+
+
+class MsgSCMonsterAlertTime(SimpleHeader):
+    def __init__(self, alert_time=0):
+        super(MsgSCMonsterAlertTime, self).__init__(conf.MSG_SC_MONSTER_ALERT_TIME)
+        self.append_param("alert_time", alert_time, 'i')
+
+
+class MsgSCMonsterStateSyn(SimpleHeader):
+    MONSTER_PATROL = 0
+    MONSTER_DIE = 1
+    MONSTER_ATTACK = 2
+    MONSTER_IDLE = 3
+    MONSTER_CHASE = 4
+    MONSTER_BEATEN = 5
+
+    def __init__(self, entity_id = -1, state = -1, x = 0, y = 0, z = 0, target_id = -1):
+        super(MsgSCMonsterStateSyn, self).__init__(conf.MSG_SC_MONSTER_STATE_SYN)
+        self.append_param("entity_id", entity_id, 'i')
+        self.append_param("state", state, 'i')
+        self.append_param('x',x,'f')
+        self.append_param('y',y,'f')
+        self.append_param('z',z,'f')
+        self.append_param("target_id", target_id, 'i')
+'''***********************************Monster message *****************************************************'''
+
+
+'''******************************************QA message***************************************************'''
+
+
+class MsgSCDelayQA(SimpleHeader):
+    def __init__(self, hid = -1, send_time = 0.0, back_time = 0.0):
+        super(MsgSCDelayQA, self).__init__(conf.MSG_SC_DELAY_QA)
+        self.append_param('hid', hid, 'i')
+        self.append_param('send_time', send_time, 'f')
+        self.append_param('back_time', back_time, 'f')
+'''******************************************QA message***************************************************'''
+
+

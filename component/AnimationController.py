@@ -8,14 +8,14 @@ except ImportError:
 
 
 class AnimationController(object):
-    def __init__(self, anim_time_module='data.animation_data.explorer2_ani',
-                 ags_file_name='data/animation_data/explorer2.ags'):
+    def __init__(self, anim_time_module, ags_file_name):
         super(AnimationController, self).__init__()
         self.events = {}
+        self.anim_time_data = None
         self.load_anim_events(anim_time_module, ags_file_name)
-        self.cur_anim = None
-        self.cur_anim_start_time = None
-        self.cur_anim_speed_rate = 1.0
+        # self.cur_anim = None
+        # self.cur_anim_start_time = None
+        # self.cur_anim_speed_rate = 1.0
 
     def load_anim_events(self, anim_time_module, ags_file_name):
         """
@@ -23,23 +23,31 @@ class AnimationController(object):
         """
         try:
             data_module = __import__(anim_time_module, fromlist=[''])
-            anim_time_data = getattr(data_module, 'data', None)
+            self.anim_time_data = getattr(data_module, 'data', None)
             tree = ET.parse(ags_file_name)
             root = tree.getroot()
             anim_nodes = root[1]
             for anim_node in anim_nodes:
                 anim_name = anim_node.tag[len('EventTrack_'):]
-                anim_time = anim_time_data[anim_name]
-                print anim_name
+                if anim_name not in self.anim_time_data:
+                    continue
+                anim_time = self.anim_time_data[anim_name]
+                self.events[anim_name] = []
                 for c in anim_node:
-                    self.events[c.attrib['Name']] = float(c.attrib['TimeRatio']) * anim_time
+                    self.events[anim_name].append((c.attrib['Name'], float(c.attrib['TimeRatio']) * anim_time))
         except:
-            print 'Error load anim events.'
+            print 'Warning: error load anim events.'
 
-    def play_anim(self, anim, speed_rate):
-        self.cur_anim = anim
-        self.cur_anim_speed_rate = speed_rate
-        self.cur_anim_start_time = time.time()
+    def get_anim_events(self, anim_name):
+        return self.events[anim_name]
+
+    def get_anim_time(self, anim_name):
+        return self.anim_time_data[anim_name]
+
+    # def play_anim(self, anim, speed_rate):
+    #     self.cur_anim = anim
+    #     self.cur_anim_speed_rate = speed_rate
+    #     self.cur_anim_start_time = time.time()
 
     # def register_anim_key_event(self, anim, key, func):
     #     """

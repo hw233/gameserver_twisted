@@ -91,7 +91,10 @@ class NetStream(object):
         if self.state == conf.NET_STATE_ESTABLISHED:
             self.__tryRecv()
         if self.state == conf.NET_STATE_ESTABLISHED:
-            self.__trySend()
+            while True:
+                wsize = self.__trySend()
+                if wsize == 0 or wsize == -1:
+                    break
 
         return 0
 

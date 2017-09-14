@@ -2,6 +2,8 @@
 import math
 import random
 
+from common.vector import Vector3
+
 
 def vec2_angle(x1, y1, x2, y2):
     # 求两个向量的夹角，逆时针为0~-180， 顺时针为0~180
@@ -43,6 +45,36 @@ def calculate_move_distance(v, a, t):
     位移计算： s = v * t + 1/2 * a * t^2
     """
     return v * t + a * (0.5 * t * t)
+
+
+def generate_friction_accelerate_velocity(v, friction_acceleration):
+    """
+    根据当前移动速度计算摩擦力加速度
+    """
+    # 摩擦力方向与当前速度方向相反
+    v = Vector3(-v.x, -v.y, -v.z)
+    if not v.magnitude == 0.0:
+        v = v.normalize
+    return v * friction_acceleration
+
+
+def calculate_velocity_with_friction_acceleration(v, a, t):
+    if v.magnitude == 0:
+        return v
+    if a.magnitude * t >= v.magnitude:
+        return Vector3(0, 0, 0)
+    return v + a * t
+
+
+def calculate_move_distance_with_friction_acceleration(v, a, t):
+    """
+    计算有摩擦力加速度的位移，注意速度为0时，摩擦力加速度也会变为0
+    """
+    if a.magnitude != 0:
+        stop_t = v.magnitude / a.magnitude
+        if t > stop_t:
+            t = stop_t
+    return calculate_move_distance(v, a, t)
 
 
 def unpack_id_pos(data_str):

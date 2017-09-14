@@ -26,10 +26,12 @@ REED_ID = 4
 REAPED_REED_ID = 5
 REED_LEAF_ID = 6
 TREE_ID = 7
-WITHERED_TREE_ID = 8
-STUMP_ID = 9
-WOOD_ID = 10
-BRANCH_ID = 11
+STUMP_ID = 8
+WITHERED_TREE_ID = 9
+WITHERED_STUMP_ID = 10
+WOOD_ID = 11
+BRANCH_ID = 12
+YELLOW_TREE_ID = 13
 
 JAR_ID = 101
 STONE01_ID = 102
@@ -40,6 +42,7 @@ BOX01_ID = 110
 CASK_ID = 121
 BUSH_ID = 122
 WEEDS_ID = 123
+YELLOW_WEEDS_ID = 124
 
 AXE_ID = 2001
 HAMMER_ID = 2002
@@ -84,7 +87,7 @@ item_berry = {
 item_reaped_berry = {
     # 收割后的浆果
     "creator": {
-        "range": 80
+        "range": 100
     },
     "components": [
         {
@@ -103,7 +106,7 @@ item_reaped_berry = {
 item_berry_fruit = {
     # 浆果果实
     "creator": {
-        "range": 80
+        "range": 100
     },
     "components": [
         {
@@ -138,6 +141,15 @@ item_reed = {
             "health": 10,
             "good": 1003,
             "reaped": "reaped_reed",
+        },
+        {
+            'comp': 'animator',
+            'animations #animator': 'reed'
+        },
+        {
+            'comp': 'state',
+            'default': 'idle',
+            'transitions': {}
         }
     ],
 }
@@ -190,15 +202,84 @@ item_tree = {
     "components": [
         {
             "comp": "collider",
-            "static": True,
             "outline_visible": False,
             "colliders": [
                 {
                     "type": "AABB",
                     "shape": {
+                        "width": 80,
+                        "height": 400,
+                        "length": 80,
+                    },
+                    "center": {
+                        "x": 0, "y": 200, "z": 0
+                    },
+                },
+                {
+                    "type": "AABB",
+                    "shape": {
                         "width": 150,
-                        "height": 500,
+                        "height": 100,
                         "length": 150,
+                    },
+                    "center": {
+                        "x": 0, "y": 250, "z": 0
+                    },
+                }
+            ]
+        },
+        {
+            "comp": "renderer",
+            "gim": "model/tree/tree.gim",
+            # "grand_gim": "model/tree/tree_grand.gim",
+        },
+        {
+            "comp": "item",
+            "id": TREE_ID,
+            "name": "tree",
+            "kind": "fell",
+            "health": 100,
+            "reaped": "stump",
+            "good": "wood",
+        },
+        {
+            'comp': 'animator',
+            'animations #animator': 'tree'
+        },
+        {
+            'comp': 'state',
+            'default': 'idle',
+            'transitions': {
+                'idle': {
+                    'hit': 'hit',
+                    'fall': 'fall',
+                },
+                'hit': {
+                    '*end': 'idle',
+                },
+                'fall': {}
+            }
+        }
+    ],
+}
+
+
+item_yellow_tree = {
+    # 黄色的树
+    "creator": {
+        "range": 150
+    },
+    "components": [
+        {
+            "comp": "collider",
+            "outline_visible": False,
+            "colliders": [
+                {
+                    "type": "AABB",
+                    "shape": {
+                        "width": 40,
+                        "height": 500,
+                        "length": 40,
                     },
                     "center": {
                         "x": 0, "y": 250, "z": 0
@@ -213,7 +294,7 @@ item_tree = {
         {
             "comp": "item",
             "id": TREE_ID,
-            "name": "tree",
+            "name": "yellow_tree",
             "kind": "fell",
             "health": 100,
             "reaped": "stump",
@@ -225,29 +306,30 @@ item_tree = {
 item_withered_tree = {
     # 枯树
     "creator": {
-        "range": 80
+        "range": 80,
     },
     "components": [
-        # {
-        #     "comp": "collider",
-        #     "type": "AABB",
-        #     "shape": {
-        #         "width": 80,
-        #         "height": 300,
-        #         "length": 80,
-        #     },
-        #     "center": {
-        #         "x": 0, "y": 150, "z": -10
-        #     },
-        #     "outline_visible": False
-        # },
         {
-            "comp": "animator",
-            "#animator": "tree"
+            "comp": "collider",
+            "outline_visible": False,
+            "colliders": [
+                {
+                    "type": "AABB",
+                    "shape": {
+                        "width": 40,
+                        "height": 500,
+                        "length": 40,
+                    },
+                    "center": {
+                        "x": 0, "y": 250, "z": 0
+                    },
+                }
+            ]
         },
         {
             "comp": "renderer",
             "gim": "model/withered_tree/withered_tree.gim",
+            "grand_gim": "model/withered_tree/withered_tree_grand.gim",
         },
         {
             "comp": "item",
@@ -255,8 +337,27 @@ item_withered_tree = {
             "name": "withered_tree",
             "kind": "fell",
             "health": 100,
-            "reaped": "stump",
+            "reaped": "withered_stump",
             "good": "wood",
+        }
+    ],
+}
+
+item_withered_stump = {
+    # 枯树树桩
+    "creator": {
+        "range": 100
+    },
+    "components": [
+        {
+            "comp": "renderer",
+            "gim": "model/withered_tree/withered_stump.gim",
+        },
+        {
+            "comp": "item",
+            "id": WITHERED_STUMP_ID,
+            "name": "withered_tree",
+            "kind": "none",
         }
     ],
 }
@@ -325,7 +426,7 @@ item_branch = {
 item_jar = {
     # 罐子
     "creator": {
-        "range": 50
+        "range": 100
     },
     "components": [
         {
@@ -496,6 +597,25 @@ item_weeds = {
     ],
 }
 
+item_yellow_weeds = {
+    # 装饰性小草片
+    "creator": {
+        "range": 80
+    },
+    "components": [
+        {
+            "comp": "renderer",
+            "gim": "model/weeds/weeds_grass.gim",
+        },
+        {
+            "comp": "item",
+            "id": WEEDS_ID,
+            "name": "yellow_weeds",
+            "kind": "none",
+        }
+    ],
+}
+
 item_axe = {
     # 斧头
     "creator": {
@@ -604,7 +724,7 @@ item_iron_shield = {
     "components": [
         {
             "comp": "renderer",
-            "gim": "model/shield/shield_obj.gim",
+            "gim": "model/shield/shield_02_obj.gim",
         },
         {
             "comp": "item",
@@ -704,7 +824,7 @@ item_iron = {
     "components": [
         {
             "comp": "renderer",
-            "gim": "model/stone/stone_03.gim",
+            "gim": "model/iron/iron.gim",
         },
         {
             "comp": "item",
@@ -733,6 +853,24 @@ item_rabbit = {
             "kind": "fell",
             "health": 100,
             "good": 6003,
+        },
+        {
+            'comp': 'animator',
+            'animations #animator': 'rabbit'
+        },
+        {
+            'comp': 'state',
+            'default': 'idle',
+            'transitions': {
+                'idle': {
+                    'run': 'run',
+                    'die': 'die',
+                },
+                'run': {
+                    '*end': 'idle',
+                },
+                'die': {}
+            }
         }
     ],
 }
@@ -749,8 +887,10 @@ data = {
     "reed_leaf": item_reed_leaf, REED_LEAF_ID: item_reed_leaf,
 
     "tree": item_tree, TREE_ID: item_tree,
-    "withered_tree": item_withered_tree, WITHERED_TREE_ID: item_withered_tree,
     "stump": item_stump, STUMP_ID: item_stump,
+	"yellow_tree": item_yellow_tree, YELLOW_TREE_ID: item_yellow_tree,
+    "withered_tree": item_withered_tree, WITHERED_TREE_ID: item_withered_tree,
+    "withered_stump": item_withered_stump, WITHERED_STUMP_ID: item_withered_stump,
     "wood": item_wood, WOOD_ID: item_wood,
     "branch": item_branch, BRANCH_ID: item_branch,
 
@@ -763,6 +903,7 @@ data = {
     "cask": item_cask, CASK_ID: item_cask,
     "bush": item_bush, BUSH_ID: item_bush,
     "weeds": item_weeds, WEEDS_ID: item_weeds,
+	"yellow_weeds": item_yellow_weeds, YELLOW_WEEDS_ID: item_yellow_weeds,
 
     "axe": item_axe, AXE_ID: item_axe,
     "hammer": item_hammer, HAMMER_ID: item_hammer,

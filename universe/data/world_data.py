@@ -16,7 +16,7 @@ data = {
 
     "biomes": {
         "cluster": (3, 5),
-        "rotation": (-30, 30)
+        "rotation": (-60, 60)
     },
 
     'player': {
@@ -24,23 +24,7 @@ data = {
             {
                 'comp': 'transform'
             },
-            {
-                'comp': 'collider',
-                'outline_visible': False,
-                'colliders': [
-                    {
-                        'type': 'AABB',
-                        'shape': {
-                            'width': 60,
-                            'height': 180,
-                            'length': 60,
-                        },
-                        'center': {
-                            'x': 0, 'y': 90, 'z': 0
-                        },
-                    }
-                ]
-            }
+            { 'comp': 'player' }
         ]
     },
 
@@ -70,12 +54,20 @@ data = {
             'altitude': -8,
             'presets': []
         },
+        'building': {
+            'altitude': -8,
+            'presets': []
+        },
         'biont': {
             'altitude': -2,
             'presets': []
         },
         'drop': {
             'altitude': -2,
+            'presets': []
+        },
+        'monster': {
+            'altitude': 0,
             'presets': []
         },
         'player': {

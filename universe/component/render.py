@@ -1,18 +1,12 @@
 # coding=utf-8
 class Renderer(object):
-    def __init__(self, gim=None, visible=True, alpha=1.0):
+    def __init__(self, gim=None, visible=True, grand_gim=None):
         self.visible = visible
-        self.alpha = alpha
         self.gim = gim
         self.model = None
-
+        self.grand_gim = grand_gim
+        self.grand_model = None
 
 class Animator(object):
-    def __init__(self, default, states, parameters, transitions):
-        self.state = default                # 当前状态
-        self.states = states                # 所有状态
-        self.parameters = parameters        # 参数
-        self.transitions = transitions      # 转换
-
-    def set_parameter(self, name, value):
-        self.parameters[name]['value'] = value
+    def __init__(self, animations):
+        self.animations = animations

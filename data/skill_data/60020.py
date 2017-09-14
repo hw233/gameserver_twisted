@@ -56,6 +56,7 @@ data = {
         'sfx': [["fx/other/egg_poshui.sfx", 5.0, 'hit']],
         'face': True,
         'move': [-600, 1],
+        'hitact': 'hit',
     },
 
     'mov_1': {

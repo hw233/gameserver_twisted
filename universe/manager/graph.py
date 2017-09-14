@@ -16,6 +16,9 @@ OFFSET = {
     LEFT_BOTTOM: (-1, -1),
     RIGHT_BOTTOM: (1, -1)
 }
+OFFSET_NEIGHBORS = [OFFSET[LEFT], OFFSET[RIGHT], OFFSET[TOP], OFFSET[BOTTOM]]
+OFFSET_SIDES = [OFFSET[LEFT_TOP], OFFSET[RIGHT_TOP], OFFSET[LEFT_BOTTOM], OFFSET[RIGHT_BOTTOM]]
+OFFSET_AROUND = OFFSET_NEIGHBORS + OFFSET_SIDES
 
 def frange(start, stop, step=1.0):
      x = start
@@ -301,6 +304,25 @@ class Region(object):
         else:
             nodes = [self._nodes[k] for k in sorted(self._nodes.keys())]
         return nodes
+
+    @property
+    def border_nodes(self):
+        nodes = self.get_nodes()
+        border = []
+        for node in nodes:
+            if self.get_node(node.horizontal + 1, node.vertical) is None:
+                border.append(node)
+                continue
+            if self.get_node(node.horizontal, node.vertical + 1) is None:
+                border.append(node)
+                continue
+            if self.get_node(node.horizontal - 1, node.vertical) is None:
+                border.append(node)
+                continue
+            if self.get_node(node.horizontal, node.vertical - 1) is None:
+                border.append(node)
+                continue
+        return border
 
     def inside(self, horizontal, vertical, padding=0, key=None):
         '''

@@ -83,6 +83,9 @@ class SimpleHost(object):
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        # self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 0)
+        # self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 0)
         try:
             self.sock.bind((host, port))
         except:

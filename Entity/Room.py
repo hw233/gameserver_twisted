@@ -38,7 +38,10 @@ class Room(object):
     def generate_msg_dict(self):
         self.msg_dict = {
             conf.MSG_CS_PLAYER_MOVE: MsgCSPlayerMove(),
+            conf.MSG_CS_PLAYER_POSITION: MsgCSPlayerPosition(),
             conf.MSG_CS_PLAYER_ATTACK: MsgCSPlayerAttack(),
+            conf.MSG_CS_PLAYER_RUN_ACT_NODE: MsgCSPlayerRunActNode(),
+            conf.MSG_CS_PLAYER_HIT_RECOVER: MsgCSPlayerHitRecover(),
             conf.MSG_CS_PLAYER_HIT: MsgCSPlayerHit(),
             conf.MSG_CS_BULLET_SPAWN: MsgCSBulletSpawn(),
             conf.MSG_CS_PLAYER_DEFEND: MsgCSPlayerDefend(),

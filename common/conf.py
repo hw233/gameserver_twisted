@@ -2,7 +2,16 @@
 
 DB_NAME = "UserData.db"
 
-DEBUG_SAME_POSITION = False
+
+DR_OPEN = True
+
+DR_DETECT_COLLISION = False
+
+DEBUG_SAME_POSITION = True
+
+DEBUG_SYNC_OPEN = False
+
+FRICTION_ACCELERATION = 6000  # 6000 cm/s^2
 
 # message
 MSG_SC_LOGIN_RESULT = 1001
@@ -31,9 +40,14 @@ MSG_CS_PLAYER_DEFEND = 2223
 MSG_CS_PLAYER_HIT = 2224
 MSG_SC_PLAYER_HIT = 2250
 
+MSG_CS_PLAYER_RUN_ACT_NODE = 2260
+
+MSG_CS_PLAYER_HIT_RECOVER = 2270
+
+MSG_CS_PLAYER_POSITION = 2010
+
 MSG_CS_BULLET_SPAWN = 2240
 MSG_SC_BULLET_SPAWN = 2241
-MSG_SC_BULLET_MOVE = 2242
 MSG_SC_BULLET_HIT = 2243
 
 MSG_SC_PLAYER_LEAVE = 2234
@@ -48,7 +62,10 @@ MSG_SC_PLAYER_REAP_HIT = 2227
 MSG_CS_PLAYER_REAP_HIT = 2228
 
 MSG_SC_MAP_ITEM_DESTROY = 2229
+
 MSG_SC_BACKPACK_SYN = 2232
+MSG_SC_BACKPACK_ADD = 2233
+MSG_SC_BACKPACK_DEL = 2235
 
 '''
 :describe: When the player install weapon and armor[cloth and hat] send this message to server.
@@ -76,8 +93,8 @@ MSG_CS_MAKE_REQUEST = 4014
 '''GM指令'''
 MSG_CS_GM_BP_CMD = 4015
 
-'''spirit syn msg'''
-MSG_SC_SPIRIT_SYN = 4016
+'''spirit and blood syn msg'''
+MSG_SC_SPIRIT_BLOOD_SYN = 4016
 
 '''eat food msg'''
 MSG_CS_EAT_FOOD = 4017
@@ -94,6 +111,27 @@ MSG_CS_GM_ROOM_CMD = 4021
 
 '''Player quit game'''
 MSG_CS_PLAYER_QUIT = 4022
+
+'''weapon deduce message'''
+MSG_SC_WEAPON_DEDUCE = 4023
+
+'''monster born message'''
+MSG_SC_MONSTER_BORN_MSG = 4024
+
+'''time delay msg for qa'''
+MSG_SC_DELAY_QA = 9000
+
+'''Monster state syn msg'''
+MSG_SC_MONSTER_STATE_SYN = 4025
+
+'''GAME win count down'''
+MSG_SC_GAME_WIN_COUNT_DOWN = 4026
+
+'''Monster waiting time count down'''
+MSG_SC_MONSTER_WAITING_TIME = 4027
+
+'''Monster alert time'''
+MSG_SC_MONSTER_ALERT_TIME = 4028
 
 # 掉落消息 可以是玩家掉落，可以是砍伐掉落
 MSG_SC_MAP_ITEM_DROP = 4030
@@ -142,4 +180,5 @@ STATE_DEFENCE = 'defence'
 SERVER_IP = "127.0.0.1"
 SERVER_PORT = 2000
 
-
+#SERVER_IP = "10.249.70.190"
+#SERVER_PORT = 10000

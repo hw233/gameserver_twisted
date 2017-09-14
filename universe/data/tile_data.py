@@ -1,46 +1,22 @@
 
 default_tile = {
     0: [{'gim': '00'}],
-    1: [{'gim': '10'}],
-    2: [{'gim': '09'}],
-    3: [{'gim': '01'}],
-    4: [{'gim': '13'}],
-    5: [{'gim': '08'}],
-    6: [{'gim': '06'}],
-    7: [{'gim': '04'}],
-    8: [{'gim': '05'}],
-    9: [{'gim': '02'}],
-    10: [{'gim': '11'}],
-    11: [{'gim': '07'}],
-    12: [{'gim': '14'}],
-    13: [{'gim': '12'}],
-    14: [{'gim': '15'}],
+    1: [{'gim': '10'}, {'gim': '09', 'rotation': {'y': 270}}, {'gim': '05', 'rotation': {'y': 180}}, {'gim': '13', 'rotation': {'y': 90}}],
+    2: [{'gim': '09'}, {'gim': '10', 'rotation': {'y': 90}}, {'gim': '05', 'rotation': {'y': 270}}, {'gim': '13', 'rotation': {'y': 180}}],
+    3: [{'gim': '01'}, {'gim': '14', 'rotation': {'y': 180}}, {'gim': '08', 'rotation': {'y': 90}}, {'gim': '11', 'rotation': {'y': 270}}],
+    4: [{'gim': '13'}, {'gim': '10', 'rotation': {'y': 270}}, {'gim': '09', 'rotation': {'y': 180}}, {'gim': '05', 'rotation': {'y': 90}}],
+    5: [{'gim': '08'}, {'gim': '01', 'rotation': {'y': 270}}, {'gim': '14', 'rotation': {'y': 90}}, {'gim': '11', 'rotation': {'y': 180}}],
+    6: [{'gim': '06'}, {'gim': '02', 'rotation': {'y': 90}}],
+    7: [{'gim': '04'}, {'gim': '12', 'rotation': {'y': 90}}, {'gim': '07', 'rotation': {'y': 270}}, {'gim': '15', 'rotation': {'y': 180}}],
+    8: [{'gim': '05'}, {'gim': '10', 'rotation': {'y': 180}}, {'gim': '09', 'rotation': {'y': 90}}, {'gim': '13', 'rotation': {'y': 270}}],
+    9: [{'gim': '02'}, {'gim': '06', 'rotation': {'y': 90}}],
+    10: [{'gim': '11'}, {'gim': '01', 'rotation': {'y': 90}}, {'gim': '14', 'rotation': {'y': 270}}, {'gim': '08', 'rotation': {'y': 180}}],
+    11: [{'gim': '07'}, {'gim': '12', 'rotation': {'y': 180}}, {'gim': '04', 'rotation': {'y': 90}}, {'gim': '15', 'rotation': {'y': 270}}],
+    12: [{'gim': '14'}, {'gim': '01', 'rotation': {'y': 180}}, {'gim': '08', 'rotation': {'y': 270}}, {'gim': '11', 'rotation': {'y': 90}}],
+    13: [{'gim': '12'}, {'gim': '04', 'rotation': {'y': 270}}, {'gim': '07', 'rotation': {'y': 180}}, {'gim': '15', 'rotation': {'y': 90}}],
+    14: [{'gim': '15'}, {'gim': '04', 'rotation': {'y': 180}}, {'gim': '07', 'rotation': {'y': 90}}, {'gim': '12', 'rotation': {'y': 270}}],
     15: [{'gim': '00'}],
-}
 
-grass_tile = {
-    15: [
-        {'gim': '00', 'weight': 300},
-        {'gim': '16', 'weight': 5},
-        {'gim': '17', 'weight': 5},
-        {'gim': '18', 'weight': 5},
-        {'gim': '19', 'weight': 5},
-        {'gim': '20', 'weight': 5},
-        {'gim': '21', 'weight': 1},
-        {'gim': '22', 'weight': 1},
-        {'gim': '23', 'weight': 1},
-        {'gim': '24', 'weight': 5},
-        {'gim': '25', 'weight': 5},
-        {'gim': '26', 'weight': 5},
-        {'gim': '27', 'weight': 5},
-        {'gim': '28', 'weight': 1},
-        {'gim': '29', 'weight': 2},
-        {'gim': '30', 'weight': 1},
-        {'gim': '31', 'weight': 2},
-    ],
-}
-
-mud_grass_tile = {
     1 + 16 * 2: [{'gim': '16'}],
     2 + 16 * 1: [{'gim': '16', 'scale': {'x': -1.0}}],
     2 + 16 * 8: [{'gim': '16', 'rotation': {'y': 90}}],
@@ -86,8 +62,30 @@ mud_grass_tile = {
     4 + 16 * 9: [{'gim': '21', 'rotation': {'y': 180}}],
 }
 
+grass_tile = {
+    15: [
+        {'gim': '00', 'weight': 300},
+        {'gim': '16', 'weight': 5},
+        {'gim': '17', 'weight': 5},
+        {'gim': '18', 'weight': 5},
+        {'gim': '19', 'weight': 5},
+        {'gim': '20', 'weight': 5},
+        {'gim': '21', 'weight': 1},
+        {'gim': '22', 'weight': 1},
+        {'gim': '23', 'weight': 1},
+        {'gim': '24', 'weight': 5},
+        {'gim': '25', 'weight': 5},
+        {'gim': '26', 'weight': 5},
+        {'gim': '27', 'weight': 5},
+        {'gim': '28', 'weight': 1},
+        {'gim': '29', 'weight': 2},
+        {'gim': '30', 'weight': 1},
+        {'gim': '31', 'weight': 2},
+    ],
+}
+
+
 data = {
     'default': default_tile,
     'grass': grass_tile,
-    'mud_grass': mud_grass_tile
 }

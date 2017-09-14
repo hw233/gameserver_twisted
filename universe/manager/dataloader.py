@@ -11,8 +11,8 @@ class DataLoader(object):
     def __init__(self, random):
         self.random = random
         self.actions = {
-            "rand.int": lambda a, b: self.random.randint(a, b),
-            "rand.float": lambda a, b: self.random.uniform(a, b)
+            "rand.int": lambda a, b=None: self.random.randint(a, b) if b is not None else a,
+            "rand.float": lambda a, b=None: self.random.uniform(a, b)  if b is not None else a
         }
 
     def load(self, module, section=None):
