@@ -11,6 +11,13 @@ class Item(object):
         # 外部相关
         self.good = good
 
+    def copy(self, other):
+        self.id = other.id
+        self.kind = other.kind
+        self.name = other.name
+        self.health = other.health
+        self.reaped = other.reaped
+
     def take_damage(self, damage):
         if self.health:
             self.health -= damage

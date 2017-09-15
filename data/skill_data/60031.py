@@ -31,7 +31,7 @@ data = {
     'hit_1': {
         'type': 'att',
         'damage': {
-            'blood_percentage': 1.5,  # 对单体有效 'blood' 为治疗自身血量, single为true的时候才可以填写
+            'blood_percentage': 0.75,  # 对单体有效 'blood' 为治疗自身血量, single为true的时候才可以填写
             'power_percentage': 1.5,  # 'power' 为提高提高自身体力 所有属性以攻击力为准, single为true的时候才可以填写
             'single': True,
 
@@ -43,7 +43,7 @@ data = {
     'hit_2': {
         'type': 'att',
         'damage': {
-            'blood_percentage': 1,
+            'blood_percentage': 0.5,
             'power_percentage': 1,
             'single': True,
         },

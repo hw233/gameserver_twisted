@@ -11,6 +11,14 @@ except ImportError:
     render = None
 
 
+def _ClientOnly(func):
+    def _deco(self, *args, **kwargs):
+        if self.is_client:
+            return func(self, *args, **kwargs)
+        else:
+            return None
+    return _deco
+
 class Client(object):
     def __init__(self):
         self.scene = None
@@ -178,9 +186,6 @@ class Client(object):
         # 创建处理器
         self.universe.create_processor()
 
-        # 初始化
-        self.universe.world.start()
-
         for step in self.step_load(100, 1.0):
             yield step
 
@@ -224,6 +229,22 @@ class Client(object):
         if model:
             self.last_outline_model = model
             self.outline(model, True)
+
+    @_ClientOnly
+    def destroy(self, rend, shad):
+        print rend.animator
+        if rend.animator:
+            def animation_end(model, name, key, *data):
+                model.destroy()
+
+            animation = rend.animator.get_trigger_destination('die')
+            if rend.model.has_anim_event(animation, 'end'):
+                rend.model.register_anim_key_event(animation, 'end', animation_end)
+            rend.animator.trigger('die')
+        else:
+            rend.model.destroy()
+            if shad and shad.model:
+                shad.model.destroy()
 
 _inst = Client()
 

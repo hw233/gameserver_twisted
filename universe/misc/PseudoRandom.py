@@ -54,7 +54,7 @@ class PseudoRandom(object):
         total_weight = 0
         for item in list:
             total_weight += weight(item)
-        rand_weight = self._random.randint(0, total_weight - 1)
+        rand_weight = self._random.uniform(0, total_weight)
         for item in list:
             rand_weight -= weight(item)
             if rand_weight < 0:

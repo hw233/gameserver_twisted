@@ -96,11 +96,13 @@ class GameKindManager(object):
         self.username_to_room_map[user.username] = self.waiting_room
         self.client_hid_to_user[user.client_hid] = user
 
+        print self.username_to_room_map
+
         if self.waiting_room.is_full() is True:
             self.rid_to_game_room_map[self.waiting_room.rid] = self.waiting_room
 
             if self.game_type == GameKindManager.SINGLE_GAME:
-                self.waiting_room = Room(self.generate_room_id(), self.host, 1)
+                self.waiting_room = Room(self.generate_room_id(), self.host, 1, self.game_type)
             else:
                 self.waiting_room = Room(self.generate_room_id(), self.host, self.max_room_user_default, self.game_type)
 
@@ -127,6 +129,8 @@ class GameKindManager(object):
         for user in room.username_to_user_map.itervalues():
             del self.username_to_room_map[user.username]
             del self.client_hid_to_user[user.client_hid]
+
+        print self.username_to_room_map
 
     # if the user is already in the arena return True else False
     def is_in_arena(self, user):

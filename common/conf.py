@@ -1,4 +1,4 @@
-# -*- coding: GBK -*-
+# -*- coding: utf-8 -*-
 
 DB_NAME = "UserData.db"
 
@@ -7,7 +7,9 @@ DR_OPEN = True
 
 DR_DETECT_COLLISION = False
 
-DEBUG_SAME_POSITION = True
+DEBUG_SAME_POSITION = False
+
+DEBUG_LOG_OPEN = False
 
 DEBUG_SYNC_OPEN = False
 
@@ -87,10 +89,10 @@ MSG_CS_WEAPON_ACTIVE = 4012
 
 MSG_CS_PLAYER_DROP = 4013
 
-'''ÖÆ×÷ÏûÏ¢ÇëÇó'''
+'''åˆ¶ä½œæ¶ˆæ¯è¯·æ±‚'''
 MSG_CS_MAKE_REQUEST = 4014
 
-'''GMÖ¸Áî'''
+'''GMæŒ‡ä»¤'''
 MSG_CS_GM_BP_CMD = 4015
 
 '''spirit and blood syn msg'''
@@ -106,7 +108,7 @@ MSG_CS_ARMOR_ACTIVE = 4019
 '''set trap on the ground'''
 MSG_CS_SET_TRAP = 4020
 
-'''GMÖ¸Áî ÉèÖÃÄ¬ÈÏ·¿¼äÈËÊý'''
+'''GMæŒ‡ä»¤ è®¾ç½®é»˜è®¤æˆ¿é—´äººæ•°'''
 MSG_CS_GM_ROOM_CMD = 4021
 
 '''Player quit game'''
@@ -117,6 +119,9 @@ MSG_SC_WEAPON_DEDUCE = 4023
 
 '''monster born message'''
 MSG_SC_MONSTER_BORN_MSG = 4024
+
+MSG_SC_MONSTER_MOVE = 4500
+MSG_SC_MONSTER_ATTACK = 4501
 
 '''time delay msg for qa'''
 MSG_SC_DELAY_QA = 9000
@@ -133,7 +138,7 @@ MSG_SC_MONSTER_WAITING_TIME = 4027
 '''Monster alert time'''
 MSG_SC_MONSTER_ALERT_TIME = 4028
 
-# µôÂäÏûÏ¢ ¿ÉÒÔÊÇÍæ¼ÒµôÂä£¬¿ÉÒÔÊÇ¿³·¥µôÂä
+# æŽ‰è½æ¶ˆæ¯ å¯ä»¥æ˜¯çŽ©å®¶æŽ‰è½ï¼Œå¯ä»¥æ˜¯ç ä¼æŽ‰è½
 MSG_SC_MAP_ITEM_DROP = 4030
 
 MSG_CS_ALIVE = 3000
@@ -165,14 +170,14 @@ NET_HOST_DEFAULT_TIMEOUT = 70
 MAX_HOST_CLIENTS_INDEX = 0xffff
 MAX_HOST_CLIENTS_BYTES = 16
 
-# ×´Ì¬Ãû
+# çŠ¶æ€å
 STATE_IDLE = 'idle'
 STATE_MOVE = 'run'
 STATE_ATTACK = 'atk'
 STATE_STIFFNESS = 'stiffness'
 STATE_DEAD = 'dead'
 STATE_LIEDOWN = 'liedown'
-# ×Ó×´Ì¬
+# å­çŠ¶æ€
 STATE_HOLD_FORCE = 'holdforce'
 STATE_HOLD_FORCE_SINGLE = 'holdforce_single'
 STATE_DEFENCE = 'defence'
@@ -180,5 +185,4 @@ STATE_DEFENCE = 'defence'
 SERVER_IP = "127.0.0.1"
 SERVER_PORT = 2000
 
-#SERVER_IP = "10.249.70.190"
-#SERVER_PORT = 10000
+

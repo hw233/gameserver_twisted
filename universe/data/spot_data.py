@@ -183,12 +183,92 @@ spot_puddle_05 = {
     "vertical": 2,
 }
 
+spot_puddle_06 = {
+    "id": 6,
+    "gim": "scene/spot/puddle/puddle_06.gim",
+    "horizontal": 1,
+    "vertical": 1,
+}
+
+spot_puddle_07 = {
+    "id": 7,
+    "gim": "scene/spot/puddle/puddle_07.gim",
+    "horizontal": 1,
+    "vertical": 1,
+}
+
+spot_puddle_08 = {
+    "id": 8,
+    "gim": "scene/spot/puddle/puddle_08.gim",
+    "horizontal": 1,
+    "vertical": 1,
+}
+
+spot_puddle_09 = {
+    "id": 9,
+    "gim": "scene/spot/puddle/puddle_09.gim",
+    "horizontal": 1,
+    "vertical": 1,
+}
+
+spot_puddle_10 = {
+    "id": 10,
+    "gim": "scene/spot/puddle/puddle_10.gim",
+    "horizontal": 1,
+    "vertical": 1,
+}
+
+spot_puddle_11 = {
+    "id": 11,
+    "gim": "scene/spot/puddle/puddle_11.gim",
+    "horizontal": 1,
+    "vertical": 1,
+}
+
+spot_puddle_12 = {
+    "id": 12,
+    "gim": "scene/spot/puddle/puddle_12.gim",
+    "horizontal": 1,
+    "vertical": 1,
+}
+
+spot_puddle_13 = {
+    "id": 13,
+    "gim": "scene/spot/puddle/puddle_13.gim",
+    "horizontal": 1,
+    "vertical": 1,
+}
+
+spot_puddle_14 = {
+    "id": 14,
+    "gim": "scene/spot/puddle/puddle_14.gim",
+    "horizontal": 1,
+    "vertical": 1,
+}
+
+spot_puddle_15 = {
+    "id": 15,
+    "gim": "scene/spot/puddle/puddle_15.gim",
+    "horizontal": 1,
+    "vertical": 1,
+}
+
 spot_puddle = [
-    {"spot": spot_puddle_01, "weight": 6},
-    {"spot": spot_puddle_02, "weight": 6},
+    {"spot": spot_puddle_01, "weight": 2},
+    {"spot": spot_puddle_02, "weight": 2},
     {"spot": spot_puddle_03, "weight": 2},
     {"spot": spot_puddle_04, "weight": 3},
     {"spot": spot_puddle_05, "weight": 3},
+    {"spot": spot_puddle_06, "weight": 3},
+    {"spot": spot_puddle_07, "weight": 3},
+    {"spot": spot_puddle_08, "weight": 3},
+    {"spot": spot_puddle_09, "weight": 3},
+    {"spot": spot_puddle_10, "weight": 3},
+    {"spot": spot_puddle_11, "weight": 3},
+    {"spot": spot_puddle_12, "weight": 3},
+    {"spot": spot_puddle_13, "weight": 3},
+    {"spot": spot_puddle_14, "weight": 3},
+    {"spot": spot_puddle_15, "weight": 3},
 ]
 
 spot_barren_01 = {

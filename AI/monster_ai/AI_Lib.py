@@ -14,69 +14,33 @@ ChaseMonster = {
       "properties": {
         "maxLoop": -1
       },
-      "child": "2aebd644-4265-4e9d-9127-5cd5645a3c43"
-    },
-    "2aebd644-4265-4e9d-9127-5cd5645a3c43": {
-      "id": "2aebd644-4265-4e9d-9127-5cd5645a3c43",
-      "name": "Sequence",
-      "title": "Sequence",
-      "description": "",
-      "properties": {},
-      "children": [
-        "d4a58acb-8392-4d7e-a452-e2122d8ff246",
-        "9125b901-1fae-4401-89df-e38cc106b9f3"
-      ]
-    },
-    "9125b901-1fae-4401-89df-e38cc106b9f3": {
-      "id": "9125b901-1fae-4401-89df-e38cc106b9f3",
-      "name": "Priority",
-      "title": "Priority",
-      "description": "",
-      "properties": {},
-      "children": [
-        "0e074647-5176-48f0-8437-f26585a25709",
-        "f0e6d8bf-4029-4126-a578-2ce195b07a42",
-        "12db7250-7fe8-44d4-810d-48d633781f1e"
-      ]
-    },
-    "0e074647-5176-48f0-8437-f26585a25709": {
-      "id": "0e074647-5176-48f0-8437-f26585a25709",
-      "name": "Sequence",
-      "title": "Sequence",
-      "description": "",
-      "properties": {},
-      "children": [
-        "469c71a9-903a-4085-8832-6855561da082",
-        "6e9b9a1a-9cba-4690-90d8-c7ffe133333f"
-      ]
-    },
-    "d4a58acb-8392-4d7e-a452-e2122d8ff246": {
-      "id": "d4a58acb-8392-4d7e-a452-e2122d8ff246",
-      "name": "Beaten",
-      "title": "Beaten",
-      "description": "",
-      "properties": {}
+      "display": {
+        "x": -384,
+        "y": -144
+      },
+      "child": "7f9d7cc4-d376-4f97-8010-0cea819848b0"
     },
     "469c71a9-903a-4085-8832-6855561da082": {
       "id": "469c71a9-903a-4085-8832-6855561da082",
       "name": "SearchTarget",
       "title": "SearchTarget",
       "description": "",
-      "properties": {}
-    },
-    "6e9b9a1a-9cba-4690-90d8-c7ffe133333f": {
-      "id": "6e9b9a1a-9cba-4690-90d8-c7ffe133333f",
-      "name": "Route",
-      "title": "Route",
-      "description": "",
       "properties": {},
+      "display": {
+        "x": 120,
+        "y": -168
+      }
     },
     "f0e6d8bf-4029-4126-a578-2ce195b07a42": {
       "id": "f0e6d8bf-4029-4126-a578-2ce195b07a42",
       "name": "Moving",
       "title": "Moving",
       "description": "",
-      "properties": {}
+      "properties": {},
+      "display": {
+        "x": 120,
+        "y": -84
+      }
     },
     "12db7250-7fe8-44d4-810d-48d633781f1e": {
       "id": "12db7250-7fe8-44d4-810d-48d633781f1e",
@@ -84,9 +48,57 @@ ChaseMonster = {
       "title": "Idle",
       "description": "",
       "properties": {},
+      "display": {
+        "x": 120,
+        "y": 12
+      }
+    },
+    "aefd1813-015b-448d-81bc-6b7ed1c6a017": {
+      "id": "aefd1813-015b-448d-81bc-6b7ed1c6a017",
+      "name": "Attack",
+      "title": "Attack",
+      "description": "",
+      "properties": {},
+      "display": {
+        "x": 120,
+        "y": -264
+      }
+    },
+    "7f9d7cc4-d376-4f97-8010-0cea819848b0": {
+      "id": "7f9d7cc4-d376-4f97-8010-0cea819848b0",
+      "name": "MemSequence",
+      "title": "MemSequence",
+      "description": "",
+      "properties": {},
+      "display": {
+        "x": -240,
+        "y": -144
+      },
+      "children": [
+        "aefd1813-015b-448d-81bc-6b7ed1c6a017",
+        "469c71a9-903a-4085-8832-6855561da082",
+        "f0e6d8bf-4029-4126-a578-2ce195b07a42",
+        "12db7250-7fe8-44d4-810d-48d633781f1e"
+      ]
     }
   },
+  "display": {
+    "camera_x": 960,
+    "camera_y": 475,
+    "camera_z": 1,
+    "x": -576,
+    "y": -144
+  },
   "custom_nodes": [
+    {
+      "name": "EnemyFound",
+      "category": "condition",
+      "title": "enemyfound",
+      "description": None,
+      "properties": {
+        "found_bool": 0
+      }
+    },
     {
       "name": "Idle",
       "category": "action",
@@ -119,6 +131,13 @@ ChaseMonster = {
       "name": "SearchTarget",
       "category": "action",
       "title": "SearchTarget",
+      "description": None,
+      "properties": {}
+    },
+    {
+      "name": "Attack",
+      "category": "action",
+      "title": "Attack",
       "description": None,
       "properties": {}
     }

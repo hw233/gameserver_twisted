@@ -35,7 +35,7 @@ from behavior.actions.Moving import Moving
 from behavior.actions.Idle import Idle
 from behavior.actions.Beaten import Beaten
 from behavior.actions.SearchTarget import SearchTarget
-
+from behavior.actions.Attack import Attack
 # decorators
 from behavior.decorators.Inverter import Inverter
 from behavior.decorators.Limiter import Limiter

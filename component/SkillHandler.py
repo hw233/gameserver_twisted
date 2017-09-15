@@ -69,6 +69,8 @@ class SkillHandler(object):
             if gid == self.entity.get_group_id():
                 continue
             for other in group:
+                if other is None:
+                    continue
                 if other.is_dead():
                     continue
                 if self.entity.in_damage_range(other, damage_data['sector']):

@@ -2,7 +2,7 @@
 
 from universe.misc import Vector3
 from rule import AreaRule
-import graph, math
+import graph
 
 class Creator(object):
 
@@ -268,7 +268,6 @@ class Creator(object):
             size = data['world']['tile']['width'] * data['world']['tile']['length']
 
             amount -= 1
-
             if amount <= 0:
                 break
 
@@ -309,6 +308,14 @@ class Creator(object):
                 }
             }] + biome_data['item']['components']
 
+            # 增加影子
+            for idx, comp_data in enumerate(comps_data):
+                if comp_data['comp'] == 'shadow':
+                    comp_data = comp_data.copy()
+                    if comp_data.get('gim') is None:
+                        comp_data['gim'] = data['world']['shadow']['gim']
+                    comp_data['block'] = str(block['name'])
+                    comps_data[idx] = comp_data
             cluster.append(comps_data)
 
         return cluster, amount
@@ -384,9 +391,29 @@ class Creator(object):
         return buildings
 
     # ============ Monster ============
+    def get_component(self, data, comp_name):
+        for comp in data:
+            if comp['comp'] == comp_name:
+                return comp.copy()
 
-    def create_monster(self, region, data):
-        return data['monster'][1]
+    def create_transition(self, data):
+        from universe.manager import Transition
+        return Transition(
+            source=data['src'],
+            destination=data['dst'],
+            condition=data['condition']
+        )
+
+    def create_animator(self, data):
+        from universe.manager import Animator
+        transitions = []
+        for tran_data in data.get('transitions', []):
+            transitions.append(self.create_transition(tran_data))
+
+        return Animator(
+            default=data['default'],
+            transitions=transitions
+        )
 
     def create_collider(self, data):
         from universe.misc import Vector3, AABB
@@ -404,7 +431,6 @@ class Creator(object):
             return aabb
 
     # ============ ECS components ============
-
     def create_colliders_comp(self, data):
         if data['comp'] != 'collider':
             raise TypeError
@@ -414,15 +440,6 @@ class Creator(object):
             collider = self.create_collider(collider_data)
             colliders.append(collider)
         return Collider(colliders=colliders, outline_visible=data.get('outline_visible', False))
-
-    def create_state_comp(self, data):
-        if data['comp'] != 'state':
-            raise TypeError
-        from universe.component import StateMachine
-        return StateMachine(
-            default=data['default'],
-            transitions=data['transitions']
-        )
 
     def create_transform_comp(self, data):
         if data['comp'] != 'transform':
@@ -456,14 +473,37 @@ class Creator(object):
         if data['comp'] != 'renderer':
             raise TypeError
         from universe.component import Renderer
-        return Renderer(gim=data['gim'], grand_gim=data.get('grand_gim'))
+        scale_data = data.get('scale', {})
+        scale = Vector3(
+            scale_data.get('x', 1),
+            scale_data.get('y', 1),
+            scale_data.get('z', 1),
+        )
+        animator = None
+        if 'animator' in data:
+            animator = self.create_animator(data['animator'])
+        return Renderer(
+            gim=data['gim'],
+            scale=scale,
+            animator=animator
+        )
 
-    def create_animator_comp(self, data):
-        if data['comp'] != 'animator':
+    def create_shadow_comp(self, data):
+        if data['comp'] != 'shadow':
             raise TypeError
-        from universe.component import Animator
-        return Animator(
-            animations=data['animations']
+        from universe.component import Shadow
+        gim = data.get('gim')
+        block = data.get('block')
+        scale_data = data.get('scale', {})
+        scale = Vector3(
+            scale_data.get('x', 1),
+            scale_data.get('y', 1),
+            scale_data.get('z', 1),
+        )
+        return Shadow(
+            gim=gim,
+            block=block,
+            scale=scale
         )
 
     def create_item_comp(self, data):
@@ -501,14 +541,12 @@ class Creator(object):
         for comp_data in data:
             if comp_data['comp'] == 'collider':
                 comps.append(self.create_colliders_comp(comp_data))
-            elif comp_data['comp'] == 'state':
-                comps.append(self.create_state_comp(comp_data))
             elif comp_data['comp'] == 'transform':
                 comps.append(self.create_transform_comp(comp_data))
             elif comp_data['comp'] == 'renderer':
                 comps.append(self.create_renderer_comp(comp_data))
-            elif comp_data['comp'] == 'animator':
-                comps.append(self.create_animator_comp(comp_data))
+            elif comp_data['comp'] == 'shadow':
+                comps.append(self.create_shadow_comp(comp_data))
             elif comp_data['comp'] == 'item':
                 comps.append(self.create_item_comp(comp_data))
             elif comp_data['comp'] == 'monster':

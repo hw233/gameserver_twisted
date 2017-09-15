@@ -11,6 +11,11 @@ class BehaviorTree(object):
         self.debug = None
         self.description = ''
         self.properties = {}
+        self.title_to_node_map = {}
+        self.host = None
+
+    def set_host(self, host):
+        self.host = host
 
     def load(self, data, names = None):
         names = names or {}
@@ -21,8 +26,6 @@ class BehaviorTree(object):
         nodes = {}
         for key in data["nodes"]:
             spec = data['nodes'][key]
-
-            print spec['name']
 
             if spec['name'] in names:
                 cls = names[spec['name']]
@@ -37,6 +40,7 @@ class BehaviorTree(object):
             node.description = spec['description'] or node.description
             node.properties = spec['properties'] or node.properties
             nodes[key] = node
+            self.title_to_node_map[node.title] = node
 
         for key in data['nodes']:
             spec = data['nodes'][key]
@@ -123,3 +127,8 @@ class BehaviorTree(object):
 
         blackboard.set("open_nodes", curr_open_nodes, self.id)
         blackboard.set("node_count", tick._node_count, self.id)
+
+    def get_node_by_title(self, title):
+        if title in self.title_to_node_map:
+            return self.title_to_node_map[title]
+

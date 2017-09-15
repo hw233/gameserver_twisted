@@ -31,7 +31,7 @@ data = {
     'hit_1': {
         'type': 'att',
         'damage': {
-            'percentage': 5.0,  # 攻击百分比
+            'percentage': 8.0,  # 攻击百分比
             'single': True,
         },
         # 'stop': 3,
@@ -42,7 +42,7 @@ data = {
     'hit_2': {
         'type': 'att',
         'damage': {
-            'percentage': 1.0,  # 攻击百分比
+            'percentage': 1.7,  # 攻击百分比
             'single': True,
         },
         # 'stop': 3,

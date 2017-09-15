@@ -174,8 +174,15 @@ class Room(object):
             return False
 
     def is_full(self):
-        if len(self.username_to_user_map) >= self.max_user_num:
-            return True
+        from Managers.GameKindManager import GameKindManager
+        if self.game_type == GameKindManager.SINGLE_GAME:
+            if len(self.username_to_user_map) >= 1:
+                return True
+            else:
+                return False
         else:
-            return False
+            if len(self.username_to_user_map) >= self.max_user_num:
+                return True
+            else:
+                return False
 

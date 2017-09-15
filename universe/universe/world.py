@@ -5,11 +5,12 @@ from processor import Processor
 START_ENTITY_ID = 1000
 
 class World:
-    def __init__(self, timed=False):
+    def __init__(self):
         self._next_entity_id = START_ENTITY_ID
         self._components = {}
         self._processors = []
         self._entities = {}
+        self._new_entities = set()
         self._dead_entities = set()
 
     def clear(self):
@@ -64,6 +65,8 @@ class World:
 
         for component in components:
             self.add_component(self._next_entity_id, component)
+
+        self._new_entities.add(self._next_entity_id)
 
         return self._next_entity_id
 
@@ -176,7 +179,7 @@ class World:
 
     def get_components(self, *component_types):
         '''
-        获取实体和组件组的迭代器
+        获取实体和组件组
         :param component_type: 组件类型
         :return: 迭代器 实体, (组件1, 组件2 ...)
         '''
@@ -189,16 +192,22 @@ class World:
         except KeyError:
             pass
 
-    def start(self, *args, **kwargs):
+    def get_new_entities_components(self, *component_types):
         '''
-        启动函数
-        :return:
+        获取新实体和组件组
+        :param component_type: 组件类型
+        :return: 迭代器 实体, (组件1, 组件2 ...)
         '''
-        # 调用处理处理器的处理函数
-        for processor in self._processors:
-            processor.start(*args, **kwargs)
+        entity_db = self._entities
 
-    def update(self, dt, *args, **kwargs):
+        for entity in self._new_entities:
+            try:
+                components = [entity_db[entity][ct] for ct in component_types]
+                yield entity, components
+            except KeyError:
+                pass
+
+    def process(self, dt, *args, **kwargs):
         '''
         清理实体和批量调用处理器更新函数
         :param dt: delta time 单位秒
@@ -210,6 +219,16 @@ class World:
                 self.delete_entity(entity, immediate=True)
             self._dead_entities.clear()
 
-        # 调用处理处理器的处理函数
-        for processor in self._processors:
-            processor.update(dt, *args)
+        # 如果存在新实体则调用start方法
+        if self._new_entities:
+            for processor in self._processors:
+                processor.start(*args, **kwargs)
+            # 清空新实体
+            self._new_entities.clear()
+
+        # # 如果存在脏实体则调用start方法
+        # if self._dirty_entities:
+        #     for processor in self._processors:
+        #         processor.update(dt, *args)
+        #     # 清空脏实体
+        #     self._dirty_entities.clear()

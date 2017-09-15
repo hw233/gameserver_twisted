@@ -32,6 +32,9 @@ WITHERED_STUMP_ID = 10
 WOOD_ID = 11
 BRANCH_ID = 12
 YELLOW_TREE_ID = 13
+Y_REED_ID = 14
+Y_REAPED_REED_ID = 15
+Y_WITHERED_TREE_ID = 16
 
 JAR_ID = 101
 STONE01_ID = 102
@@ -40,9 +43,10 @@ STONE03_ID = 104
 STONE04_ID = 105
 BOX01_ID = 110
 CASK_ID = 121
-BUSH_ID = 122
-WEEDS_ID = 123
 YELLOW_WEEDS_ID = 124
+P_WEEDS_ID = 125
+P_BUSH_ID = 126
+Y_BUSH_ID = 127
 
 AXE_ID = 2001
 HAMMER_ID = 2002
@@ -72,6 +76,10 @@ item_berry = {
             "gim": "model/berry/berry.gim",
         },
         {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
             "comp": "item",
             "id": BERRY_ID,
             "name": "berry",
@@ -95,6 +103,10 @@ item_reaped_berry = {
             "gim": "model/berry/reaped_berry.gim",
         },
         {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
             "comp": "item",
             "id": REAPED_BERRY_ID,
             "name": "reaped_berry",
@@ -114,6 +126,10 @@ item_berry_fruit = {
             "gim": "model/berry/berry_obj.gim",
         },
         {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
             "comp": "item",
             "id": BERRY_FRUIT_ID,
             "name": "berry_fruit",
@@ -131,7 +147,11 @@ item_reed = {
     "components": [
         {
             "comp": "renderer",
-            "gim": "model/reed/reed.gim",
+            "gim": "model/reed/reed_g.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.3, "z": 0.3}
         },
         {
             "comp": "item",
@@ -141,10 +161,6 @@ item_reed = {
             "health": 10,
             "good": 1003,
             "reaped": "reaped_reed",
-        },
-        {
-            'comp': 'animator',
-            'animations #animator': 'reed'
         },
         {
             'comp': 'state',
@@ -162,12 +178,70 @@ item_reaped_reed= {
     "components": [
         {
             "comp": "renderer",
-            "gim": "model/reed/reaped_reed.gim",
+            "gim": "model/reed/reaped_g.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
         },
         {
             "comp": "item",
             "id": REAPED_REED_ID,
             "name": "reaped_reed",
+            "kind": "none"
+        }
+    ],
+}
+
+item_y_reed = {
+    # 小草(黄)
+    "creator": {
+        "range": 50
+    },
+    "components": [
+        {
+            "comp": "renderer",
+            "gim": "model/reed/reed_y.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.3, "z": 0.3}
+        },
+        {
+            "comp": "item",
+            "id": Y_REED_ID,
+            "name": "y_reed",
+            "kind": "reap",
+            "health": 10,
+            "good": 1003,
+            "reaped": "y_reaped_reed",
+        },
+        {
+            'comp': 'state',
+            'default': 'idle',
+            'transitions': {}
+        }
+    ],
+}
+
+item_y_reaped_reed= {
+    # 采集过后的草
+    "creator": {
+        "range": 50
+    },
+    "components": [
+        {
+            "comp": "renderer",
+            "gim": "model/reed/reaped_y.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.3, "z": 0.3}
+        },
+        {
+            "comp": "item",
+            "id": Y_REAPED_REED_ID,
+            "name": "y_reaped_reed",
             "kind": "none"
         }
     ],
@@ -182,6 +256,10 @@ item_reed_leaf = {
         {
             "comp": "renderer",
             "gim": "model/reed/reed_obj.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.3, "z": 0.3}
         },
         {
             "comp": "item",
@@ -231,7 +309,18 @@ item_tree = {
         {
             "comp": "renderer",
             "gim": "model/tree/tree.gim",
-            # "grand_gim": "model/tree/tree_grand.gim",
+            "animator": {
+                "default": 'idle',
+                "transitions": [
+                    {"src": "idle", "dst": "hit", "condition": "hit"},
+                    {"src": "idle", "dst": "fall", "condition": "die"},
+                    {"src": "hit", "dst": "idle", "condition": "@end"}
+                ]
+            },
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 1.5, "z": 1.5}
         },
         {
             "comp": "item",
@@ -241,10 +330,6 @@ item_tree = {
             "health": 100,
             "reaped": "stump",
             "good": "wood",
-        },
-        {
-            'comp': 'animator',
-            'animations #animator': 'tree'
         },
         {
             'comp': 'state',
@@ -289,7 +374,19 @@ item_yellow_tree = {
         },
         {
             "comp": "renderer",
-            "gim": "model/tree/tree.gim",
+            "gim": "model/tree/tree_y.gim",
+            "animator": {
+                "default": 'idle',
+                "transitions": [
+                    {"src": "idle", "dst": "hit", "condition": "hit"},
+                    {"src": "idle", "dst": "fall", "condition": "die"},
+                    {"src": "hit", "dst": "idle", "condition": "@end"}
+                ]
+            },
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 1.5, "z": 1.5}
         },
         {
             "comp": "item",
@@ -329,12 +426,64 @@ item_withered_tree = {
         {
             "comp": "renderer",
             "gim": "model/withered_tree/withered_tree.gim",
-            "grand_gim": "model/withered_tree/withered_tree_grand.gim",
+            "animator": {
+                "default": 'idle',
+                "transitions": [
+                    {"src": "idle", "dst": "hit", "condition": "hit"},
+                    {"src": "idle", "dst": "fall", "condition": "die"},
+                    {"src": "hit", "dst": "idle", "condition": "@end"}
+                ]
+            },
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.9, "z": 0.9}
         },
         {
             "comp": "item",
             "id": WITHERED_TREE_ID,
             "name": "withered_tree",
+            "kind": "fell",
+            "health": 100,
+            "reaped": "withered_stump",
+            "good": "wood",
+        }
+    ],
+}
+
+item_y_withered_tree = {
+    # 黄色枯树
+    "creator": {
+        "range": 80,
+    },
+    "components": [
+        {
+            "comp": "collider",
+            "outline_visible": False,
+            "colliders": [
+                {
+                    "type": "AABB",
+                    "shape": {
+                        "width": 40,
+                        "height": 500,
+                        "length": 40,
+                    },
+                    "center": {
+                        "x": 0, "y": 250, "z": 0
+                    },
+                }
+            ]
+        },
+        {
+            "comp": "renderer",
+            "gim": "model/withered_tree/withered_tree_y.gim",
+            "grand_gim": "model/shadow/shadow_%s.gim",
+            "grand_scale": { "x": 1.0, "z": 1.0 }
+        },
+        {
+            "comp": "item",
+            "id": Y_WITHERED_TREE_ID,
+            "name": "y_withered_tree",
             "kind": "fell",
             "health": 100,
             "reaped": "withered_stump",
@@ -354,6 +503,10 @@ item_withered_stump = {
             "gim": "model/withered_tree/withered_stump.gim",
         },
         {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
             "comp": "item",
             "id": WITHERED_STUMP_ID,
             "name": "withered_tree",
@@ -370,7 +523,11 @@ item_stump = {
     "components": [
         {
             "comp": "renderer",
-            "gim": "model/stump/stump.gim",
+            "gim": "model/tree/stump.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
         },
         {
             "comp": "item",
@@ -392,6 +549,10 @@ item_wood = {
             "gim": "model/wood/wood.gim",
         },
         {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
             "comp": "item",
             "id": WOOD_ID,
             "name": "wood",
@@ -410,6 +571,10 @@ item_branch = {
         {
             "comp": "renderer",
             "gim": "model/branch/branch.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.3, "z": 1.2}
         },
         {
             "comp": "item",
@@ -434,6 +599,10 @@ item_jar = {
             "gim": "model/jar/jar.gim",
         },
         {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
             "comp": "item",
             "id": JAR_ID,
             "name": "jar",
@@ -452,6 +621,10 @@ item_stone01 = {
         {
             "comp": "renderer",
             "gim": "model/stone/stone_01.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
         },
         {
             "comp": "item",
@@ -473,6 +646,10 @@ item_stone02 = {
             "gim": "model/stone/stone_02.gim",
         },
         {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
             "comp": "item",
             "id": STONE02_ID,
             "name": "stone02",
@@ -492,6 +669,10 @@ item_stone03 = {
             "gim": "model/stone/stone_03.gim",
         },
         {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
             "comp": "item",
             "id": STONE03_ID,
             "name": "stone03",
@@ -509,6 +690,10 @@ item_stone04 = {
         {
             "comp": "renderer",
             "gim": "model/stone/stone_04.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.8, "z": 0.8}
         },
         {
             "comp": "item",
@@ -532,6 +717,10 @@ item_box01 = {
             "gim": "model/box/box_01.gim",
         },
         {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
             "comp": "item",
             "id": BOX01_ID,
             "name": "box01",
@@ -551,6 +740,10 @@ item_cask = {
             "gim": "model/cask/cask.gim",
         },
         {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
             "comp": "item",
             "id": CASK_ID,
             "name": "cask",
@@ -559,58 +752,93 @@ item_cask = {
     ],
 }
 
-item_bush = {
-    # 草丛
+item_y_bush = {
+    # 黄草丛
     "creator": {
         "range": 250
     },
     "components": [
         {
             "comp": "renderer",
-            "gim": "model/bush/bush.gim",
+            "gim": "model/bush/bush_y.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 2.5, "z": 2.5}
         },
         {
             "comp": "item",
-            "id": BUSH_ID,
-            "name": "bush",
+            "id": Y_BUSH_ID,
+            "name": "y_bush",
             "kind": "none",
         }
     ],
 }
 
-item_weeds = {
-    # 装饰性小草片
+item_p_bush = {
+    # 浅黄草丛
     "creator": {
-        "range": 80
+        "range": 250
     },
     "components": [
         {
             "comp": "renderer",
-            "gim": "model/weeds/weeds_grass.gim",
+            "gim": "model/bush/bush_g.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 2.5, "z": 2.5}
         },
         {
             "comp": "item",
-            "id": WEEDS_ID,
-            "name": "weeds",
+            "id": P_BUSH_ID,
+            "name": "b_bush",
             "kind": "none",
         }
     ],
 }
 
 item_yellow_weeds = {
-    # 装饰性小草片
+    # 装饰性小草片 Y
     "creator": {
         "range": 80
     },
     "components": [
         {
             "comp": "renderer",
-            "gim": "model/weeds/weeds_grass.gim",
+            "gim": "model/weeds/weeds_y.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
         },
         {
             "comp": "item",
-            "id": WEEDS_ID,
+            "id": YELLOW_WEEDS_ID,
             "name": "yellow_weeds",
+            "kind": "none",
+        }
+    ],
+}
+
+item_p_weeds = {
+    # 装饰性浅色草片 P
+    "creator": {
+        "range": 80
+    },
+    "components": [
+        {
+            "comp": "renderer",
+            "gim": "model/weeds/weeds_p.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
+            "comp": "item",
+            "id": P_WEEDS_ID,
+            "name": "p_weeds",
             "kind": "none",
         }
     ],
@@ -625,6 +853,10 @@ item_axe = {
         {
             "comp": "renderer",
             "gim": "model/axe/axe_obj.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
         },
         {
             "comp": "item",
@@ -647,6 +879,10 @@ item_hammer = {
             "gim": "model/hammer/hammer_obj.gim",
         },
         {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
             "comp": "item",
             "id": HAMMER_ID,
             "name": "hammer",
@@ -665,6 +901,10 @@ item_lance = {
         {
             "comp": "renderer",
             "gim": "model/lance/lance_obj.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
         },
         {
             "comp": "item",
@@ -687,6 +927,10 @@ item_dagger = {
             "gim": "model/dagger/dagger.gim",
         },
         {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
             "comp": "item",
             "id": DAGGER_ID,
             "name": "dagger",
@@ -705,6 +949,10 @@ item_wood_shield = {
         {
             "comp": "renderer",
             "gim": "model/shield/shield_obj.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
         },
         {
             "comp": "item",
@@ -727,6 +975,10 @@ item_iron_shield = {
             "gim": "model/shield/shield_02_obj.gim",
         },
         {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
             "comp": "item",
             "id": IRON_SHIELD_ID,
             "name": "iron_shield",
@@ -745,6 +997,10 @@ item_hat = {
         {
             "comp": "renderer",
             "gim": "model/hat/hat.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
         },
         {
             "comp": "item",
@@ -767,6 +1023,10 @@ item_advanced_hat = {
             "gim": "model/hat/hat.gim",
         },
         {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
             "comp": "item",
             "id": ADVANCED_HAT_ID,
             "name": "hat",
@@ -785,6 +1045,10 @@ item_egg = {
         {
             "comp": "renderer",
             "gim": "model/egg/egg_obj.gim",
+        },
+        {
+            "comp": "shadow",
+            "scale": {"x": 0.2, "z": 0.2}
         },
         {
             "comp": "item",
@@ -807,6 +1071,10 @@ item_meat = {
             "gim": "model/meat/meat.gim",
         },
         {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
             "comp": "item",
             "id": MEAT_ID,
             "name": "meat",
@@ -827,6 +1095,10 @@ item_iron = {
             "gim": "model/iron/iron.gim",
         },
         {
+            "comp": "shadow",
+            "scale": {"x": 0.5, "z": 0.5}
+        },
+        {
             "comp": "item",
             "id": IRON_ID,
             "name": "iron",
@@ -836,60 +1108,22 @@ item_iron = {
     ],
 }
 
-item_rabbit = {
-    # 兔子
-    "creator": {
-        "range": 100
-    },
-    "components": [
-        {
-            "comp": "renderer",
-            "gim": "model/rabbit/rabbit.gim",
-        },
-        {
-            "comp": "item",
-            "id": RABBIT_ID,
-            "name": "rabbit",
-            "kind": "fell",
-            "health": 100,
-            "good": 6003,
-        },
-        {
-            'comp': 'animator',
-            'animations #animator': 'rabbit'
-        },
-        {
-            'comp': 'state',
-            'default': 'idle',
-            'transitions': {
-                'idle': {
-                    'run': 'run',
-                    'die': 'die',
-                },
-                'run': {
-                    '*end': 'idle',
-                },
-                'die': {}
-            }
-        }
-    ],
-}
-
-
-
 data = {
     "berry": item_berry, BERRY_ID: item_berry,
     "reaped_berry": item_reaped_berry, REAPED_BERRY_ID: item_reaped_berry,
     "berry_fruit": item_berry_fruit, BERRY_FRUIT_ID: item_berry_fruit,
 
     "reed": item_reed, REED_ID: item_reed,
+	"y_reed": item_y_reed, Y_REED_ID: item_y_reed,
     "reaped_reed": item_reaped_reed, REAPED_REED_ID: item_reaped_reed,
     "reed_leaf": item_reed_leaf, REED_LEAF_ID: item_reed_leaf,
+	"y_reaped_reed": item_y_reaped_reed, Y_REAPED_REED_ID: item_y_reaped_reed,
 
     "tree": item_tree, TREE_ID: item_tree,
     "stump": item_stump, STUMP_ID: item_stump,
 	"yellow_tree": item_yellow_tree, YELLOW_TREE_ID: item_yellow_tree,
     "withered_tree": item_withered_tree, WITHERED_TREE_ID: item_withered_tree,
+	"y_withered_tree": item_y_withered_tree, Y_WITHERED_TREE_ID: item_y_withered_tree,
     "withered_stump": item_withered_stump, WITHERED_STUMP_ID: item_withered_stump,
     "wood": item_wood, WOOD_ID: item_wood,
     "branch": item_branch, BRANCH_ID: item_branch,
@@ -901,9 +1135,10 @@ data = {
     "stone04": item_stone04, STONE04_ID: item_stone04,
     "box01": item_box01, BOX01_ID: item_box01,
     "cask": item_cask, CASK_ID: item_cask,
-    "bush": item_bush, BUSH_ID: item_bush,
-    "weeds": item_weeds, WEEDS_ID: item_weeds,
+	"y_bush": item_y_bush, Y_BUSH_ID: item_y_bush,
+	"p_bush": item_p_bush, P_BUSH_ID: item_p_bush,
 	"yellow_weeds": item_yellow_weeds, YELLOW_WEEDS_ID: item_yellow_weeds,
+	"p_weeds": item_p_weeds, P_WEEDS_ID: item_p_weeds,
 
     "axe": item_axe, AXE_ID: item_axe,
     "hammer": item_hammer, HAMMER_ID: item_hammer,
@@ -920,5 +1155,4 @@ data = {
     "meat": item_meat, MEAT_ID: item_meat,
     "iron": item_iron, IRON_ID: item_iron,
 
-    "rabbit": item_rabbit, RABBIT_ID: item_rabbit,
 }

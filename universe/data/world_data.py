@@ -28,6 +28,10 @@ data = {
         ]
     },
 
+    'shadow': {
+        'gim': 'model/shadow/shadow_%s.gim'
+    },
+
     # 层
     # :param name: 层名称
     # :param altitude: 海拔高度

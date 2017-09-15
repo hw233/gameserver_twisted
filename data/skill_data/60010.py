@@ -55,6 +55,7 @@ data = {
         },
         'sfx': [["fx/other/berry_poshui.sfx", 5.0, 'hit']],
         'face': True,
+		'hitact': 'hit02',
         'move': [-500, 1],
     },
 

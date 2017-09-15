@@ -79,14 +79,17 @@ class BPItemObject(GameObject):
             self.health -= self.costblood
             DebugAux.Log( "[server] backpack item object health ",self.health)
             return self.attack
+        elif hasattr(self, "attack") is True and self.pile_bool is True:
+            self.num -= 1
+            return self.attack
         else:
             self.num -= 1
-        return 0
+            return 0
 
     def get_defense(self):
         if hasattr(self, "defense") is True:
             self.health -= self.costblood
-            DebugAux.Log( "[server] backpack item object health ", self.health)
+            DebugAux.Log("[server] backpack item object health ", self.health)
             return self.defense
 
         return 0

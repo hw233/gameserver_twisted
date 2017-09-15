@@ -40,14 +40,14 @@ data = {
     'hit_1': {
         'type': 'att',
         'damage': {
-            'percentage': 3,  # 攻击百分比
+            'percentage': 2,  # 攻击百分比
             'add': 0,  # 攻击附加
             'stop': 6,
             'quake': [1, 6, 2],
             'shake': [1, 4],
             'bullet': {
-                'speed': 2100,  # 初始速度
-                'acceleration': 1050,  # 加速度
+                'speed': 3000,  # 初始速度
+                'acceleration': 1500,  # 加速度
                 'max_dis': 1300,  # 子弹最大飞行距离
                 'col_radius': 1,  # 子弹球体碰撞体半径
                 'fly_sfx': ['fx/other/lance_feixing.sfx', 5.0, 'bullet_point'],  # 飞行特效
@@ -79,12 +79,12 @@ data = {
     'hit_2': {
         'type': 'att',
         'damage': {
-            'percentage': 1.5,  # 攻击百分比
+            'percentage': 1,  # 攻击百分比
             'add': 0,  # 攻击附加
             'shake': [1, 2],
             'bullet': {
-                'speed': 1200,  # 初始速度
-                'acceleration': 500,  # 加速度
+                'speed': 2000,  # 初始速度
+                'acceleration': 1000,  # 加速度
                 'max_dis': 800,  # 子弹最大飞行距离
                 'col_radius': 1,  # 子弹球体碰撞体半径
                 'fly_sfx': ['fx/other/lance_feixing.sfx', 5.0, 'bullet_point'],  # 飞行特效

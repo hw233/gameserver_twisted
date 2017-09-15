@@ -62,10 +62,10 @@
 				TimeRatio = "0"
 				Name = "start" />
 			<Event
-				TimeRatio = "0.1501"
+				TimeRatio = "0.3908"
 				Name = "holdforce_single" />
 			<Event
-				TimeRatio = "0.3997"
+				TimeRatio = "0.4168"
 				Name = "hit" />
 			<Event
 				TimeRatio = "1"
@@ -135,10 +135,12 @@
 				TimeRatio = "0"
 				Name = "start" />
 			<Event
-				TimeRatio = "0.099"
+				TimeRatio = "0.0974"
+				SetForMusic = "true"
 				Name = "you" />
 			<Event
-				TimeRatio = "0.6"
+				TimeRatio = "0.5891"
+				SetForMusic = "true"
 				Name = "zuo" />
 			<Event
 				TimeRatio = "1"
@@ -278,31 +280,22 @@
 				TimeRatio = "0.0579"
 				Name = "mov" />
 			<Event
-				TimeRatio = "0.1047"
+				TimeRatio = "0.1343"
 				Name = "hit_01" />
 			<Event
-				TimeRatio = "0.1744"
+				TimeRatio = "0.2239"
 				Name = "hit_02" />
 			<Event
-				TimeRatio = "0.2442"
+				TimeRatio = "0.3134"
 				Name = "hit_03" />
 			<Event
-				TimeRatio = "0.3255"
+				TimeRatio = "0.403"
 				Name = "hit_04" />
 			<Event
-				TimeRatio = "0.3952"
+				TimeRatio = "0.4925"
 				Name = "hit_05" />
 			<Event
-				TimeRatio = "0.4535"
-				Name = "hit_06" />
-			<Event
-				TimeRatio = "0.5233"
-				Name = "hit_07" />
-			<Event
-				TimeRatio = "0.593"
-				Name = "hit_08" />
-			<Event
-				TimeRatio = "0.9767"
+				TimeRatio = "0.9851"
 				Name = "att_end" />
 			<Event
 				TimeRatio = "1"

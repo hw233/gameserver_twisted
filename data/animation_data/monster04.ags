@@ -1,0 +1,19 @@
+<NeoX>
+	<AnimationEventTracks
+		Version = "2">
+		<EventTrack_attack>
+			<Event
+				TimeRatio = "0"
+				Name = "start" />
+			<Event
+				TimeRatio = "0.046"
+				Name = "mov" />
+			<Event
+				TimeRatio = "0.4186"
+				Name = "hit" />
+			<Event
+				TimeRatio = "1"
+				Name = "end" />
+		</EventTrack_attack>
+	</AnimationEventTracks>
+</NeoX>

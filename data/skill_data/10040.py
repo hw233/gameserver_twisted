@@ -55,7 +55,8 @@ data = {
         },
         'sfx': [["fx/other/stone_hit.sfx", 5.0, 'hit']],
         'face': True,
-        'move': [-800, 1],
+		'move': [-500, 1],
+        'hitact': 'hit02',
     },
 
     'mov_1': {

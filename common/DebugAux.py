@@ -1,11 +1,13 @@
+from common import conf
+
+
 class DebugAux(object):
     def __init__(self):
         super(DebugAux, self).__init__()
 
     def Log(self, *args, **kwargs):
-        pass
-        #print(args, kwargs)
-
+        if conf.DEBUG_LOG_OPEN:
+            print(args, kwargs)
 
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, '_instance'):

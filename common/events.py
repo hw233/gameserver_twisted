@@ -110,14 +110,8 @@ class MsgCSPlayerQuit(SimpleHeader):
 
 
 class MsgSCPlayerBorn(SimpleHeader):
-    '''
-        @describe:
-                  player born message
-        @log:
-             1. add role_id. very player may load diff role
-    '''
-
-    def __init__(self, pid, ptype, name, health, px, py, pz, rx, ry, rz, role_id=0):
+    def __init__(self, pid=-1, ptype=0, name='', health=0, px=0, py=0, pz=0,
+                 rx=0, ry=0, rz=0, role_id=0, group_id=0):
         super(MsgSCPlayerBorn, self).__init__(conf.MSG_SC_PLAYER_BORN)
         self.append_param('pid', pid, 'i')
         self.append_param('ptype', ptype, 'i')  # ptype: 0->myself, 1->others
@@ -130,6 +124,7 @@ class MsgSCPlayerBorn(SimpleHeader):
         self.append_param('ry', ry, 'f')
         self.append_param('rz', rz, 'f')
         self.append_param('role_id', role_id, 'i')  # prefab id
+        self.append_param('group_id', group_id, 'i')
 
 
 class MsgCSPlayerMove(SimpleHeader):
@@ -519,7 +514,7 @@ class MsgCSEatFood(SimpleHeader):
 
 
 class MsgSCWeaponDeduce(SimpleHeader):
-    def __init__(self, pid=-1, weapon = -1, armor = -1, hat = -1):
+    def __init__(self, pid=-1, weapon=-1, armor=-1, hat=-1):
         '''
         :param pid: player id
         :param entity_id: weapon id
@@ -533,7 +528,7 @@ class MsgSCWeaponDeduce(SimpleHeader):
 
 
 class MsgSCSpiritBloodSyn(SimpleHeader):
-    def __init__(self,pid = -1,spirit = 0, blood = 0):
+    def __init__(self, pid=-1, spirit=0, blood=0):
         super(MsgSCSpiritBloodSyn, self).__init__(conf.MSG_SC_SPIRIT_BLOOD_SYN)
         self.append_param('pid', pid, 'i')
         self.append_param('spirit', spirit, 'i')
@@ -541,7 +536,7 @@ class MsgSCSpiritBloodSyn(SimpleHeader):
 
 
 class MsgSCBackpackAdd(SimpleHeader):
-    def __init__(self, pid = -1,entity_id=-1, health=-1, ID=-1, num = -1):
+    def __init__(self, pid=-1, entity_id=-1, health=-1, ID=-1, num=-1):
         super(MsgSCBackpackAdd, self).__init__(conf.MSG_SC_BACKPACK_ADD)
         self.append_param('pid', pid, 'i')
         self.append_param('entity_id', entity_id, 'i')
@@ -551,21 +546,22 @@ class MsgSCBackpackAdd(SimpleHeader):
 
 
 class MsgSCBackpackDel(SimpleHeader):
-    def __init__(self, pid =-1, entity_id=-1, health=-1, ID = -1, num = -1):
+    def __init__(self, pid=-1, entity_id=-1, health=-1, ID=-1, num=-1):
         super(MsgSCBackpackDel, self).__init__(conf.MSG_SC_BACKPACK_DEL)
         self.append_param('pid', pid, 'i')
         self.append_param('entity_id', entity_id, 'i')
         self.append_param('ID', ID, 'i')
         self.append_param('health', health, 'i')
         self.append_param('num', num, 'i')
-'''********************************BackpackMessage*******************************************************'''
 
+
+'''********************************BackpackMessage*******************************************************'''
 
 '''***********************************Monster message *****************************************************'''
 
 
 class MsgSCMonsterBorn(SimpleHeader):
-    def __init__(self, entity_id=-1, ID=-1, health=-1, x = 0, y=0, z=0):
+    def __init__(self, entity_id=-1, ID=-1, health=-1, x=0, y=0, z=0, group_id=0):
         super(MsgSCMonsterBorn, self).__init__(conf.MSG_SC_MONSTER_BORN_MSG)
         self.append_param("entity_id", entity_id, 'i')
         self.append_param("ID", ID, 'i')
@@ -573,6 +569,30 @@ class MsgSCMonsterBorn(SimpleHeader):
         self.append_param("x", x, 'f')
         self.append_param("y", y, 'f')
         self.append_param("z", z, 'f')
+        self.append_param('group_id', group_id, 'i')
+
+
+class MsgSCMonsterMove(SimpleHeader):
+    def __init__(self, mid=-1, px=0, pz=0, ry=0, vx=0, vz=0, ax=0, az=0):
+        super(MsgSCMonsterMove, self).__init__(conf.MSG_SC_MONSTER_MOVE)
+        self.append_param('mid', mid, 'i')
+        self.append_param('px', px, 'f')
+        self.append_param('pz', pz, 'f')
+        self.append_param('ry', ry, 'f')
+        self.append_param('vx', vx, 'f')
+        self.append_param('vz', vz, 'f')
+        self.append_param('ax', ax, 'f')
+        self.append_param('az', az, 'f')
+
+
+class MsgSCMonsterAttack(SimpleHeader):
+    def __init__(self, mid=-1, px=0, pz=0, ry=0, skill_id=0):
+        super(MsgSCMonsterAttack, self).__init__(conf.MSG_SC_MONSTER_ATTACK)
+        self.append_param('mid', mid, 'i')
+        self.append_param('px', px, 'f')
+        self.append_param('pz', pz, 'f')
+        self.append_param('ry', ry, 'f')
+        self.append_param('skill_id', skill_id, 'i')
 
 
 class MsgSCMonsterWaitTime(SimpleHeader):
@@ -595,26 +615,27 @@ class MsgSCMonsterStateSyn(SimpleHeader):
     MONSTER_CHASE = 4
     MONSTER_BEATEN = 5
 
-    def __init__(self, entity_id = -1, state = -1, x = 0, y = 0, z = 0, target_id = -1):
+    def __init__(self, entity_id=-1, state=-1, x=0, y=0, z=0, target_id=-1):
         super(MsgSCMonsterStateSyn, self).__init__(conf.MSG_SC_MONSTER_STATE_SYN)
         self.append_param("entity_id", entity_id, 'i')
         self.append_param("state", state, 'i')
-        self.append_param('x',x,'f')
-        self.append_param('y',y,'f')
-        self.append_param('z',z,'f')
+        self.append_param('x', x, 'f')
+        self.append_param('y', y, 'f')
+        self.append_param('z', z, 'f')
         self.append_param("target_id", target_id, 'i')
-'''***********************************Monster message *****************************************************'''
 
+
+'''***********************************Monster message *****************************************************'''
 
 '''******************************************QA message***************************************************'''
 
 
 class MsgSCDelayQA(SimpleHeader):
-    def __init__(self, hid = -1, send_time = 0.0, back_time = 0.0):
+    def __init__(self, hid=-1, send_time=0.0, back_time=0.0):
         super(MsgSCDelayQA, self).__init__(conf.MSG_SC_DELAY_QA)
         self.append_param('hid', hid, 'i')
         self.append_param('send_time', send_time, 'f')
         self.append_param('back_time', back_time, 'f')
+
+
 '''******************************************QA message***************************************************'''
-
-

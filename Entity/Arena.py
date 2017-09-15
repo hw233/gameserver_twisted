@@ -4,6 +4,8 @@ import random
 
 import time
 
+import behavior
+from AI.monster_ai import AI_Lib
 from GameObject.Bullet import Bullet
 from GameObject.Monster import Monster
 from Managers.BackpackManager import BackpackManager
@@ -61,25 +63,44 @@ class Arena(object):
 
         # group
         self.group_num = 0
-        self.group_map = {}  # group_id -> []
+        self.group_map = {  # group_id -> []
+            999: [],  # monster
+        }
 
     # arena tick
     def tick(self):
         self.timeManager.scheduler()
 
         dead_player_list = {}
-
-        for hid, player in self.client_id_to_player_map.items():
-            if player is not None and not player.is_dead():
+        # players
+        for hid, player in self.client_id_to_player_map.iteritems():
+            if player is None:
+                dead_player_list[hid] = player
+            if player.is_dead():
+                dead_player_list[hid] = player
+                self.group_map[player.group_id].remove(player)
+            else:
                 player.update()
 
-            if player is not None and player.is_dead():
-                dead_player_list[hid] = player
-
-        for hid in dead_player_list.keys():
+        for hid, player in dead_player_list.iteritems():
             del self.client_id_to_player_map[hid]
-            self.player_quit(hid, None)
+            if player is not None:
+                self.player_quit(hid, None)
             DebugAux.Log('tick ',self.client_id_to_player_map.keys())
+
+        # monsters
+        del_mids = []
+        for mid, monster in self.entity_id_to_monster_map.iteritems():
+            if monster is None:
+                del_mids.append(mid)
+            elif monster.is_dead():
+                del_mids.append(mid)
+                self.group_map[monster.group_id].remove(monster)
+            else:
+                monster.update()
+
+        for mid in del_mids:
+            del self.entity_id_to_monster_map[mid]
 
         # bullets
         dead_bullets = []
@@ -121,7 +142,8 @@ class Arena(object):
                 born_position = Vector3(x, 5, 0)
                 x += 200
             else:
-                born_position = Vector3(self.universe.get_born_position())
+                blocks = ["grass", "withered", "marsh"]
+                born_position = Vector3(self.universe.get_born_position(random.choice(blocks)))
             born_rotation = Vector3(0, 0, 0)
             player = Player(user.client_hid, user.username, born_position,
                             born_rotation, self.player_conf, self.group_num, self)
@@ -197,6 +219,21 @@ class Arena(object):
 
         self._generate_map_monster()
 
+        # if conf.DEBUG_SAME_POSITION:
+        #     born_pos = Vector3(-200, 5, 0)
+        #     monster = Monster(100, 100, born_pos, Vector3(0, 0, 0), 999, self)
+        #
+        #     btree = behavior.BehaviorTree()
+        #     btree.load(AI_Lib.ChaseMonster)
+        #
+        #     monster.set_ai_behavior_tree(btree)
+        #
+        #     self.entity_id_to_monster_map[monster.entity_id] = monster
+        #     self.group_map[monster.group_id].append(monster)
+        #     msg = MsgSCMonsterBorn(monster.entity_id, monster.ID, monster.health, born_pos.x, born_pos.y, born_pos.z,
+        #                            monster.group_id)
+        #     self.broadcast(msg)
+
     def _generate_map_monster(self):
         if self.game_type == 0:
             self.config = MonsterRefresh.single_model
@@ -210,10 +247,19 @@ class Arena(object):
         for cell in self.config["map_monster"]:
             for index in xrange(0, cell["total_num"]):
                 info = MonsterDB.get_info_by_ID(cell["ID"])
-                born_pos = Util.Vector3(self.universe.get_born_position())
-                monster = Monster(cell["ID"], info["health"], born_pos, Util.Vector3(), 999, self)
+                born_block = cell["refresh_location"]
+                born_pos = Vector3(self.universe.get_born_position(born_block))
+
+                btree = behavior.BehaviorTree()
+                btree.load(AI_Lib.ChaseMonster)
+
+                monster = Monster(cell["ID"], info["health"], born_pos, Vector3(), 999, self)
+                monster.set_ai_behavior_tree(btree)
+
                 self.entity_id_to_monster_map[monster.entity_id] = monster
-                msg = MsgSCMonsterBorn(monster.entity_id, monster.ID, monster.health, born_pos.x, born_pos.y, born_pos.z)
+                self.group_map[monster.group_id].append(monster)
+                msg = MsgSCMonsterBorn(monster.entity_id, monster.ID, monster.health, born_pos.x, born_pos.y,
+                                       born_pos.z, monster.group_id)
                 self.broadcast(msg)
 
     def _init_all_player_listeners(self):
@@ -472,9 +518,9 @@ class Arena(object):
             self.broadcast(msg, not_send=player)
 
         # 武器消耗，标枪没有命中强制使用一次武器。
-        active_weapon = player.backpack_manager.get_active_weapon()
-        if active_weapon is not None and active_weapon.pile_bool is True and msg.button_down is False:
-            player.get_attack_value()
+        #active_weapon = player.backpack_manager.get_active_weapon()
+        #if active_weapon is not None and active_weapon.pile_bool is True and msg.button_down is False:
+            #player.get_attack_value()
             # active_weapon.num -= 1
             # die_list = player.backpack_manager.inquire_weapon_die()
             # for id in die_list:
@@ -609,12 +655,6 @@ class Arena(object):
             self.start_game()
 
     def handle_player_collect(self, msg, client_hid):
-        # from common.events import MsgSCPlayerCollect
-        # player = self.client_id_to_player_map[client_hid]
-        # print 'handle_player_collect', msg.pid
-        # msg = MsgSCPlayerCollect(msg.pid)
-        # print 'handle_player_collect22222', client_hid, player.entity_id
-        # self.broadcast(msg, player)
         pass
 
     def handle_player_reap(self, msg, client_hid):
@@ -637,7 +677,7 @@ class Arena(object):
 
         if msg.entity_id == -1:  # 吃东西
             player.add_health(player.get_attack_value(), msg.blood_percent)
-            player.add_spirit(player.get_attack_value(), msg.power_percent)
+            player.add_spirit(player.get_attack_value(False), msg.power_percent)
             msg_hit = MsgSCPlayerReapHit(player.entity_id, player.health, player.spirit)
             self.broadcast(msg_hit)
 
@@ -666,10 +706,10 @@ class Arena(object):
             if item.hittable:
                 self.universe.reap(entity, player.get_attack_value(not item.collectible) * msg.attack_percent)
 
-                DebugAux.Log("reap tree <> ", "player_base_attacck:", player.debug_base_attack(),
-                             " player_weapon_attack:",
-                             player.debug_weapon_attack(), " attack_coefficient:",
-                             msg.attack_percent, " real_damage:", player.get_attack_value(False) * msg.attack_percent)
+                #DebugAux.Log("reap tree <> ", "player_base_attacck:", player.debug_base_attack(),
+                #             " player_weapon_attack:",
+                #             player.debug_weapon_attack(), " attack_coefficient:",
+                #             msg.attack_percent, " real_damage:", player.get_attack_value(False) * msg.attack_percent)
 
                 # 这里还需要判断食物是否吃完，更换武器
                 DebugAux.Log("[server] lop the tree and uninstall weapon if possible")
@@ -682,12 +722,12 @@ class Arena(object):
                 # self.broadcast(msg_tmp)
 
                 if item.dead:
-                    self.universe.destroy(entity)
-                    msg = MsgSCMapItemDestroy(entity)
-                    self.broadcast(msg)
                     if item.collectible:
                         player.backpack_manager.bring_in_ex(item.good, 1, True)
                         self.send_backpack_syn_message(client_hid)
+                    self.universe.destroy(entity)
+                    msg = MsgSCMapItemDestroy(entity)
+                    self.broadcast(msg)
 
             elif item.collectible:
                 player.backpack_manager.bring_in_ex(item.good, 1, True)
@@ -826,7 +866,7 @@ class Arena(object):
 
         if client_hid not in self.client_id_to_player_map:
             return
-
+        
         player = self.client_id_to_player_map[client_hid]
         res = player.backpack_manager.install_armor_ex(msg.entity_id)
 
@@ -896,7 +936,10 @@ class Arena(object):
 
         if hit_target is None:
             targets_str = Util.pack_id_pos_health_list_to_string([])
+            bullet.owner.get_attack_value()
         else:
+            if not hit_target.is_player():
+                hit_target.set_player_target(bullet.owner.client_hid)
             hit_target.health_damage(bullet.owner.get_attack_value(), bullet.damage_data.get('percentage'))
             targets_str = Util.pack_id_pos_health_list_to_string(
                 [[hit_target.get_entity_id(), hit_target.get_position(), hit_target.get_health()]])
@@ -912,13 +955,15 @@ class Arena(object):
         """
         for target in damage_targets:
             # 扣血
+            if not target.is_player():
+                target.set_player_target(attacker.client_hid)
             target.health_damage(attacker.get_attack_value(), damage_data.get('percentage'))
 
-            DebugAux.Log("player: <>", "player_base_attacck:", attacker.debug_base_attack(),
-                         " player_weapon_attack:",
-                         attacker.debug_weapon_attack(), " attack_coefficient:",
-                         damage_data.get("percentage"), " real_damage:",
-                         attacker.get_attack_value(False) * damage_data.get("percentage"))
+            #DebugAux.Log("player: <>", "player_base_attacck:", attacker.debug_base_attack(),
+            #             " player_weapon_attack:",
+            #             attacker.debug_weapon_attack(), " attack_coefficient:",
+            #             damage_data.get("percentage"), " real_damage:",
+            #             attacker.get_attack_value(False) * damage_data.get("percentage"))
 
             # 判断需不需要更新攻击者和受击对象的武器对象 ------------- begin
             from common.events import MsgSCWeaponUninstall
@@ -972,8 +1017,9 @@ class Arena(object):
                     continue
                 target.state_machine.change_state(conf.STATE_LIEDOWN)
                 move_speed = blow_down
-                liedown_time = target.anim_controller.get_anim_time('fall02') + \
-                               target.anim_controller.get_anim_time('up')
+                liedown_time = target.anim_controller.get_anim_time(target.anim_controller.down_anim)
+                if target.anim_controller.up_anim is not None:
+                    liedown_time += target.anim_controller.get_anim_time(target.anim_controller.up_anim)
                 target.set_hit_liedown_start(hit_time + liedown_time)
             else:
                 if not target.state_machine.can_enter_state(conf.STATE_STIFFNESS):
@@ -1083,17 +1129,17 @@ class Arena(object):
     def handle_game_win_count_down(self, remind_time):
         msg = MsgSCGameWinCountDown(remind_time)
         self.broadcast(msg)
-        DebugAux.Log("[server] [monster manger ] msg win count down !!!",remind_time)
+        DebugAux.Log("[server] [monster manger ] msg win count down !!!", remind_time)
 
     def handle_monster_remind(self, waiting_time):
         msg = MsgSCMonsterWaitTime(waiting_time)
         self.broadcast(msg)
-        DebugAux.Log("[server] [monster manger ] msg remind time !!!",waiting_time)
+        DebugAux.Log("[server] [monster manger ] msg remind time !!!", waiting_time)
 
     def handle_monster_red_alert(self, alter_time):
         msg = MsgSCMonsterAlertTime(alter_time)
         self.broadcast(msg)
-        DebugAux.Log("[server] [monster manger ] msg red alert !!!",alter_time)
+        DebugAux.Log("[server] [monster manger ] msg red alert !!!", alter_time)
 
     def handle_monster_coming(self, monster_list):
         DebugAux.Log("[server] [monster manger ] msg monster coming !!!", monster_list)
@@ -1104,10 +1150,18 @@ class Arena(object):
 
         for cell in monster_list:
             for index in xrange(0, cell.num):
-                info = MonsterDB.get_info_by_ID(cell.ID)
-                born_pos = Util.Vector3(self.universe.get_born_position())
-                monster = Monster(cell.ID, info["health"], born_pos, Util.Vector3(), 999, self)
-                self.entity_id_to_monster_map[monster.entity_id] = monster
-                msg = MsgSCMonsterBorn(monster.entity_id, monster.ID, monster.health, born_pos.x,born_pos.y,born_pos.z)
-                self.broadcast(msg)
+                for player in self.client_id_to_player_map.itervalues():
+                    info = MonsterDB.get_info_by_ID(cell.ID)
+                    born_pos = Util.Vector3(self.universe.get_born_position())
 
+                    monster = Monster(cell.ID, info["health"], born_pos, Util.Vector3(), 999, self)
+
+                    btree = behavior.BehaviorTree()
+                    btree.load(AI_Lib.ChaseMonster)
+                    monster.set_ai_behavior_tree(btree)
+                    monster.set_player_target(player.client_hid)
+                    self.group_map[monster.group_id].append(monster)
+                    self.entity_id_to_monster_map[monster.entity_id] = monster
+                    msg = MsgSCMonsterBorn(monster.entity_id, monster.ID, monster.health, born_pos.x, born_pos.y,
+                                           born_pos.z, monster.group_id)
+                    self.broadcast(msg)

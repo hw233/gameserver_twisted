@@ -161,22 +161,6 @@ class GameObject(object):
         else:
             return True
 
-    def health_damage(self, val, attack_percent):
-        """
-        :param attack_percent:
-        :param val: damage value
-        :return: live->true, die->false
-        """
-
-        if val < 0:
-            val = 0
-
-        val = val * (1.0 - 1.0 * self.backpack_manager.get_defense() / 100.0) * attack_percent
-        if val < 0:
-            val = 0
-
-        return self.health_deduce(val)
-
     def add_health(self, val, blood_percentage):
         self.health = self.health + int(val * blood_percentage)
 

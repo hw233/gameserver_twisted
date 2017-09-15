@@ -152,7 +152,8 @@ class Player(Creature):
 
     def generate_born_msg(self, send_to_others):
         return MsgSCPlayerBorn(self.entity_id, send_to_others, self.name, self.health, self.position.x,
-                               self.position.y, self.position.z, self.rotation.x, self.rotation.y, self.rotation.z)
+                               self.position.y, self.position.z, self.rotation.x, self.rotation.y, self.rotation.z, 0,
+                               self.group_id)
 
     def set_leave_scene(self):
         self.is_leave_scene = True
@@ -205,48 +206,18 @@ class Player(Creature):
         if self.spirit_timer is not None:
             self.timer_manager.cancel(self.spirit_timer)
 
-    def save_current_movement_state(self):
-        self.movement_copy = {'p': self.get_position(),
-                              'v': self.get_move_velocity(),
-                              'a': self.get_accelerate_velocity(),
-                              'states': self.state_machine.pack_all_states(),
-                              'health': self.health,
-                              }
-
-    def recover_movement_state(self):
-        self.set_position(self.movement_copy['p'])
-        self.set_move_velocity(self.movement_copy['v'])
-        self.set_accelerate_velocity(self.movement_copy['a'])
-        self.state_machine.set_all_states(self.movement_copy['states'])
-        self.health = self.movement_copy['health']
-
-    def check_state(self, state_name):
-        return self.state_machine.cur_state == state_name
-
-    def in_attack_range(self, other, dis):
+    def health_damage(self, val, attack_percent):
         """
-        判断pos是否在攻击范围内，在范围内需要自动锁定被攻击者
-        圆形攻击范围
+        :param attack_percent:
+        :param val: damage value
+        :return: live->true, die->false
         """
-        if (self.get_position() - other.get_position()).magnitude > dis:
-            return None
-        return abs(other.get_rotation().y - self.rotation.y)
 
-    def attack_face_to(self, dis):
-        """
-        寻找范围内一个攻击角度最小的目标，并面向它
-        :return:
-        """
-        min_angle = None
-        target = None
-        for p in self.arena.client_id_to_player_map.itervalues():
-            if p is None or p.is_dead() or p.entity_id == self.entity_id:
-                continue
-            angle = self.in_attack_range(p, dis)
-            if angle is None:
-                continue
-            if min_angle is None or abs(angle) < abs(min_angle):
-                min_angle = angle
-                target = p
-        if min_angle is not None:
-            self.look_at_position(target.get_position())
+        if val < 0:
+            val = 0
+
+        val = val * (1.0 - 1.0 * self.backpack_manager.get_defense() / 100.0) * attack_percent
+        if val < 0:
+            val = 0
+
+        return self.health_deduce(val)

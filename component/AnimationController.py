@@ -8,25 +8,29 @@ except ImportError:
 
 
 class AnimationController(object):
-    def __init__(self, anim_time_module, ags_file_name):
+    def __init__(self, anim_time_module, ags_file_name, down_anim='fall02', up_anim='up'):
         super(AnimationController, self).__init__()
         self.events = {}
         self.anim_time_data = None
         self.load_anim_events(anim_time_module, ags_file_name)
-        # self.cur_anim = None
-        # self.cur_anim_start_time = None
-        # self.cur_anim_speed_rate = 1.0
+
+        self.down_anim = down_anim
+        self.up_anim = up_anim
 
     def load_anim_events(self, anim_time_module, ags_file_name):
         """
         读取每个动画中的各个事件的触发时间
         """
         try:
+
             data_module = __import__(anim_time_module, fromlist=[''])
             self.anim_time_data = getattr(data_module, 'data', None)
             tree = ET.parse(ags_file_name)
             root = tree.getroot()
-            anim_nodes = root[1]
+            if len(root) > 1:
+                anim_nodes = root[1]
+            else:
+                anim_nodes = root[0]
             for anim_node in anim_nodes:
                 anim_name = anim_node.tag[len('EventTrack_'):]
                 if anim_name not in self.anim_time_data:

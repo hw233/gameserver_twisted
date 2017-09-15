@@ -48,7 +48,7 @@ material_DB = {
         "name": '铁块',
         "describe": '怪物身上掉下来的铁块，制作的防御更加坚硬。',
         "pile_bool": True,
-        "icon_name": "1003.png",
+        "icon_name": "1005.png",
         "item": 6004,
     },
 }
@@ -63,7 +63,7 @@ weapon_DB = {
         "pile_bool": False,  # 是否可叠加
         "attack": 0,  # 攻击力
         "attackskill": 2000,  # 攻击技能ID
-        "collectskill": [[101, 7], [101, 9], [101, 13], [101, 9001]],
+        "collectskill": [[101, 7], [101, 9], [101, 13], [101, 16],[101, 9001]],
     },
     "futou": {
         "ID": 2001,
@@ -73,12 +73,12 @@ weapon_DB = {
         "gim": "model/axe/axe.gim",
         "item": 2001,
         "pile_bool": False,  # 是否可叠加
-        "attack": 15,  # 攻击力
+        "attack": 5,  # 攻击力
         "attackskill": 1000,  # 攻击技能ID
-        "collectskill": [[2001, 7], [2001, 9], [2001, 13]],
+        "collectskill": [[2001, 7], [2001, 9], [2001, 13], [2001, 16], [2001, 13]],
         "make_speed": 2,  # 制作时间
         "costblood": 4,  # 每次使用消耗物品的生命，物品生命默认为100
-        "make_list": {1001: 2, 1004: 4},  # 制作材料
+        "make_list": {1001: 1, 1004: 2},  # 制作材料
     },
     "chuizi": {
         "ID": 2002,
@@ -88,11 +88,11 @@ weapon_DB = {
         "gim": "model/hammer/hammer.gim",
         "item": 2002,
         "pile_bool": False,
-        "attack": 25,  # 攻击力
+        "attack": 10,  # 攻击力
         "attackskill": 1002,  # 攻击技能ID
         "make_speed": 4,  # 制作时间
         "costblood": 2,  # 每次使用消耗物品的生命，物品生命默认为100
-        "make_list": {1002: 5, 1004: 2},  # 制作材料
+        "make_list": {1002: 5, 1004: 3},  # 制作材料
     },
     "biaoqiang": {
         "ID": 2003,
@@ -102,11 +102,11 @@ weapon_DB = {
         "gim": "model/lance/lance.gim",
         "item": 2003,
         "pile_bool": True,
-        "attack": 15,  # 攻击力
+        "attack": 40,  # 攻击力
         "attackskill": 1003,  # 攻击技能ID
         "make_speed": 2,  # 制作时间
         "costblood": 100,  # 每次使用消耗物品的生命，物品生命默认为100
-        "make_list": {1002: 1, 1003: 1},  # 制作材料
+        "make_list": {1002: 2, 1003: 1},  # 制作材料
     },
 
     "bishou": {
@@ -131,7 +131,7 @@ weapon_DB = {
         "gim": "model/stone/stone_03.gim",
         "item": 105,
         "attack":20,
-        'socket': 'weapon',
+        'socket': 'eat',
     },
 }
 
@@ -152,7 +152,7 @@ armor_DB = {
         "ID": 3002,
         "name": '精致盾牌',
         "describe": '更加坚硬的盾牌，装备上后，简直无敌了。',
-        "icon_name": '3001.png',
+        "icon_name": '3002.png',
         "gim": "model/shield/shield02.gim",
         "item": 3002,
         "pile_bool": False,
@@ -225,7 +225,7 @@ food_DB = {
         "item": 3,
         "pile_bool": True,
         "attackskill": 60010,
-        "attack": 5,  # 攻击力
+        "attack": 10,  # 攻击力
         "collectskill": [[60011, -1]],  # 场景对象为-1为吃东西
         'socket': 'eat',  # 挂接点名字，没有此项默认为weapon
     },

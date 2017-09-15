@@ -2,8 +2,8 @@
 import universe
 from manager import Creator, DataLoader, Layer, Client
 from misc import PseudoRandom, Vector3, Ray
-from component import Renderer, Transform, Collider, Item
-from processor import RenderProcessor, AnimatorProcessor, TransformProcessor, ColliderProcessor, MonsterProcessor
+from component import Renderer, Transform, Collider, Item, Shadow
+from processor import RenderProcessor, TransformProcessor, ColliderProcessor
 
 class Universe(object):
     def __init__(self):
@@ -22,9 +22,11 @@ class Universe(object):
             if rend.model:
                 rend.model.destroy()
                 rend.model = None
-            if rend.grand_model:
-                rend.grand_model.destroy()
-                rend.grand_model = None
+
+        for entity, shad in self.world.get_component(Shadow):
+            if shad.model:
+                shad.model.destroy()
+                shad.model = None
 
         for entity, coll in self.world.get_component(Collider):
             for outline in coll.outlines:
@@ -54,13 +56,13 @@ class Universe(object):
         render_processor = RenderProcessor()
         self.world.add_processor(render_processor, priority=88)
 
-        # 创建碰撞处理器
-        collider_processor = ColliderProcessor()
-        self.world.add_processor(collider_processor)
+        # # 创建碰撞处理器
+        # collider_processor = ColliderProcessor()
+        # self.world.add_processor(collider_processor)
 
-        # 创建动画处理器
-        animator_processor = AnimatorProcessor()
-        self.world.add_processor(animator_processor, priority=2)
+        # # 创建动画处理器
+        # animator_processor = AnimatorProcessor()
+        # self.world.add_processor(animator_processor, priority=2)
 
         # # 怪物处理器
         # monster_processor = MonsterProcessor()
@@ -76,7 +78,6 @@ class Universe(object):
         self.player['entity'] = self.create_entity('player', self.data['world']['player']['components'])
 
     def create_monster_entity(self):
-        print self.creator.create_monster(self.region, self.data)
         entity = self.world.create_entity()
         self.layer.add_entity('monster', entity)
         comps = self.creator.create_components(self.creator.create_monster(self.region, self.data))
@@ -118,9 +119,6 @@ class Universe(object):
         # 创建处理器
         self.create_processor()
 
-        # 初始化
-        self.world.start()
-
     def seed(self, seed):
         # 设置伪随机
         self.random = PseudoRandom(seed)
@@ -140,7 +138,7 @@ class Universe(object):
         }
 
     def update(self):
-        self.world.update(self.timer.delta_time)
+        self.world.process(self.timer.delta_time)
         self.timer.update()
 
     def set_player_position(self, position):
@@ -249,21 +247,54 @@ class Universe(object):
         # 客户端执行
         if Client.is_client:
             # 高亮附近可采集物体
-            Client.highlight_near_item(correct_pos)
+            # Client.highlight_near_item(correct_pos)
 
             # 玩家遮挡透明
-            Client.shelter_transparency()
+            # Client.shelter_transparency()
+            pass
 
         return correct_pos
 
-    def get_born_position(self, landform=None):
+    def get_born_position(self, block_name=None):
+        '''
+        获取出生位置
+        :param block_name: 限定出生位置
+        :return: 出生坐标
+        '''
         while True:
             node = self.random.choice(self.region.get_nodes())
             x, z = self.region.local_to_world(node.horizontal, node.vertical)
-            if landform is not None and landform != node.value:
+
+            block_landform = next((x['id'] for x in self.data['block'] if x['name'] == block_name), None)
+
+            if block_landform is not None and block_landform != node.value:
                 continue
+
             if self.walkable(Vector3(x, 0, z)):
                 return [x, 0, z]
+
+    def get_patrol_position(self, origin, r_min=500.0, r_max=800.0, try_times=500):
+        import random
+        if r_max < r_min:
+            raise ValueError('r_min need <= r_max')
+        while True:
+            x = random.uniform(origin.x - r_min, origin.x + r_max)
+            z = random.uniform(origin.z - r_min, origin.z + r_max)
+            h, v = self.region.world_to_local(x, z)
+            pos = Vector3(x, 0, z)
+
+            if try_times <= 0:
+                return
+
+            if self.region.get_node(h, v) is None:
+                try_times -= 1
+                continue
+
+            if not self.walkable(pos):
+                try_times -= 1
+                continue
+
+            return pos
 
     def drop(self, position, good, rotation=None):
         '''
@@ -272,7 +303,6 @@ class Universe(object):
         :param good: 物品
         :param rotation: 生成角度
         '''
-
         if rotation is None:
             rotation = {
                 'x': 0, 'y': 0, 'z': 0
@@ -298,9 +328,20 @@ class Universe(object):
         else:
             # 玩家丢出物品
             comps_data += self.data['item'].get(good.item, {}).get('components', [])
-            for comp in comps_data:
+            for idx, comp in enumerate(comps_data):
                 if comp.get('comp') == 'item':
+                    comp = comp.copy()
                     comp['good'] = good
+                    comps_data[idx] = comp
+
+        # 影子
+        for idx, comp in enumerate(comps_data):
+            if comp.get('comp') == 'shadow':
+                comp = comp.copy()
+                if comp.get('gim') is None:
+                    comp['gim'] = self.data['world']['shadow']['gim']
+                comp['block'] = 'town'
+                comps_data[idx] = comp
 
         self.create_entity('drop', comps_data)
 
@@ -316,24 +357,27 @@ class Universe(object):
             item.take_damage(damage)
 
     def destroy(self, entity):
-        item = self.world.component_for_entity(entity, Item)
-        tran = self.world.component_for_entity(entity, Transform)
         rend = self.world.component_for_entity(entity, Renderer)
+        tran = self.world.component_for_entity(entity, Transform)
+        item = self.world.component_for_entity(entity, Item)
+        shad = self.world.component_for_entity(entity, Shadow)
 
         if item and item.reapable:
+            # 生成采集过后的物体
             self.drop(tran.position, item.reaped, tran.rotation)
-        if item and item.droppable:
-            self.drop(tran.position + Vector3(120, 0, -120), item.good)
 
-        if rend and rend.model:
-            if rend.model.has_anim_event('fall', 'end'):
-                def end_drop(model, name, key, *data):
-                    model.destroy()
-                rend.model.stop_animation()
-                rend.model.play_animation('fall')
-                rend.model.register_anim_key_event('fall', 'end', end_drop)
-            else:
-                rend.model.destroy()
+            # 掉落物品
+            if item.droppable:
+                self.drop(tran.position + Vector3(120, 0, -120), item.good)
 
+            # 更换物品属性
+            new_item_comps =  self.data['item'].get(item.reaped, {}).get('components', [])
+            new_item_data = self.creator.get_component(new_item_comps, 'item')
+            new_item = self.creator.create_item_comp(new_item_data)
+            item.copy(new_item)
+
+        # 客户端销毁模型
+        Client.destroy(rend, shad)
+        # 销毁物品
         self.world.delete_entity(entity)
         self.layer.remove(entity)

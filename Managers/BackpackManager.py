@@ -11,7 +11,7 @@
 from GameObject.BPItemObject import BPItemObject
 from Configuration import MaterialDB
 from GameObject.GameObject import GameObject
-from common import DebugAux
+from common import DebugAux, conf
 
 
 class BackpackManager(GameObject):
@@ -36,7 +36,9 @@ class BackpackManager(GameObject):
         self.max_block = max_block
 
         self.init()
-        #self._just_for_test_delete_me()
+
+        if conf.DEBUG_BILLIONAIRE:
+            self._just_for_test_delete_me()
 
     def debug_weapon_attack(self):
         weapon = self.get_active_weapon()

@@ -1,10 +1,17 @@
 import uuid
+from collections import defaultdict
+
 import behavior
+from common import DebugAux
 
 
 class BaseNode(object):
 
     category = None
+
+    EVENT_BEGIN = 0
+    EVENT_TICK = 1
+    EVENT_END = 2
 
     def __init__(self):
         self.id = str(uuid.uuid1())
@@ -12,6 +19,8 @@ class BaseNode(object):
         self.description = ''
         self.parameters = {}
         self.properties = {}
+
+        self.events_listener_map = defaultdict(list)
 
 
     @property
@@ -69,4 +78,29 @@ class BaseNode(object):
 
     def exit(self, tick):
         pass
+
+    def add_listener(self, btype, handler):
+        if handler in self.events_listener_map[btype]:
+            return
+        self.events_listener_map[btype].append(handler)
+
+    def remove_listener(self, btype, handler):
+        if handler not in self.events_listener_map[btype]:
+            return
+
+        self.events_listener_map[btype].remove(handler)
+
+    def trigger_event(self, btype, *args, **kwargs):
+        invalid_list = []
+        for fun in self.events_listener_map[btype]:
+            try:
+                fun(*args, **kwargs)
+            except:
+                raise
+                #invalid_list.append(fun)
+
+
+        # remove invalid handler in the event list
+        for fun in invalid_list:
+            self.events_listener_map[btype].remove(fun)
 
